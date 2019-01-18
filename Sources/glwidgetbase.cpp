@@ -1,4 +1,5 @@
 #include "glwidgetbase.h"
+
 #include <QThread>
 #include <QMouseEvent>
 
@@ -28,10 +29,10 @@ GLWidgetBase::~GLWidgetBase()
 
 void GLWidgetBase::updateGLNow()
 {
-    // Now, after the area is actually drawn, we should be able to quue the next draws
+    // After the area is drawn, queue the next draws.
     updateIsQueued = false;
 
-    // Call the default updateGL implementation, which will call the paint method
+    // Call the default updateGL implementation, which will call the paint method.
     QGLWidget::updateGL();
 }
 
@@ -56,18 +57,13 @@ void GLWidgetBase::mousePressEvent(QMouseEvent *event)
 {
     lastCursorPos = event->pos();
 
-    // reset the mouse handling state with, to avoid a bad state
+    // Reset the mouse handling state with, to avoid a bad state
     blockMouseMovement = false;
     mouseUpdateIsQueued = false;
-
 }
-
-
-
 
 void GLWidgetBase::mouseMoveEvent(QMouseEvent *event)
 {
-
     if(blockMouseMovement)
     {
         // If the mouse was wrapped manually, ignore all mouse events until
@@ -91,8 +87,7 @@ void GLWidgetBase::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidgetBase::handleMovement()
 {
-    // mouseUpdateIsQueued is used to make sure to only handle the accumulated
-    // mouse events once.
+    // mouseUpdateIsQueued is used to make sure to only handle the accumulated mouse events once.
     if(mouseUpdateIsQueued == false)
     {
         mouseUpdateIsQueued = true;
@@ -104,8 +99,7 @@ void GLWidgetBase::handleMovement()
 
 void GLWidgetBase::handleAccumulatedMouseMovement()
 {
-    // As we are handling all queued mouse events, we can accumulate new events
-    // from now on
+    // Handling all queued mouse events, we can accumulate new events from now on
     mouseUpdateIsQueued = false;
     bool mouseDragged = true;
 
@@ -119,20 +113,24 @@ void GLWidgetBase::handleAccumulatedMouseMovement()
 
         bool changed = false;
 
-        if(lastCursorPos.x() > width()-10){
+        if(lastCursorPos.x() > width()-10)
+        {
             lastCursorPos.setX(10);
             changed = true;
         }
-        if(lastCursorPos.x() < 10){
+        if(lastCursorPos.x() < 10)
+        {
             lastCursorPos.setX(width()-10);
             changed = true;
         }
 
-        if(lastCursorPos.y() > height()-10){
+        if(lastCursorPos.y() > height()-10)
+        {
             lastCursorPos.setY(10);
             changed = true;
         }
-        if(lastCursorPos.y() < 10){
+        if(lastCursorPos.y() < 10)
+        {
             lastCursorPos.setY(height()-10);
             changed = true;
         }
@@ -147,74 +145,70 @@ void GLWidgetBase::handleAccumulatedMouseMovement()
             // cursor was set. We have to ignore that events to avoid flickering.
             blockMouseMovement = true;
         }
-
-
     }
     updateGL();
 
     eventLoopStarted = true;
 }
 
-void GLWidgetBase::toggleMouseWrap(bool toggle){
+void GLWidgetBase::toggleMouseWrap(bool toggle)
+{
     wrapMouse = toggle;
 }
 
-void GLWidgetBase::toggleChangeCamPosition(bool toggle){
-
-    if(!toggle){
-         setCursor(Qt::PointingHandCursor);
-         keyPressed = (Qt::Key)0;
-    }else{
-         keyPressed = Qt::Key_Shift;
-         setCursor(centerCamCursor);
+void GLWidgetBase::toggleChangeCamPosition(bool toggle)
+{
+    if(!toggle)
+    {
+        setCursor(Qt::PointingHandCursor);
+        keyPressed = (Qt::Key)0;
+    }
+    else
+    {
+        keyPressed = Qt::Key_Shift;
+        setCursor(centerCamCursor);
     }
     updateGL();
 }
 
-// ----------------------------------------------------------------
-// Key events
-// ----------------------------------------------------------------
-void GLWidgetBase::keyPressEvent(QKeyEvent *event){
-
-
-
-    if (event->type() == QEvent::KeyPress){
-
-        // enable material preview
+void GLWidgetBase::keyPressEvent(QKeyEvent *event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        // Enable material preview.
         if( event->key() == KEY_SHOW_MATERIALS )
         {
-               keyPressed = KEY_SHOW_MATERIALS;
-               updateGL();
+            keyPressed = KEY_SHOW_MATERIALS;
+            updateGL();
         }
         if( event->key() == Qt::Key_Shift )
         {
-               if(keyPressed == Qt::Key_Shift){
-                    setCursor(Qt::PointingHandCursor);
-                    keyPressed = (Qt::Key)0;
-                    emit changeCamPositionApplied(false);
-               }else{
-                    keyPressed = Qt::Key_Shift;
-                    setCursor(centerCamCursor);
-               }
-               updateGL();
+            if(keyPressed == Qt::Key_Shift)
+            {
+                setCursor(Qt::PointingHandCursor);
+                keyPressed = (Qt::Key)0;
+                emit changeCamPositionApplied(false);
+            }
+            else
+            {
+                keyPressed = Qt::Key_Shift;
+                setCursor(centerCamCursor);
+            }
+            updateGL();
         }
 
-    }// end of event type
-
-
+    }
 }
 
-void GLWidgetBase::keyReleaseEvent(QKeyEvent *event) {
-
-    if (event->type() == QEvent::KeyRelease){
+void GLWidgetBase::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->type() == QEvent::KeyRelease)
+    {
         if( event->key() == KEY_SHOW_MATERIALS)
         {
-               keyPressed = (Qt::Key)0;
-               updateGL();
-               event->accept();
-
+            keyPressed = (Qt::Key)0;
+            updateGL();
+            event->accept();
         }
-    }// end of key press
+    }
 }
-
-

@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <QDebug>
+
 #include "CommonObjects.h"
 class GLWidgetBase : public QGLWidget
 {
@@ -14,13 +15,8 @@ public:
     ~GLWidgetBase();
 
 public:
-    // Instead of updating the opengl area immediatly, this queues drawing and
-    // makes sure, to do it only once until updateGLNow was called.
     void updateGL() Q_DECL_FINAL Q_DECL_OVERRIDE;
-
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-
-
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_FINAL Q_DECL_OVERRIDE;
     void keyPressEvent(QKeyEvent *event) ;
     void keyReleaseEvent(QKeyEvent *event) ;
@@ -29,6 +25,7 @@ signals:
     void updateGLLater();
     void handleAccumulatedMouseMovementLater();
     void changeCamPositionApplied(bool);
+
 protected:
     virtual void relativeMouseMoveEvent(int dx, int dy, bool* bMouseDragged, Qt::MouseButtons buttons) = 0;
     static bool wrapMouse;
