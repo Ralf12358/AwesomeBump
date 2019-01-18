@@ -100,6 +100,8 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
         txt += QString("{Fatal} \t\t %1").arg(msg);
         abort();
         break;
+    case QtInfoMsg:
+        break;
     }
 
     // Avoid recursive calling.
