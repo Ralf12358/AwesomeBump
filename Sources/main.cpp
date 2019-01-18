@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     regABSliderDelegates();
     regABColorDelegates();
 
-    //qInstallMessageHandler(customMessageHandler);
+    qInstallMessageHandler(customMessageHandler);
 
     qDebug() << "Starting application:";
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
