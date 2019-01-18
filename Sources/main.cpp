@@ -49,26 +49,25 @@
 #include "splashscreen.h"
 #include "glimageeditor.h"
 #include "allaboutdialog.h"
-
 #include "CommonObjects.h"
 
 #ifdef USE_OPENGL_330
-    #define GL_MAJOR 3
-    #define GL_MINOR 3
+#define GL_MAJOR 3
+#define GL_MINOR 3
 #else
-    #define GL_MAJOR 4
-    #define GL_MINOR 1
+#define GL_MAJOR 4
+#define GL_MINOR 1
 #endif
 
 #define SplashImage ":/resources/logo/splash.png"
 
-// find data directory for each platform:
+// Find data directory for each platform.
 QString _find_data_dir(const QString& resource)
 {
-   if (resource.startsWith(":"))
-     return resource; // resource
+    if (resource.startsWith(":"))
+        return resource;
 
-   QString fpath = QApplication::applicationDirPath();
+    QString fpath = QApplication::applicationDirPath();
 #if defined(Q_OS_MAC)
     fpath += "/../../../"+resource;
 #elif defined(Q_OS_WIN32)
@@ -83,40 +82,40 @@ QString _find_data_dir(const QString& resource)
 // Redirect qDebug() to file log file.
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-   Q_UNUSED(context);
+    Q_UNUSED(context);
 
-   QString dt = QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss");
-   QString txt = QString("[%1] ").arg(dt);
+    QString dt = QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss");
+    QString txt = QString("[%1] ").arg(dt);
 
-   switch (type)
-   {
-      case QtDebugMsg:
-         txt += QString("{Debug} \t\t %1").arg(msg);
-         break;
-      case QtWarningMsg:
-         txt += QString("{Warning} \t %1").arg(msg);
-         break;
-      case QtCriticalMsg:
-         txt += QString("{Critical} \t %1").arg(msg);
-         break;
-      case QtFatalMsg:
-         txt += QString("{Fatal} \t\t %1").arg(msg);
-         abort();
-         break;
-   }
+    switch (type)
+    {
+    case QtDebugMsg:
+        txt += QString("{Debug} \t\t %1").arg(msg);
+        break;
+    case QtWarningMsg:
+        txt += QString("{Warning} \t %1").arg(msg);
+        break;
+    case QtCriticalMsg:
+        txt += QString("{Critical} \t %1").arg(msg);
+        break;
+    case QtFatalMsg:
+        txt += QString("{Fatal} \t\t %1").arg(msg);
+        abort();
+        break;
+    }
 
-   // avoid recursive calling here: 
-   QFile outFile(AB_LOG);
-   if (!outFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
-      // try any safe location:
-      QString glob = QString("%1/%2").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).arg(QFileInfo(AB_LOG).fileName());
-      outFile.setFileName(glob);
-      if (!outFile.open(QIODevice::WriteOnly | QIODevice::Append))
-         return;
-   }
+    // Avoid recursive calling.
+    QFile outFile(AB_LOG);
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        // Try any safe location.
+        QString glob = QString("%1/%2").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).arg(QFileInfo(AB_LOG).fileName());
+        outFile.setFileName(glob);
+        if (!outFile.open(QIODevice::WriteOnly | QIODevice::Append))
+            return;
+    }
 
-   QTextStream textStream(&outFile);
-   textStream << txt << endl;
+    QTextStream textStream(&outFile);
+    textStream << txt << endl;
 }
 
 bool checkOpenGL(){
@@ -145,7 +144,7 @@ bool checkOpenGL(){
 
     delete glWidget;
 
-    // check openGL version
+    // Check openGL version.
     if( glMajorVersion < GL_MAJOR || (glMajorVersion == GL_MAJOR && glMinorVersion < GL_MINOR))
     {
         qWarning() << QString("Error: This version of AwesomeBump does not support openGL versions lower than %1.%2 :(").arg(GL_MAJOR).arg(GL_MINOR) ;
@@ -154,7 +153,7 @@ bool checkOpenGL(){
     return true;
 }
 
-// register delegates
+// Register delegates.
 extern void regABSliderDelegates();
 extern void regABColorDelegates();
 
@@ -162,12 +161,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-
-
     regABSliderDelegates();
     regABColorDelegates();
 
-//    qInstallMessageHandler(customMessageHandler);
+    //qInstallMessageHandler(customMessageHandler);
 
     qDebug() << "Starting application:";
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
@@ -181,26 +178,26 @@ int main(int argc, char *argv[])
     sp.setMessage(VERSION_STRING "|Starting ...");
     sp.show(); app.processEvents();
 
-	// Check for resource directory:
-	QString resDir = _find_data_dir(RESOURCE_BASE);
-	if (!QFileInfo(resDir+"Configs").isDir() || !QFileInfo(resDir+"Core").isDir()) {
+    // Check for resource directory.
+    QString resDir = _find_data_dir(RESOURCE_BASE);
+    if (!QFileInfo(resDir+"Configs").isDir() || !QFileInfo(resDir+"Core").isDir()) {
 #ifdef Q_OS_MAC
-		return QMessageBox::critical(0, "Missing runtime files", QString("Missing runtime files\n\nCannot find runtime assets required to run the application (resource path: %1).").arg(resDir));
+        return QMessageBox::critical(0, "Missing runtime files", QString("Missing runtime files\n\nCannot find runtime assets required to run the application (resource path: %1).").arg(resDir));
 #else
-		return QMessageBox::critical(0, "Missing runtime files", QString("Cannot find runtime assets required to run the application (resource path: %1).").arg(resDir));
+        return QMessageBox::critical(0, "Missing runtime files", QString("Cannot find runtime assets required to run the application (resource path: %1).").arg(resDir));
 #endif
-	}
+    }
 
-    // Chossing proper GUI style from config.ini file.
+    // Choose proper GUI style from config.ini file.
     QSettings settings("config.ini", QSettings::IniFormat);
     QString guiStyle = settings.value("gui_style").toString();
     if (!guiStyle.isEmpty())
-	    app.setStyle(QStyleFactory::create( guiStyle ));
+        app.setStyle(QStyleFactory::create( guiStyle ));
 
-    // Customize some elements:
+    // Customize some elements.
     app.setStyleSheet("QGroupBox { font-weight: bold; } ");
 
-    // Load specific settings for GUI same for every preset
+    // Load specific settings for GUI same for every preset.
     QSettings gui_settings("Configs/gui.ini", QSettings::IniFormat);
     QPalette palette;
     palette.setColor(QPalette::Shadow,QColor(gui_settings.value("slider_font_color","#000000").toString()));
@@ -211,10 +208,10 @@ int main(int argc, char *argv[])
     font.setPixelSize(gui_settings.value("font_size",10).toInt());
     app.setFont(font);
 
-    // removing old log file
+    // Removing old log file.
     QFile::remove(AB_LOG);
 
-	// setup default context attributes:
+    // Setup default context attributes.
     QGLFormat glFormat(QGL::SampleBuffers); // deprecated
     QSurfaceFormat format;
 
@@ -222,7 +219,7 @@ int main(int argc, char *argv[])
     format.setStencilBufferSize(8);
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
-     /*
+    /*
      * Commenting out the next line because it causes rendering to fail.  QGLFormat::CoreProfile
      * disables all OpenGL functions that are depreciated as of OpenGL 3.0.  This fix is a workaround.
      * The full solution is to replace all depreciated OpenGL functions with their current implements.
@@ -239,20 +236,16 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     if(!checkOpenGL()){
-
         AllAboutDialog msgBox;
         msgBox.setPixmap(":/resources/icons/icon-off.png");
         msgBox.setText("Fatal Error!");
-
         msgBox.setInformativeText(QString("Sorry but it seems that your graphics card does not support openGL %1.%2.\n"
                                           "Program will not run :(\n"
                                           "See " AB_LOG " file for more info.").arg(GL_MAJOR).arg(GL_MINOR));
-
         msgBox.show();
 
         return app.exec();
     }else{
-
         MainWindow window;
         QObject::connect(&window,SIGNAL(initProgress(int)),&sp,SLOT(setProgress(int)));
         QObject::connect(&window,SIGNAL(initMessage(const QString&)),&sp,SLOT(setMessage(const QString&)));
@@ -260,14 +253,14 @@ int main(int argc, char *argv[])
         window.setWindowTitle(AWESOME_BUMP_VERSION);
         window.resize(window.sizeHint());
         int desktopArea = QApplication::desktop()->width() *
-                         QApplication::desktop()->height();
+                QApplication::desktop()->height();
         int widgetArea = window.width() * window.height();
         if (((float)widgetArea / (float)desktopArea) < 0.75f)
             window.show();
         else
             window.showMaximized();
         sp.finish(&window);
- 
+
         return app.exec();
     }
 }
