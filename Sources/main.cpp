@@ -39,7 +39,6 @@
 ****************************************************************************/
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMessageBox>
 #include <QGLFormat>
 #include <QSurfaceFormat>
@@ -47,7 +46,6 @@
 
 #include "mainwindow.h"
 #include "splashscreen.h"
-#include "glimageeditor.h"
 #include "allaboutdialog.h"
 #include "CommonObjects.h"
 
