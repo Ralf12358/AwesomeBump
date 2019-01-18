@@ -58,16 +58,13 @@
 #define currentShader   Dialog3DGeneralSettings::currentRenderShader
 #define glslShadersList Dialog3DGeneralSettings::glslParsedShaders
 
-
 #ifdef USE_OPENGL_330
-    #include <QOpenGLFunctions_3_3_Core>
-    #define OPENGL_FUNCTIONS QOpenGLFunctions_3_3_Core
+#include <QOpenGLFunctions_3_3_Core>
+#define OPENGL_FUNCTIONS QOpenGLFunctions_3_3_Core
 #else
-    #include <QOpenGLFunctions_4_0_Core>
-    #define OPENGL_FUNCTIONS QOpenGLFunctions_4_0_Core
+#include <QOpenGLFunctions_4_0_Core>
+#define OPENGL_FUNCTIONS QOpenGLFunctions_4_0_Core
 #endif
-
-
 
 class GLWidget : public GLWidgetBase , protected OPENGL_FUNCTIONS
 {
@@ -78,12 +75,10 @@ public:
     ~GLWidget();
 
     QSize minimumSizeHint() const;
-    QSize sizeHint() const;    
+    QSize sizeHint() const;
     void setPointerToTexture(QGLFramebufferObject **pointer, TextureTypes type);
 
 public slots:
-
-
     void toggleDiffuseView(bool);
     void toggleSpecularView(bool);
     void toggleOcclusionView(bool);
@@ -95,27 +90,27 @@ public slots:
     void resetCameraPosition();
     void cleanup();
 
-    // mesh loading functions
+    // Mesh functions.
     void loadMeshFromFile();//opens file dialog
-    // mesh functions
     bool loadMeshFile(const QString &fileName,bool bAddExtension = false);
     void chooseMeshFile(const QString &fileName);
 
-    // pbr functions
+    // PBR functions.
     void chooseSkyBox(QString cubeMapName, bool bFirstTime = false);
     void updatePerformanceSettings(Display3DSettings settings);
-    void recompileRenderShader(); // read and compile custom fragment shader again, can be called from 3D settings GUI.
+    // Read and compile custom fragment shader again, can be called from 3D settings GUI.
+    void recompileRenderShader();
 
 signals:
     void renderGL();
     void readyGL();
-    void materialColorPicked(QColor); // emit material index color
+    // Emit material index color.
+    void materialColorPicked(QColor);
 
 protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
-    
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void relativeMouseMoveEvent(int dx, int dy, bool *wrapMouse, Qt::MouseButtons buttons);
@@ -123,83 +118,7 @@ protected:
     void dropEvent(QDropEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
 
-private:
-
-
-
-    // other functions
-    QPointF pixelPosToViewPos(const QPointF& p);
-    int glhUnProjectf(float &winx, float &winy, float &winz,
-                      QMatrix4x4 &modelview, QMatrix4x4 &projection,
-                      QVector4D& objectCoordinate);
-
-    void bakeEnviromentalMaps(); // calculate prefiltered enviromental map
-
-    QOpenGLShaderProgram *line_program; // same as "program" but instead of triangles lines are used
-    QOpenGLShaderProgram *skybox_program;
-    QOpenGLShaderProgram *env_program;
-
-    QGLFramebufferObject**  fboIdPtrs[8];
-
-
-
-    bool bToggleDiffuseView;
-    bool bToggleSpecularView;
-    bool bToggleOcclusionView;
-    bool bToggleNormalView;
-    bool bToggleHeightView;
-    bool bToggleRoughnessView;
-    bool bToggleMetallicView;
-
-    Display3DSettings display3Dparameters;
-
-    // 3D view parameters
-    QMatrix4x4 projectionMatrix;
-    QMatrix4x4 modelViewMatrix;
-    QMatrix3x3 NormalMatrix;
-    QMatrix4x4 viewMatrix;
-    QMatrix4x4 objectMatrix;
-    QVector4D lightPosition;
-
-    QVector4D cursorPositionOnPlane;
-    float ratio;
-    float zoom;
-    AwesomeCamera camera;   // light used for standard phong shading
-    AwesomeCamera newCamera;// to make smooth linear interpolation between two views
-    double cameraInterpolation;
-    AwesomeCamera lightDirection;//second light - use camera class to rotate light
-    QCursor lightCursor;
-
-
-
-    Mesh* mesh; // displayed 3d mesh
-    Mesh* skybox_mesh; // sky box cube
-    Mesh* env_mesh;                       // one trinagle used for calculation of prefiltered env. map
-
-    GLTextureCube* m_env_map;             // orginal cube map
-    GLTextureCube* m_prefiltered_env_map; // filtered lambertian cube map
-    bool bDiffuseMapBaked;                // prevent program from calculating diffuse env. map many times
-
-    GLImage* glImagePtr;
-
-    // Post-processing variables
-    std::map<std::string,QOpenGLShaderProgram*> post_processing_programs; // all post processing functions
-    Mesh* quad_mesh;                      // quad mesh used for post processing
-    QOpenGLShaderProgram *filter_program; // holds pointer to current post-processing program
-    GLFrameBufferObject* colorFBO;
-    GLFrameBufferObject* outputFBO;
-    GLFrameBufferObject* auxFBO;
-    // glow FBOs
-    GLFrameBufferObject* glowInputColor[4];
-    GLFrameBufferObject* glowOutputColor[4];
-    // tone mapping mipmaps FBOS
-    GLFrameBufferObject* toneMipmaps[10];
-
-    GLuint lensFlareColorsTexture;
-    GLuint lensDirtTexture;
-    GLuint lensStarTexture;
-
-protected:
+    // Post processing tools.
     void resizeFBOs();
     void deleteFBOs();
     void applyNormalFilter(GLuint input_tex);
@@ -212,9 +131,91 @@ protected:
     void applyGlowFilter(QGLFramebufferObject* outputFBO);
     void applyToneFilter(GLuint input_tex,QGLFramebufferObject* outputFBO);
     void applyLensFlaresFilter(GLuint input_tex,QGLFramebufferObject* outputFBO);
+
+private:
+    QPointF pixelPosToViewPos(const QPointF& p);
+    int glhUnProjectf(float &winx, float &winy, float &winz,
+                      QMatrix4x4 &modelview, QMatrix4x4 &projection,
+                      QVector4D& objectCoordinate);
+    // Calculate prefiltered enviromental map.
+    void bakeEnviromentalMaps();
+    // Same as "program" but instead of triangles lines are used
+    QOpenGLShaderProgram *line_program;
+    QOpenGLShaderProgram *skybox_program;
+    QOpenGLShaderProgram *env_program;
+
+    QGLFramebufferObject**  fboIdPtrs[8];
+
+    bool bToggleDiffuseView;
+    bool bToggleSpecularView;
+    bool bToggleOcclusionView;
+    bool bToggleNormalView;
+    bool bToggleHeightView;
+    bool bToggleRoughnessView;
+    bool bToggleMetallicView;
+
+    Display3DSettings display3Dparameters;
+
+    // 3D view parameters.
+    QMatrix4x4 projectionMatrix;
+    QMatrix4x4 modelViewMatrix;
+    QMatrix3x3 NormalMatrix;
+    QMatrix4x4 viewMatrix;
+    QMatrix4x4 objectMatrix;
+
+    QVector4D lightPosition;
+    QVector4D cursorPositionOnPlane;
+
+    float ratio;
+    float zoom;
+    // Light used for standard phong shading.
+    AwesomeCamera camera;
+    // To make smooth linear interpolation between two views.
+    AwesomeCamera newCamera;
+
+    double cameraInterpolation;
+    //Second light - use camera class to rotate light
+    AwesomeCamera lightDirection;
+    QCursor lightCursor;
+
+    // Displayed 3D mesh.
+    Mesh* mesh;
+    // Sky box cube.
+    Mesh* skybox_mesh;
+    // One trinagle used for calculation of prefiltered environment map.
+    Mesh* env_mesh;
+
+    // Orginal cube map.
+    GLTextureCube* m_env_map;
+    // Filtered lambertian cube map.
+    GLTextureCube* m_prefiltered_env_map;
+    // Control calculating diffuse environment map.
+    bool bDiffuseMapBaked;
+
+    GLImage* glImagePtr;
+
+    // Post-processing variables.
+    // All post processing functions
+    std::map<std::string,QOpenGLShaderProgram*> post_processing_programs;
+    // Quad mesh used for post processing
+    Mesh* quad_mesh;
+    // Holds pointer to current post-processing program
+    QOpenGLShaderProgram *filter_program;
+    GLFrameBufferObject* colorFBO;
+    GLFrameBufferObject* outputFBO;
+    GLFrameBufferObject* auxFBO;
+    // Glow FBOs.
+    GLFrameBufferObject* glowInputColor[4];
+    GLFrameBufferObject* glowOutputColor[4];
+    // Tone mapping mipmaps FBOS.
+    GLFrameBufferObject* toneMipmaps[10];
+
+    GLuint lensFlareColorsTexture;
+    GLuint lensDirtTexture;
+    GLuint lensStarTexture;
+
 public:
     static QDir* recentMeshDir;
 };
-//! [3]
 
 #endif
