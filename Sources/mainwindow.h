@@ -6,14 +6,12 @@
 #include <QFileDialog>
 #include <QDragEnterEvent>
 #include <QDropEvent>
-
 #include <QDir>
 
 #include "CommonObjects.h"
 
 class QAction;
 class QLabel;
-
 class GLWidget;
 class GLImage;
 class FormImageProp;
@@ -34,48 +32,38 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-
     QSize sizeHint() const;
     ~MainWindow();
 
 protected:
-
-     void closeEvent(QCloseEvent *event);
-     void resizeEvent(QResizeEvent* event);
-     void showEvent(QShowEvent* event);
+    void closeEvent(QCloseEvent *event);
+    void resizeEvent(QResizeEvent* event);
+    void showEvent(QShowEvent* event);
 
 signals:
-
-	void initProgress(int perc);
-	void initMessage(const QString &msg);
+    void initProgress(int perc);
+    void initMessage(const QString &msg);
 
 public slots:
-
     void aboutQt();
     void about();
-  
-	void initializeApp();
-
+    void initializeApp();
     void initializeGL();
     void initializeImages();
-
     void saveImages();
     void saveCheckedImages();
     void saveCompressedForm();
     void saveSettings();
     void changeGUIFontSize(int);
-    // loading the application setting from ini file
+    // Load the application setting from ini file.
     void loadSettings();
-    // the same as above but Image is choosen by proper switch using the given type
     void loadImageSettings(TextureTypes type);
     void showSettingsManager();
     void setOutputFormat(int index);
     void replotAllImages();
     void materialsToggled(bool toggle);
     void checkWarnings();
-
-
-    // repaint views after selecting tab
+    // Repaint views after selecting tab.
     void selectDiffuseTab();
     void selectNormalTab();
     void selectSpecularTab();
@@ -87,12 +75,11 @@ public slots:
     void selectGrungeTab();
     void selectGeneralSettingsTab();
     void selectUVsTab();
-    void fitImage();// resize 2D image
-
-    // disabling textures
+    // Resize 2D image.
+    void fitImage();
+    // Disable textures.
     void showHideTextureTypes(bool);
-
-    // repaint views after changes
+    // Repaint views after changes.
     void updateDiffuseImage();
     void updateNormalImage();
     void updateSpecularImage();
@@ -101,94 +88,90 @@ public slots:
     void updateRoughnessImage();
     void updateMetallicImage();
     void updateGrungeImage();
-    // repaint selected tab
+    // Repaint selected tab.
     void updateImage(int tab);
     void updateImageInformation();
-
-    // image properties
-    void changeWidth (int size); // change the combobox index
+    // Change the combobox index
+    void changeWidth (int size);
     void changeHeight(int size);
     void scaleWidth(double);
     void scaleHeight(double);
     void applyResizeImage();
     void applyResizeImage(int width, int height);
     void applyScaleImage();
-    void applyCurrentUVsTransformations();// copy current image to diffuse and convert to others
-
-
-    // Setting the global parameters
+    // Copy current image to diffuse and convert to others.
+    void applyCurrentUVsTransformations();
+    // Set the global parameters
     void updateSpinBoxes(int);
     void selectShadingModel(int i);
-
     // Conversion functions
     void convertFromHtoN();
     void convertFromNtoH();
     void convertFromBase();
     void convertFromHNtoOcc();
-
     // UV tools
     void updateSliders();
-    // Perspective tool    
+    // Perspective tool
     void resetTransform();
     void setUVManipulationMethod();
-
     void selectSeamlessMode(int mode);
-    void randomizeAngles();// in random mode
+    // In random mode
+    void randomizeAngles();
     void resetRandomPatches();
     void selectContrastInputImage(int mode);
-
-    // batch tool
+    // Batch tool
     void selectSourceImages();
     void selectOutputPath();
     void runBatch();
+
 private:    
-    // saves all textures to given directory
+    // Save all textures to given directory.
     bool saveAllImages(const QString &dir);
 
-    // Pointers
     Ui::MainWindow *ui;
-    GLWidget* glWidget;
-
-    GLImage* glImage;
+    GLWidget *glWidget;
+    GLImage *glImage;
     
     bool bSaveCheckedImages;
     bool bSaveCompressedFormImages;
 
     QDir recentDir;
-    QDir recentMeshDir; // path to last loaded OBJ Mesh folder
+    // Path to last loaded OBJ Mesh folder
+    QDir recentMeshDir;
 
-    FormImageProp* diffuseImageProp;
-    FormImageProp* normalImageProp;
-    FormImageProp* specularImageProp;
-    FormImageProp* heightImageProp;
-    FormImageProp* occlusionImageProp;
-    FormImageProp* roughnessImageProp;
-    FormImageProp* metallicImageProp;
-    FormImageProp* grungeImageProp;
+    FormImageProp *diffuseImageProp;
+    FormImageProp *normalImageProp;
+    FormImageProp *specularImageProp;
+    FormImageProp *heightImageProp;
+    FormImageProp *occlusionImageProp;
+    FormImageProp *roughnessImageProp;
+    FormImageProp *metallicImageProp;
+    FormImageProp *grungeImageProp;
+
     // Material manager
-    FormMaterialIndicesManager* materialManager;
+    FormMaterialIndicesManager *materialManager;
 
     // Settings container
     FormSettingsContainer *settingsContainer;
-    QtnPropertySetAwesomeBump* abSettings;// use qtn to keep all settings in one place
+    QtnPropertySetAwesomeBump *abSettings;// use qtn to keep all settings in one place
     // 3D settings manager
     DockWidget3DSettings *dock3Dsettings;
 
     // 3D shading & display settings dialog
-    Dialog3DGeneralSettings* dialog3dGeneralSettings;
+    Dialog3DGeneralSettings *dialog3dGeneralSettings;
 
     QAction *aboutQtAction;
     QAction *aboutAction;
-    QAction *logAction; // show logger
-    QAction *shortcutsAction; // show key shortcuts
+    // Show logger
+    QAction *logAction;
+    // Show key shortcuts
+    QAction *shortcutsAction;
 
-    QLabel  *statusLabel;
+    QLabel *statusLabel;
 
-    DialogLogger* dialogLogger;
-    DialogShortcuts* dialogShortcuts;
+    DialogLogger *dialogLogger;
+    DialogShortcuts *dialogShortcuts;
     QSettings defaults;
-
 };
 
 #endif // MAINWINDOW_H
-
