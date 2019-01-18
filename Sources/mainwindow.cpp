@@ -1113,18 +1113,16 @@ void MainWindow::updateImage(int tType)
     glWidget->update();
 }
 
-void MainWindow::changeWidth (int size=0)
+void MainWindow::changeWidth(int)
 {
-    if(ui->pushButtonResizePropTo->isChecked()){
+    if(ui->pushButtonResizePropTo->isChecked())
         ui->comboBoxResizeHeight->setCurrentText(ui->comboBoxResizeWidth->currentText());
-    }
 }
 
-void MainWindow::changeHeight(int size=0)
+void MainWindow::changeHeight(int)
 {
-    if(ui->pushButtonResizePropTo->isChecked()){
+    if(ui->pushButtonResizePropTo->isChecked())
         ui->comboBoxResizeWidth->setCurrentText(ui->comboBoxResizeHeight->currentText());
-    }
 }
 
 void MainWindow::applyResizeImage()
@@ -1662,7 +1660,7 @@ void MainWindow::changeGUIFontSize(int value)
     QApplication::setFont(font);
 }
 
-void MainWindow::setOutputFormat(int index=0)
+void MainWindow::setOutputFormat(int)
 {
     PostfixNames::outputFormat = ui->comboBoxImageOutputFormat->currentText();
 }

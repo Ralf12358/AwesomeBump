@@ -59,7 +59,7 @@ public slots:
     void loadSettings();
     void loadImageSettings(TextureTypes type);
     void showSettingsManager();
-    void setOutputFormat(int index);
+    void setOutputFormat(int);
     void replotAllImages();
     void materialsToggled(bool toggle);
     void checkWarnings();
@@ -92,8 +92,8 @@ public slots:
     void updateImage(int tab);
     void updateImageInformation();
     // Change the combobox index
-    void changeWidth (int size);
-    void changeHeight(int size);
+    void changeWidth(int);
+    void changeHeight(int);
     void scaleWidth(double);
     void scaleHeight(double);
     void applyResizeImage();
