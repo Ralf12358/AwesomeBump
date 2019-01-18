@@ -12,6 +12,7 @@
 class FormImageBase : public QWidget
 {
     Q_OBJECT
+
 public:
     FormImageBase(QWidget *parent = 0);
     ~FormImageBase();
@@ -26,7 +27,6 @@ public:
     // some properties are visible or hiden for given texture type
 
 protected:
-
     void dropEvent(QDropEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     virtual void pasteImageFromClipboard(QImage& image) = 0;
@@ -35,16 +35,12 @@ protected:
     QImage  image;
     QString imageName;
 
-signals:
-
 public slots:
     virtual void open();//open dialog
     virtual void save();
+
 public:
     static QDir* recentDir;
-
-
-
 };
 
 #endif // FORMIMAGEBASE_H
