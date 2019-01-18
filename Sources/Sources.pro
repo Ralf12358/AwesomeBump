@@ -88,7 +88,8 @@ HEADERS = glwidget.h \
     utils/glslparsedshadercontainer.h \
 	utils/contextinfo/contextwidget.h \
     utils/contextinfo/renderwindow.h \
-    formimagebatch.h
+    formimagebatch.h \
+    splashscreen.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -120,7 +121,8 @@ SOURCES = glwidget.cpp \
     properties/PropertyDelegateABColor.cpp \
 	utils/contextinfo/contextwidget.cpp \
     utils/contextinfo/renderwindow.cpp \
-    formimagebatch.cpp
+    formimagebatch.cpp \
+    splashscreen.cpp
 
 
 RESOURCES += content.qrc

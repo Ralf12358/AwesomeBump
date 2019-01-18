@@ -46,6 +46,7 @@
 #include <QtDebug>
 
 #include "mainwindow.h"
+#include "splashscreen.h"
 #include "glimageeditor.h"
 #include "allaboutdialog.h"
 
@@ -117,56 +118,6 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
    QTextStream textStream(&outFile);
    textStream << txt << endl;
 }
-
-class SplashScreen : public QSplashScreen
-{
-    Q_OBJECT
-public:
-    explicit SplashScreen(QApplication *app, QWidget *parent = 0) : QSplashScreen(parent), app(app)
-	{
-	    setCursor(Qt::BusyCursor);
-	}
-    int m_progress;
-    QApplication *app;
-
-public slots:
-    void setProgress(int value)
-    {
-      m_progress = value;
-      if (m_progress > 100)
-        m_progress = 100;
-      if (m_progress < 0)
-        m_progress = 0;
-      update();
-      repaint();
-    }
-    void setMessage(const QString &msg)
-    {
-      QSplashScreen:: showMessage(msg, Qt::AlignTop);
-      update();
-      repaint();
-    }
-
-protected:
-    void drawContents(QPainter *painter)
-	{
-	  QSplashScreen::drawContents(painter);
-	
-	  // Set style for progressbar...
-      QStyleOptionProgressBar pbstyle;
-	  pbstyle.initFrom(this);
-	  pbstyle.state = QStyle::State_Enabled;
-	  pbstyle.textVisible = false;
-	  pbstyle.minimum = 0;
-	  pbstyle.maximum = 100;
-	  pbstyle.progress = m_progress;
-	  pbstyle.invertedAppearance = false;
-	  pbstyle.rect = QRect(0, height()-19, width(), 19); // Where is it.
-	
-	  // Draw it...
-	  style()->drawControl(QStyle::CE_ProgressBar, &pbstyle, painter, this);
-	}
-};
 
 bool checkOpenGL(){
 
@@ -320,5 +271,3 @@ int main(int argc, char *argv[])
         return app.exec();
     }
 }
-
-#include "main.moc"
