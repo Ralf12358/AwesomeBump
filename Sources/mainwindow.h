@@ -3,9 +3,6 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include <QFileDialog>
-#include <QDragEnterEvent>
-#include <QDropEvent>
 #include <QDir>
 
 #include "CommonObjects.h"

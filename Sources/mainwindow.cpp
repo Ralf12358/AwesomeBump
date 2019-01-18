@@ -1,19 +1,22 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QAction>
+#include <QLabel>
+
 #include "glwidget.h"
 #include "glimageeditor.h"
 #include "formimageprop.h"
-#include "formsettingscontainer.h"
 #include "formmaterialindicesmanager.h"
+#include "formsettingscontainer.h"
+#include "dockwidget3dsettings.h"
+#include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
-#include "dockwidget3dsettings.h"
 
 #include "gpuinfo.h"
 #include <Property.h>
 #include <PropertySet.h>
-#include "properties/Dialog3DGeneralSettings.h"
 
 #include <iostream>
 
