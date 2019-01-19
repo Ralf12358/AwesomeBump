@@ -11,6 +11,7 @@
 #include "postfixnames.h"
 #include "randomtilingmode.h"
 #include "display3dsettings.h"
+#include "fboimages.h"
 
 #define TAB_SETTINGS 9
 #define TAB_TILING   10
@@ -23,8 +24,6 @@
 # define AB_LOG "log.txt"
 #endif
 
-//#define TEXTURE_FORMAT GL_RGB16F
-#define TEXTURE_FORMAT GL_RGB16F
 #define TEXTURE_3DRENDER_FORMAT GL_RGB16F
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
@@ -109,77 +108,6 @@ enum MaterialIndicesType
 {
     MATERIALS_DISABLED = -10,
     MATERIALS_ENABLED = -1
-};
-
-// Wrapper for FBO initialization.
-class FBOImages
-{
-public:
-    static void create(QGLFramebufferObject *&fbo,int width,int height,GLuint internal_format = TEXTURE_FORMAT)
-    {
-        if(fbo)
-        {
-            fbo->release();
-            delete fbo;
-        }
-        QGLFramebufferObjectFormat format;
-        format.setInternalTextureFormat(internal_format);
-        format.setTextureTarget(GL_TEXTURE_2D);
-        format.setMipmap(true);
-        fbo = new QGLFramebufferObject(width,height,format);
-        glBindTexture(GL_TEXTURE_2D, fbo->texture());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        if(FBOImages::bUseLinearInterpolation)
-        {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        }
-        else
-        {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        }
-        float aniso = 0.0;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
-        GLCHK(glBindTexture(GL_TEXTURE_2D, 0));
-        qDebug() << "FBOImages::creating new FBO(" << width << "," << height << ") with id=" << fbo->texture() ;
-    }
-
-    static void resize(QGLFramebufferObject *&src,QGLFramebufferObject *&ref,GLuint internal_format = TEXTURE_FORMAT)
-    {
-        if(src == NULL)
-        {
-            GLCHK(FBOImages::create(src ,ref->width(),ref->height(),internal_format));
-        }
-        else if( ref->width()  == src->width() &&
-                  ref->height() == src->height() )
-        {}
-        else
-        {
-            GLCHK(FBOImages::create(src ,ref->width(),ref->height(),internal_format));
-        }
-    }
-
-    static void resize(QGLFramebufferObject *&src,int width, int height,GLuint internal_format = TEXTURE_FORMAT)
-    {
-        if(!src)
-        {
-            GLCHK(FBOImages::create(src ,width,height,internal_format));
-        }
-        else if( width  == src->width() &&
-                  height == src->height() )
-        {}
-        else
-        {
-            GLCHK(FBOImages::create(src ,width,height,internal_format));
-        }
-    }
-
-public:
-    static bool bUseLinearInterpolation;
 };
 
 struct BaseMapConvLevelProperties
