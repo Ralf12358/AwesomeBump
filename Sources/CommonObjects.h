@@ -14,6 +14,4 @@
 #include "basemapconvlevelproperties.h"
 #include "fboimageproperties.h"
 
-#define KEY_SHOW_MATERIALS Qt::Key_S
-
 #endif // COMMONOBJECTS_H
