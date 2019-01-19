@@ -1,16 +1,13 @@
 #ifndef FORMIMAGEPROP_H
 #define FORMIMAGEPROP_H
 
-#include <QWidget>
+#include <QMainWindow>
+#include <QGLWidget>
 #include <QImage>
-#include <QDir>
-#include <QFileDialog>
-#include <QDebug>
-#include <QMessageBox>
-#include <QImageReader>
-#include <QStandardPaths>
+#include <QString>
 
 #include "formimagebase.h"
+#include "PropertyBase.h"
 #include "dialogheightcalculator.h"
 
 namespace Ui
