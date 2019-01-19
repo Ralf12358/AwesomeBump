@@ -8,6 +8,7 @@
 #include <QOpenGLFunctions_3_3_Core>
 #include "properties/ImageProperties.peg.h"
 #include "targaimage.h"
+#include "postfixnames.h"
 
 #define TAB_SETTINGS 9
 #define TAB_TILING   10
@@ -35,20 +36,6 @@
 #endif
 
 using namespace std;
-
-enum TextureTypes
-{
-    DIFFUSE_TEXTURE = 0,
-    NORMAL_TEXTURE ,
-    SPECULAR_TEXTURE,
-    HEIGHT_TEXTURE,
-    OCCLUSION_TEXTURE,
-    ROUGHNESS_TEXTURE,
-    METALLIC_TEXTURE,
-    MATERIAL_TEXTURE,
-    GRUNGE_TEXTURE,
-    MAX_TEXTURES_TYPE
-};
 
 enum ConversionType
 {
@@ -133,87 +120,6 @@ enum MaterialIndicesType
 {
     MATERIALS_DISABLED = -10,
     MATERIALS_ENABLED = -1
-};
-
-class PostfixNames
-{
-public:
-    static QString diffuseName;
-    static QString normalName;
-    static QString specularName;
-    static QString heightName;
-    static QString occlusionName;
-    static QString roughnessName;
-    static QString metallicName;
-    static QString outputFormat;
-
-    static QString getPostfix(TextureTypes tType)
-    {
-        switch(tType)
-        {
-        case(DIFFUSE_TEXTURE):
-            return diffuseName;
-            break;
-        case(NORMAL_TEXTURE):
-            return normalName;
-            break;
-        case(SPECULAR_TEXTURE):
-            return specularName;
-            break;
-        case(HEIGHT_TEXTURE):
-            return heightName;
-            break;
-        case(OCCLUSION_TEXTURE):
-            return occlusionName;
-            break;
-        case(ROUGHNESS_TEXTURE):
-            return roughnessName;
-            break;
-        case(METALLIC_TEXTURE) :
-            return metallicName;
-            break;
-        default:
-            return diffuseName;
-            break;
-        }
-    }
-
-    static QString getTextureName(TextureTypes tType)
-    {
-        switch(tType)
-        {
-        case(DIFFUSE_TEXTURE):
-            return "diffuse";
-            break;
-        case(NORMAL_TEXTURE):
-            return "normal";
-            break;
-        case(SPECULAR_TEXTURE):
-            return "specular";
-            break;
-        case(HEIGHT_TEXTURE):
-            return "height";
-            break;
-        case(OCCLUSION_TEXTURE):
-            return "occlusion";
-            break;
-        case(ROUGHNESS_TEXTURE):
-            return "roughness";
-            break;
-        case(METALLIC_TEXTURE):
-            return "metallic";
-            break;
-        case(MATERIAL_TEXTURE):
-            return "material";
-        case(GRUNGE_TEXTURE):
-            return "grunge";
-            break;
-        default:
-            return "default-diffuse";
-            break;
-        }
-    }
-
 };
 
 struct RandomTilingMode
