@@ -45,7 +45,7 @@
 #include <QtOpenGL>
 #include <qmath.h>
 
-#include "CommonObjects.h"
+#include "display3dsettings.h"
 #include "camera.h"
 #include "utils/Mesh.hpp"
 #include "utils/qglbuffers.h"
