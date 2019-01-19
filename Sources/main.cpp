@@ -242,6 +242,7 @@ int main(int argc, char *argv[])
         msgBox.setInformativeText(QString("Sorry but it seems that your graphics card does not support openGL %1.%2.\n"
                                           "Program will not run :(\n"
                                           "See " AB_LOG " file for more info.").arg(GL_MAJOR).arg(GL_MINOR));
+        msgBox.setVersionText(AWESOME_BUMP_VERSION);
         msgBox.show();
 
         return app.exec();
