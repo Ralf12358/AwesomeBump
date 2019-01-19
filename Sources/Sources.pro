@@ -95,7 +95,8 @@ HEADERS = glwidget.h \
     randomtilingmode.h \
     display3dsettings.h \
     fboimages.h \
-    basemapconvlevelproperties.h
+    basemapconvlevelproperties.h \
+    fboimageproperties.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -134,7 +135,8 @@ SOURCES = glwidget.cpp \
     randomtilingmode.cpp \
     display3dsettings.cpp \
     fboimages.cpp \
-    basemapconvlevelproperties.cpp
+    basemapconvlevelproperties.cpp \
+    fboimageproperties.cpp
 
 
 RESOURCES += content.qrc
