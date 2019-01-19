@@ -3,11 +3,9 @@
 
 #include <QDialog>
 #include <QFile>
-#include <QTextStream>
-#include <QDebug>
-#include "CommonObjects.h"
 
-namespace Ui {
+namespace Ui
+{
 class DialogLogger;
 }
 
@@ -16,12 +14,14 @@ class DialogLogger : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogLogger(QWidget *parent = 0);
+    explicit DialogLogger(QWidget *parent, const QString& filename);
     ~DialogLogger();
+
 public slots:
     void showLog();
 
 private:
+    QFile logFile;
     Ui::DialogLogger *ui;
 };
 

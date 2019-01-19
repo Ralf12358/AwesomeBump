@@ -1,12 +1,15 @@
 #include "dialoglogger.h"
 #include "ui_dialoglogger.h"
 
-DialogLogger::DialogLogger(QWidget *parent) :
+#include <QDebug>
+#include <QScrollBar>
+
+DialogLogger::DialogLogger(QWidget *parent, const QString& filename) :
     QDialog(parent),
+    logFile(filename),
     ui(new Ui::DialogLogger)
 {
     ui->setupUi(this);
-
 }
 
 DialogLogger::~DialogLogger()
@@ -17,14 +20,16 @@ DialogLogger::~DialogLogger()
 void DialogLogger::showLog(){
     qDebug() << "Show logger.";
     ui->textEdit->clear();
-    QFile logFile(AB_LOG);
-    if(logFile.exists()){
+    if(logFile.exists())
+    {
         logFile.open(QFile::ReadOnly | QFile::Text);
         QTextStream in(&logFile);
         ui->textEdit->setText(in.readAll());
         ui->textEdit->verticalScrollBar()->setValue(ui->textEdit->verticalScrollBar()->maximum());
-    }else{
-        ui->textEdit->setText(AB_LOG+QString(" does not exist."));
+    }
+    else
+    {
+        ui->textEdit->setText(logFile.fileName() + QString(" does not exist."));
     }
     show();
 }

@@ -430,7 +430,7 @@ void MainWindow::initializeApp()
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
 
     logAction = new QAction("Show log file",this);
-    dialogLogger    = new DialogLogger(this);
+    dialogLogger    = new DialogLogger(this, AB_LOG);
     dialogShortcuts = new DialogShortcuts(this);
     //dialogLogger->setModal(true);
     dialogShortcuts->setModal(true);
