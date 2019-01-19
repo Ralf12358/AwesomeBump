@@ -9,6 +9,7 @@
 #include "properties/ImageProperties.peg.h"
 #include "targaimage.h"
 #include "postfixnames.h"
+#include "randomtilingmode.h"
 
 #define TAB_SETTINGS 9
 #define TAB_TILING   10
@@ -120,36 +121,6 @@ enum MaterialIndicesType
 {
     MATERIALS_DISABLED = -10,
     MATERIALS_ENABLED = -1
-};
-
-struct RandomTilingMode
-{
-    float angles[9];
-    float common_phase;
-    float inner_radius;
-    float outer_radius;
-    RandomTilingMode()
-    {
-        inner_radius = 0.2;
-        outer_radius = 0.4;
-        common_phase = 0.0;
-        for(int i = 0; i < 9 ; i++)
-        {
-            angles[i] = 0;
-        }
-    }
-    // Generate random angles.
-    void randomize()
-    {
-        static int seed = 312;
-        qsrand(seed);
-        // Fake seed
-        seed = qrand() % 41211;
-        for(int i = 0; i < 9 ; i++)
-        {
-            angles[i] = 2 * 3.1415269 * qrand() / (RAND_MAX + 0.0);
-        }
-    }
 };
 
 // 3D widget settings.

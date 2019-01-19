@@ -91,7 +91,8 @@ HEADERS = glwidget.h \
     formimagebatch.h \
     splashscreen.h \
     targaimage.h \
-    postfixnames.h
+    postfixnames.h \
+    randomtilingmode.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -126,7 +127,8 @@ SOURCES = glwidget.cpp \
     formimagebatch.cpp \
     splashscreen.cpp \
     targaimage.cpp \
-    postfixnames.cpp
+    postfixnames.cpp \
+    randomtilingmode.cpp
 
 
 RESOURCES += content.qrc
