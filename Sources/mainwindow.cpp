@@ -13,6 +13,7 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
+#include "fboimages.h"
 
 #include "gpuinfo.h"
 #include <Property.h>
