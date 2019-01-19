@@ -12,6 +12,12 @@
 
 #define TEXTURE_3DRENDER_FORMAT GL_RGB16F
 
+enum MaterialIndicesType
+{
+    MATERIALS_DISABLED = -10,
+    MATERIALS_ENABLED = -1
+};
+
 enum SourceImageType
 {
     INPUT_NONE = 0,

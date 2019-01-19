@@ -74,10 +74,4 @@ enum ColorPickerMethod
     COLOR_PICKER_METHOD_B ,
 };
 
-enum MaterialIndicesType
-{
-    MATERIALS_DISABLED = -10,
-    MATERIALS_ENABLED = -1
-};
-
 #endif // COMMONOBJECTS_H
