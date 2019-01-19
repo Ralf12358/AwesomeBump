@@ -22,6 +22,8 @@
 #define AWESOME_BUMP_VERSION "AwesomeBump " VERSION_STRING " (2016)"
 #endif
 
+#define TAB_SETTINGS 9
+
 class QAction;
 class QLabel;
 class GLWidget;

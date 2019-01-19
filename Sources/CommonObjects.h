@@ -14,9 +14,6 @@
 #include "basemapconvlevelproperties.h"
 #include "fboimageproperties.h"
 
-#define TAB_SETTINGS 9
-#define TAB_TILING   10
-
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
 #endif // COMMONOBJECTS_H
