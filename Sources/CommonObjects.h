@@ -10,6 +10,7 @@
 #include "targaimage.h"
 #include "postfixnames.h"
 #include "randomtilingmode.h"
+#include "display3dsettings.h"
 
 #define TAB_SETTINGS 9
 #define TAB_TILING   10
@@ -53,19 +54,6 @@ enum UVManipulationMethods
     UV_TRANSLATE = 0,
     UV_GRAB_CORNERS,
     UV_SCALE_XY
-};
-
-enum ShadingType
-{
-    SHADING_RELIEF_MAPPING = 0,
-    SHADING_PARALLAX_NORMAL_MAPPING,
-    SHADING_TESSELATION
-};
-
-enum ShadingModel
-{
-    SHADING_MODEL_PBR = 0,
-    SHADING_MODEL_BUMP_MAPPING
 };
 
 // Methods of making the texture seamless.
@@ -121,53 +109,6 @@ enum MaterialIndicesType
 {
     MATERIALS_DISABLED = -10,
     MATERIALS_ENABLED = -1
-};
-
-// 3D widget settings.
-class Display3DSettings
-{
-public:
-    float     depthScale;
-    float     uvScale;
-    QVector2D uvOffset;
-    float     specularIntensity;
-    float     diffuseIntensity;
-    float     lightPower ;
-    float     lightRadius;
-    ShadingType  shadingType;
-    ShadingModel shadingModel;
-
-    // Rendering quality settings.
-    bool bUseCullFace;
-    bool bUseSimplePBR;
-    int  noTessSubdivision;
-    int  noPBRRays;
-    bool bBloomEffect;
-    bool bDofEffect;
-    bool bShowTriangleEdges;
-    bool bLensFlares;
-    static float openGLVersion;
-    Display3DSettings()
-    {
-        depthScale = 0.1;
-        uvScale    = 1.0;
-        uvOffset   = QVector2D(0.0,0.0);
-        specularIntensity = 1.0;
-        diffuseIntensity  = 1.0;
-        lightPower        = 0.1;
-        lightRadius       = 0.1;
-        shadingType       = SHADING_RELIEF_MAPPING;
-        shadingModel      = SHADING_MODEL_PBR;
-
-        bUseCullFace  = false;
-        bUseSimplePBR = false;
-        noTessSubdivision  = 16;
-        noPBRRays          = 15;
-        bBloomEffect       = true;
-        bDofEffect         = true;
-        bShowTriangleEdges = false;
-        bLensFlares        = true;
-    }
 };
 
 // Wrapper for FBO initialization.

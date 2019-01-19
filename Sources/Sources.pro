@@ -92,7 +92,8 @@ HEADERS = glwidget.h \
     splashscreen.h \
     targaimage.h \
     postfixnames.h \
-    randomtilingmode.h
+    randomtilingmode.h \
+    display3dsettings.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -128,7 +129,8 @@ SOURCES = glwidget.cpp \
     splashscreen.cpp \
     targaimage.cpp \
     postfixnames.cpp \
-    randomtilingmode.cpp
+    randomtilingmode.cpp \
+    display3dsettings.cpp
 
 
 RESOURCES += content.qrc
