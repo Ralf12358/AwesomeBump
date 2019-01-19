@@ -37,17 +37,4 @@
 
 using namespace std;
 
-// Selective blur methods.
-enum SelectiveBlurType
-{
-    SELECTIVE_BLUR_LEVELS = 0,
-    SELECTIVE_BLUR_DIFFERENCE_OF_GAUSSIANS
-};
-
-enum ColorPickerMethod
-{
-    COLOR_PICKER_METHOD_A = 0,
-    COLOR_PICKER_METHOD_B ,
-};
-
 #endif // COMMONOBJECTS_H
