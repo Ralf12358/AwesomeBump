@@ -89,7 +89,8 @@ HEADERS = glwidget.h \
 	utils/contextinfo/contextwidget.h \
     utils/contextinfo/renderwindow.h \
     formimagebatch.h \
-    splashscreen.h
+    splashscreen.h \
+    targaimage.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -122,7 +123,8 @@ SOURCES = glwidget.cpp \
 	utils/contextinfo/contextwidget.cpp \
     utils/contextinfo/renderwindow.cpp \
     formimagebatch.cpp \
-    splashscreen.cpp
+    splashscreen.cpp \
+    targaimage.cpp
 
 
 RESOURCES += content.qrc
