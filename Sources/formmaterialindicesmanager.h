@@ -1,8 +1,14 @@
 #ifndef FORMMATERIALINDICESMANAGER_H
 #define FORMMATERIALINDICESMANAGER_H
 
-#include "formimageprop.h"
+#include <QMainWindow>
+#include <QGLWidget>
+#include <QImage>
+#include <QString>
+#include <QRgb>
+
 #include "formimagebase.h"
+#include "formimageprop.h"
 
 namespace Ui
 {

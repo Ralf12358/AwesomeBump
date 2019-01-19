@@ -1,6 +1,15 @@
 #include "formmaterialindicesmanager.h"
 #include "ui_formmaterialindicesmanager.h"
 
+#include <QDebug>
+#include <QMessageBox>
+#include <QClipboard>
+#include <QMimeData>
+#include <QImageReader>
+
+#include "targaimage.h"
+#include "fboimageproperties.h"
+
 FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QGLWidget* qlW_ptr) :
     FormImageBase(parent),
     ui(new Ui::FormMaterialIndicesManager)
