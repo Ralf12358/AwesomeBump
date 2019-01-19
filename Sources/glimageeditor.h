@@ -70,7 +70,23 @@
 #define BaseMapToOthersProp activeImage->properties->BaseMapToOthers
 #define RMFilterProp activeImage->properties->RMFilter
 
-//! [0]
+enum ConversionType
+{
+    CONVERT_NONE = 0,
+    CONVERT_FROM_H_TO_N,
+    CONVERT_FROM_N_TO_H,
+    CONVERT_FROM_D_TO_O,    // Diffuse to others.
+    CONVERT_FROM_HN_TO_OC,
+    CONVERT_RESIZE
+};
+
+enum UVManipulationMethods
+{
+    UV_TRANSLATE = 0,
+    UV_GRAB_CORNERS,
+    UV_SCALE_XY
+};
+
 class GLImage : public GLWidgetBase , protected OPENGL_FUNCTIONS
 {
     Q_OBJECT
