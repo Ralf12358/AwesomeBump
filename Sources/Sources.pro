@@ -103,7 +103,6 @@ SOURCES = glwidget.cpp \
     mainwindow.cpp \
     formimageprop.cpp \
     glimageeditor.cpp \
-    CommonObjects.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
     utils/Mesh.cpp \

@@ -2,6 +2,8 @@
 
 #include "qopenglerrorcheck.h"
 
+bool FBOImages::bUseLinearInterpolation = true;
+
 void FBOImages::create(QGLFramebufferObject *&fbo,int width,int height,GLuint internal_format)
 {
     if(fbo)

@@ -1,5 +1,14 @@
 #include "postfixnames.h"
 
+QString  PostfixNames::diffuseName   = "_d";
+QString  PostfixNames::normalName    = "_n";
+QString  PostfixNames::specularName  = "_s";
+QString  PostfixNames::heightName    = "_h";
+QString  PostfixNames::occlusionName = "_o";
+QString  PostfixNames::roughnessName = "_r";
+QString  PostfixNames::metallicName  = "_m";
+QString  PostfixNames::outputFormat  = ".png";
+
 QString PostfixNames::getPostfix(TextureTypes tType)
 {
     switch(tType)
