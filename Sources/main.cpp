@@ -43,11 +43,17 @@
 #include <QGLFormat>
 #include <QSurfaceFormat>
 #include <QtDebug>
+#include <QDateTime>
+#include <QStandardPaths>
+#include <QDesktopWidget>
+#include <QStyleFactory>
 
 #include "mainwindow.h"
 #include "splashscreen.h"
 #include "allaboutdialog.h"
-#include "CommonObjects.h"
+#include "qopenglerrorcheck.h"
+#include "display3dsettings.h"
+//#include "CommonObjects.h"
 
 #ifdef USE_OPENGL_330
 #define GL_MAJOR 3
