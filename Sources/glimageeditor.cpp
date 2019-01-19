@@ -39,7 +39,8 @@
 ****************************************************************************/
 #include "glimageeditor.h"
 
-
+#include "qopenglerrorcheck.h"
+#include "fboimages.h"
 
 GLImage::GLImage(QWidget *parent)
     : GLWidgetBase(QGLFormat::defaultFormat(), parent)
