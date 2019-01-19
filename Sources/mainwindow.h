@@ -5,7 +5,8 @@
 #include <QSettings>
 #include <QDir>
 
-#include "CommonObjects.h"
+#include "postfixnames.h"
+#include "properties/ImageProperties.peg.h"
 
 class QAction;
 class QLabel;
