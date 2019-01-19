@@ -22,6 +22,13 @@
 
 extern QString _find_data_dir(const QString& resource);
 
+// Compressed texture type.
+enum CompressedFromTypes
+{
+    H_TO_D_AND_S_TO_N = 0,
+    S_TO_D_AND_H_TO_N = 1
+};
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
