@@ -8,6 +8,14 @@
 #include "postfixnames.h"
 #include "properties/ImageProperties.peg.h"
 
+#ifdef Q_OS_MAC
+# define AB_INI "AwesomeBump.ini"
+# define AB_LOG "AwesomeBump.log"
+#else
+# define AB_INI "config.ini"
+# define AB_LOG "log.txt"
+#endif
+
 class QAction;
 class QLabel;
 class GLWidget;
