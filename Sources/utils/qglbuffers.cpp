@@ -34,6 +34,7 @@
 #include "qglbuffers.h"
 #include <QtGui/qmatrix4x4.h>
 
+#include "fboimageproperties.h"
 
 void qgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
