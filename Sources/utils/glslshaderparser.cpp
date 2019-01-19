@@ -1,5 +1,7 @@
 #include "glslshaderparser.h"
 
+#include "qopenglerrorcheck.h"
+
 GLSLShaderParser::GLSLShaderParser()
 {
     initializeOpenGLFunctions();
