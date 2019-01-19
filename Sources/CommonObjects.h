@@ -19,8 +19,4 @@
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
-//#define USE_OPENGL_330
-
-using namespace std;
-
 #endif // COMMONOBJECTS_H

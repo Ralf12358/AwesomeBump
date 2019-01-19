@@ -3055,7 +3055,7 @@ void GLImage::mousePressEvent(QMouseEvent *event)
 
     // In case of color picking: emit and stop picking
     if(bToggleColorPicking){
-        vector< unsigned char > pixels( 1 * 1 * 4 );
+        std::vector< unsigned char > pixels( 1 * 1 * 4 );
         glReadPixels(event->pos().x(), height()-event->pos().y(), 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
         QVector4D color(pixels[0],pixels[1],pixels[2],pixels[3]);
         qDebug() << "Picked pixel (" << event->pos().x() << " , " << height()-event->pos().y() << ") with color:" << color;
