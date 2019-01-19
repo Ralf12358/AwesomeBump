@@ -6,12 +6,12 @@
 #include <iostream>
 #include "qopenglerrorcheck.h"
 #include <QOpenGLFunctions_3_3_Core>
-#include "properties/ImageProperties.peg.h"
 #include "targaimage.h"
 #include "postfixnames.h"
 #include "randomtilingmode.h"
 #include "display3dsettings.h"
 #include "fboimages.h"
+#include "basemapconvlevelproperties.h"
 
 #define TAB_SETTINGS 9
 #define TAB_TILING   10
@@ -108,39 +108,6 @@ enum MaterialIndicesType
 {
     MATERIALS_DISABLED = -10,
     MATERIALS_ENABLED = -1
-};
-
-struct BaseMapConvLevelProperties
-{
-    float conversionBaseMapAmplitude;
-    float conversionBaseMapFlatness;
-    int   conversionBaseMapNoIters;
-    float conversionBaseMapFilterRadius;
-    float conversionBaseMapMixNormals;
-    float conversionBaseMapPreSmoothRadius;
-    float conversionBaseMapBlending;
-
-    BaseMapConvLevelProperties()
-    {
-        conversionBaseMapAmplitude       = 0;
-        conversionBaseMapFlatness        = 0.5;
-        conversionBaseMapNoIters         = 0;
-        conversionBaseMapFilterRadius    = 3;
-        conversionBaseMapMixNormals      = 1.0;
-        conversionBaseMapPreSmoothRadius = 0;
-        conversionBaseMapBlending        = 1.0;
-    }
-
-    void fromProperty(QtnPropertySetConvertsionBaseMapLevelProperty& level)
-    {
-        conversionBaseMapAmplitude       = level.Amplitude;
-        conversionBaseMapFlatness        = level.Flatness;
-        conversionBaseMapNoIters         = level.NumIters;
-        conversionBaseMapFilterRadius    = level.FilterRadius;
-        conversionBaseMapMixNormals      = level.Edges;
-        conversionBaseMapPreSmoothRadius = level.PreSmoothRadius;
-        conversionBaseMapBlending        = level.Blending;
-    }
 };
 
 class FBOImageProporties
