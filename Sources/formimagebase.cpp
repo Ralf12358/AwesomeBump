@@ -1,5 +1,18 @@
 #include "formimagebase.h"
 
+#include <QStandardPaths>
+#include <QFileDialog>
+#include <QDebug>
+#include <QDropEvent>
+#include <QUrl>
+#include <QDragEnterEvent>
+#include <QKeyEvent>
+#include <QApplication>
+#include <QMimeData>
+#include <QClipboard>
+
+#include "targaimage.h"
+
 QDir* FormImageBase::recentDir;
 
 FormImageBase::FormImageBase(QWidget *parent) : QWidget(parent)

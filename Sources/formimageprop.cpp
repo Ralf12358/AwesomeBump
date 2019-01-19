@@ -1,6 +1,15 @@
 #include "formimageprop.h"
 #include "ui_formimageprop.h"
 
+#include <QDebug>
+#include <QFileInfo>
+#include <QImageReader>
+#include <QMessageBox>
+#include <QClipboard>
+#include <QMimeData>
+
+#include "targaimage.h"
+
 bool FormImageProp::bLoading = false;
 
 FormImageProp::FormImageProp(QMainWindow *parent, QGLWidget* qlW_ptr) :

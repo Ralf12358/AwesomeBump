@@ -2,7 +2,12 @@
 #define FORMIMAGEBASE_H
 
 #include <QWidget>
-#include "CommonObjects.h"
+#include <QImage>
+#include <QString>
+#include <QDir>
+
+#include "fboimageproperties.h"
+//#include "CommonObjects.h"
 
 // Manages all the input/output operations
 // like : open & save from/to file
