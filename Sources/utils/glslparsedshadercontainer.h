@@ -1,7 +1,6 @@
 #ifndef GLSLPARSEDSHADERCONTAINER_H
 #define GLSLPARSEDSHADERCONTAINER_H
 
-#include "CommonObjects.h"
 #include "glslshaderparser.h"
 
 #define RENDER_FOLDER "Core/Render/"

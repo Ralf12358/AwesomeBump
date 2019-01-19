@@ -9,9 +9,6 @@
 
 
 #include <QtOpenGL>
-
-
-#include "../CommonObjects.h"
 #include <QString>
 #include <QDebug>
 #include <QVector>

@@ -4,8 +4,6 @@
 #include <QGLWidget>
 #include <QDebug>
 
-#include "CommonObjects.h"
-
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
 class GLWidgetBase : public QGLWidget

@@ -48,7 +48,6 @@
 #include "glwidgetbase.h"
 #include <math.h>
 #include <map>
-#include "CommonObjects.h"
 #include "formmaterialindicesmanager.h"
 
 #ifdef USE_OPENGL_330

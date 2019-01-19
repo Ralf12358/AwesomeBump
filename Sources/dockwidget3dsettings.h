@@ -2,9 +2,7 @@
 #define DOCKWIDGET3DSETTINGS_H
 
 #include <QDockWidget>
-#include "CommonObjects.h"
 #include "glwidget.h"
-
 
 namespace Ui {
 class DockWidget3DSettings;

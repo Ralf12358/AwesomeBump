@@ -59,7 +59,6 @@ INCLUDEPATH += ../shared include utils utils/QtnProperty utils/contextinfo
 
 HEADERS = glwidget.h \
     mainwindow.h \
-    CommonObjects.h \
     formimageprop.h \
     glimageeditor.h \
     camera.h \

@@ -1,15 +1,12 @@
 #ifndef GLSLSHADERPARSER_H
 #define GLSLSHADERPARSER_H
 
-
 #include <QOpenGLFunctions_3_3_Core>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QOpenGLShaderProgram>
 #include <QDebug>
 #include <QDir>
-#include "CommonObjects.h"
-
 
 enum UniformDataType{
   UNIFORM_TYPE_INT = 0,
