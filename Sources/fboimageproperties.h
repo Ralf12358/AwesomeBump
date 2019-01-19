@@ -41,13 +41,13 @@ enum SeamlessMode
     SEAMLESS_RANDOM
 };
 
-class FBOImageProporties
+class FBOImageProperties
 {
 public:
-    FBOImageProporties();
-    ~FBOImageProporties();
+    FBOImageProperties();
+    ~FBOImageProperties();
 
-    void copySettings(FBOImageProporties &src);
+    void copySettings(FBOImageProperties &src);
     void init(QImage& image);
     void updateSrcTexId(QGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);

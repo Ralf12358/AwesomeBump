@@ -1,17 +1,17 @@
 #include "CommonObjects.h"
 
-SeamlessMode FBOImageProporties::seamlessMode                 = SEAMLESS_NONE;
-float FBOImageProporties::seamlessSimpleModeRadius            = 0.5;
-float FBOImageProporties::seamlessContrastPower               = 0.0;
-float FBOImageProporties::seamlessContrastStrenght            = 0.0;
-int FBOImageProporties::seamlessSimpleModeDirection           = 0; // xy
-SourceImageType FBOImageProporties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
-bool FBOImageProporties::bSeamlessTranslationsFirst           = true;
-int FBOImageProporties::seamlessMirroModeType                 = 0;
-bool FBOImageProporties::bConversionBaseMap                   = false;
-bool FBOImageProporties::bConversionBaseMapShowHeightTexture  = false;
-int FBOImageProporties::currentMaterialIndeks                 = MATERIALS_DISABLED;
-RandomTilingMode FBOImageProporties::seamlessRandomTiling     = RandomTilingMode();
+SeamlessMode FBOImageProperties::seamlessMode                 = SEAMLESS_NONE;
+float FBOImageProperties::seamlessSimpleModeRadius            = 0.5;
+float FBOImageProperties::seamlessContrastPower               = 0.0;
+float FBOImageProperties::seamlessContrastStrenght            = 0.0;
+int FBOImageProperties::seamlessSimpleModeDirection           = 0; // xy
+SourceImageType FBOImageProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+bool FBOImageProperties::bSeamlessTranslationsFirst           = true;
+int FBOImageProperties::seamlessMirroModeType                 = 0;
+bool FBOImageProperties::bConversionBaseMap                   = false;
+bool FBOImageProperties::bConversionBaseMapShowHeightTexture  = false;
+int FBOImageProperties::currentMaterialIndeks                 = MATERIALS_DISABLED;
+RandomTilingMode FBOImageProperties::seamlessRandomTiling     = RandomTilingMode();
 
 float Display3DSettings::openGLVersion = 3.3;
 

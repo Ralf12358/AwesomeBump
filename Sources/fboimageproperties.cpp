@@ -5,7 +5,7 @@
 #include "qopenglerrorcheck.h"
 #include "fboimages.h"
 
-FBOImageProporties::FBOImageProporties()
+FBOImageProperties::FBOImageProperties()
 {
     bSkipProcessing       = false;
     properties            = NULL;
@@ -21,7 +21,7 @@ FBOImageProporties::FBOImageProporties()
     properties            = new QtnPropertySetFormImageProp;
 }
 
-FBOImageProporties::~FBOImageProporties()
+FBOImageProperties::~FBOImageProperties()
 {
     if(glWidget_ptr != NULL)
     {
@@ -43,7 +43,7 @@ FBOImageProporties::~FBOImageProporties()
     }
 }
 
-void FBOImageProporties::copySettings(FBOImageProporties &src)
+void FBOImageProperties::copySettings(FBOImageProperties &src)
 {
     bFirstDraw         = src.bFirstDraw;
     conversionHNDepth  = src.conversionHNDepth;
@@ -54,7 +54,7 @@ void FBOImageProporties::copySettings(FBOImageProporties &src)
         properties->copyValues(src.properties);
 }
 
-void FBOImageProporties::init(QImage& image)
+void FBOImageProperties::init(QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -85,7 +85,7 @@ void FBOImageProporties::init(QImage& image)
     GLCHK(FBOImages::create(fbo , image.width(), image.height(),internal_format));
 }
 
-void FBOImageProporties::updateSrcTexId(QGLFramebufferObject* in_ref_fbo)
+void FBOImageProperties::updateSrcTexId(QGLFramebufferObject* in_ref_fbo)
 {
     glWidget_ptr->makeCurrent();
     if(glIsTexture(scr_tex_id))
@@ -94,7 +94,7 @@ void FBOImageProporties::updateSrcTexId(QGLFramebufferObject* in_ref_fbo)
     scr_tex_id = glWidget_ptr->bindTexture(image,GL_TEXTURE_2D);
 }
 
-void FBOImageProporties::resizeFBO(int width, int height)
+void FBOImageProperties::resizeFBO(int width, int height)
 {
     GLuint internal_format = TEXTURE_FORMAT;
     if(imageType == HEIGHT_TEXTURE)
@@ -103,7 +103,7 @@ void FBOImageProporties::resizeFBO(int width, int height)
     bFirstDraw = true;
 }
 
-QImage FBOImageProporties::getImage()
+QImage FBOImageProperties::getImage()
 {
     glWidget_ptr->makeCurrent();
     return fbo->toImage();

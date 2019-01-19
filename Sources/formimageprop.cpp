@@ -207,13 +207,13 @@ void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty,
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableConversion)
             {
-                FBOImageProporties::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
+                FBOImageProperties::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
             }
             // Enable BaseMapToOthers Conversion Tool Height Preview.
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableHeightPreview)
             {
-                FBOImageProporties::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
+                FBOImageProperties::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
             }
             emit imageChanged();
         }

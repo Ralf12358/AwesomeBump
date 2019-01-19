@@ -1034,7 +1034,7 @@ void GLImage::resizeGL(int width, int height)
 }
 
 
-void GLImage::setActiveImage(FBOImageProporties* ptr){
+void GLImage::setActiveImage(FBOImageProperties* ptr){
         activeImage = ptr;        
         updateGLNow();
 }
@@ -1079,7 +1079,7 @@ void GLImage::updateCornersWeights(float w1,float w2,float w3,float w4){
 }
 
 void GLImage::selectSeamlessMode(SeamlessMode mode){
-    FBOImageProporties::seamlessMode = mode;
+    FBOImageProperties::seamlessMode = mode;
     updateGL();
 }
 
@@ -1157,7 +1157,7 @@ void GLImage::applyPerspectiveTransformFilter(  QGLFramebufferObject* inputFBO,
                                                 QGLFramebufferObject* outputFBO){
 
     // when materials texture is enabled UV transformation are disabled
-    if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED){
+    if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED){
         copyFBO(inputFBO,outputFBO);
         return;
     }
@@ -1388,11 +1388,11 @@ void GLImage::applySeamlessLinearFilter(QGLFramebufferObject* inputFBO,
                                        QGLFramebufferObject* outputFBO){
 
     // when materials texture is enabled UV transformation are disabled
-    if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED){
+    if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED){
         copyFBO(inputFBO,outputFBO);
         return;
     }
-    switch(FBOImageProporties::seamlessContrastInputType){
+    switch(FBOImageProperties::seamlessContrastInputType){
         default:
         case(INPUT_FROM_HEIGHT_INPUT):
             //copyFBO(targetImageHeight->ref_fbo,activeImage->aux2_fbo);
@@ -1406,7 +1406,7 @@ void GLImage::applySeamlessLinearFilter(QGLFramebufferObject* inputFBO,
 
     // when translations are applied first one has to translate
     // alse the contrast mask image
-    if(FBOImageProporties::bSeamlessTranslationsFirst){
+    if(FBOImageProperties::bSeamlessTranslationsFirst){
         applyPerspectiveTransformFilter(auxFBO2,outputFBO);// the output is save to auxFBO1
     }
 
@@ -1424,13 +1424,13 @@ void GLImage::applySeamlessLinearFilter(QGLFramebufferObject* inputFBO,
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos"  , QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("make_seamless_radius"           , FBOImageProporties::seamlessSimpleModeRadius) );
-    GLCHK( program->setUniformValue("gui_seamless_contrast_strenght" , FBOImageProporties::seamlessContrastStrenght) );
-    GLCHK( program->setUniformValue("gui_seamless_contrast_power"    , FBOImageProporties::seamlessContrastPower) );
+    GLCHK( program->setUniformValue("make_seamless_radius"           , FBOImageProperties::seamlessSimpleModeRadius) );
+    GLCHK( program->setUniformValue("gui_seamless_contrast_strenght" , FBOImageProperties::seamlessContrastStrenght) );
+    GLCHK( program->setUniformValue("gui_seamless_contrast_power"    , FBOImageProperties::seamlessContrastPower) );
 
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
-    switch(FBOImageProporties::seamlessSimpleModeDirection){
+    switch(FBOImageProperties::seamlessSimpleModeDirection){
         default:
         case(0)://XY
         GLCHK( program->setUniformValue("gui_seamless_mode"         , (int)0) ); // horizontal filtering
@@ -1477,11 +1477,11 @@ void GLImage::applySeamlessFilter(QGLFramebufferObject* inputFBO,
                                   QGLFramebufferObject* outputFBO){
 
     // when materials texture is enabled UV transformation are disabled
-    if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED){
+    if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED){
         copyFBO(inputFBO,outputFBO);
         return;
     }
-    switch(FBOImageProporties::seamlessContrastInputType){
+    switch(FBOImageProperties::seamlessContrastInputType){
         default:
         case(INPUT_FROM_HEIGHT_INPUT):            
             copyTex2FBO(targetImageHeight->scr_tex_id,auxFBO1);
@@ -1493,7 +1493,7 @@ void GLImage::applySeamlessFilter(QGLFramebufferObject* inputFBO,
 
     // when translations are applied first one has to translate
     // alse the contrast mask image
-    if(FBOImageProporties::bSeamlessTranslationsFirst){
+    if(FBOImageProperties::bSeamlessTranslationsFirst){
       applyPerspectiveTransformFilter(auxFBO1,outputFBO);// the output is save to auxFBO2
     }
 
@@ -1508,19 +1508,19 @@ void GLImage::applySeamlessFilter(QGLFramebufferObject* inputFBO,
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos"  , QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("make_seamless_radius"      , FBOImageProporties::seamlessSimpleModeRadius) );
-    GLCHK( program->setUniformValue("gui_seamless_contrast_strenght" , FBOImageProporties::seamlessContrastStrenght) );
-    GLCHK( program->setUniformValue("gui_seamless_contrast_power"    , FBOImageProporties::seamlessContrastPower) );
-    GLCHK( program->setUniformValue("gui_seamless_mode"         , (int)FBOImageProporties::seamlessMode) );
-    GLCHK( program->setUniformValue("gui_seamless_mirror_type"  , FBOImageProporties::seamlessMirroModeType) );
+    GLCHK( program->setUniformValue("make_seamless_radius"      , FBOImageProperties::seamlessSimpleModeRadius) );
+    GLCHK( program->setUniformValue("gui_seamless_contrast_strenght" , FBOImageProperties::seamlessContrastStrenght) );
+    GLCHK( program->setUniformValue("gui_seamless_contrast_power"    , FBOImageProperties::seamlessContrastPower) );
+    GLCHK( program->setUniformValue("gui_seamless_mode"         , (int)FBOImageProperties::seamlessMode) );
+    GLCHK( program->setUniformValue("gui_seamless_mirror_type"  , FBOImageProperties::seamlessMirroModeType) );
 
     // sending the random angles
     QMatrix3x3 random_angles;
-    for(int i = 0; i < 9; i++)random_angles.data()[i] = FBOImageProporties::seamlessRandomTiling.angles[i];
+    for(int i = 0; i < 9; i++)random_angles.data()[i] = FBOImageProperties::seamlessRandomTiling.angles[i];
     GLCHK( program->setUniformValue("gui_seamless_random_angles" , random_angles) );
-    GLCHK( program->setUniformValue("gui_seamless_random_phase" , FBOImageProporties::seamlessRandomTiling.common_phase) );
-    GLCHK( program->setUniformValue("gui_seamless_random_inner_radius" , FBOImageProporties::seamlessRandomTiling.inner_radius) );
-    GLCHK( program->setUniformValue("gui_seamless_random_outer_radius" , FBOImageProporties::seamlessRandomTiling.outer_radius) );
+    GLCHK( program->setUniformValue("gui_seamless_random_phase" , FBOImageProperties::seamlessRandomTiling.common_phase) );
+    GLCHK( program->setUniformValue("gui_seamless_random_inner_radius" , FBOImageProperties::seamlessRandomTiling.inner_radius) );
+    GLCHK( program->setUniformValue("gui_seamless_random_outer_radius" , FBOImageProperties::seamlessRandomTiling.outer_radius) );
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
 
@@ -2017,7 +2017,7 @@ void GLImage::applySobelToNormalFilter(QGLFramebufferObject* inputFBO,
 
 
 
-void GLImage::applyNormalToHeight(FBOImageProporties* image,QGLFramebufferObject* normalFBO,
+void GLImage::applyNormalToHeight(FBOImageProperties* image,QGLFramebufferObject* normalFBO,
                                   QGLFramebufferObject* heightFBO,
                                   QGLFramebufferObject* outputFBO){
 
@@ -2252,9 +2252,9 @@ void GLImage::applyCPUNormalizationFilter(QGLFramebufferObject* inputFBO,
 
     // if materials are enabled one must calulate height only in the
     // region of selected material color
-    if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED){
+    if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED){
         QImage maskImage = targetImageMaterial->getImage();
-        int currentMaterialIndex = FBOImageProporties::currentMaterialIndeks;
+        int currentMaterialIndex = FBOImageProperties::currentMaterialIndeks;
         // number of components
         int nc = maskImage. byteCount () / (textureWidth*textureHeight) ;
         bool bFirstTimeChecked = true;
@@ -2593,11 +2593,11 @@ void GLImage::copyTex2FBO(GLuint src_tex_id,QGLFramebufferObject* dst){
 }
 
 void GLImage::applyAllUVsTransforms(QGLFramebufferObject* inoutFBO){
-    if(FBOImageProporties::bSeamlessTranslationsFirst){
+    if(FBOImageProperties::bSeamlessTranslationsFirst){
       applyPerspectiveTransformFilter(inoutFBO,auxFBO1);// the output is save to activeFBO
     }
     // Making seamless...
-    switch(FBOImageProporties::seamlessMode){
+    switch(FBOImageProperties::seamlessMode){
         case(SEAMLESS_SIMPLE):
             applySeamlessLinearFilter(inoutFBO,auxFBO1); //  the output is save to activeFBO
             break;
@@ -2609,7 +2609,7 @@ void GLImage::applyAllUVsTransforms(QGLFramebufferObject* inoutFBO){
         case(SEAMLESS_NONE):
         default: break;
     }
-    if(!FBOImageProporties::bSeamlessTranslationsFirst){
+    if(!FBOImageProperties::bSeamlessTranslationsFirst){
       applyPerspectiveTransformFilter(inoutFBO,auxFBO1);// the output is save to activeFBO
     }
 }
@@ -2888,7 +2888,7 @@ void GLImage::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseB
 {
 
     if(activeImage->imageType != GRUNGE_TEXTURE)
-    if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED && buttons & Qt::LeftButton){
+    if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED && buttons & Qt::LeftButton){
         QMessageBox msgBox;
         msgBox.setText("Warning!");
         msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping when materials textures are enabled.");

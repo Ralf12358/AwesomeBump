@@ -500,7 +500,7 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::replotAllImages()
 {
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
@@ -551,7 +551,7 @@ void MainWindow::materialsToggled(bool toggle)
 {
     static bool bLastValue;
     ui->pushButtonMaterialWarning->setVisible(toggle);
-    ui->pushButtonUVWarning->setVisible(FBOImageProporties::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(FBOImageProperties::seamlessMode != SEAMLESS_NONE);
     if(toggle){
         bLastValue = diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion;
         diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion = false;
@@ -566,9 +566,9 @@ void MainWindow::materialsToggled(bool toggle)
 
 void MainWindow::checkWarnings()
 {
-    ui->pushButtonConversionWarning->setVisible(FBOImageProporties::bConversionBaseMap);
+    ui->pushButtonConversionWarning->setVisible(FBOImageProperties::bConversionBaseMap);
     ui->pushButtonGrungeWarning->setVisible(grungeImageProp->imageProp.properties->Grunge.OverallWeight.value() > 0);
-    ui->pushButtonUVWarning->setVisible(FBOImageProporties::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(FBOImageProperties::seamlessMode != SEAMLESS_NONE);
 
     bool bOccTest = (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HO_NO) ||
                     (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HI_NI);
@@ -1073,7 +1073,7 @@ void MainWindow::initializeImages()
 
     replotAllImages();
     // SSAO recalculation
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
 
     updateImage(OCCLUSION_TEXTURE);
     //glImage->update();
@@ -1135,10 +1135,10 @@ void MainWindow::applyResizeImage()
     int height = ui->comboBoxResizeHeight->currentText().toInt();
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
 
-    int materiaIndex = FBOImageProporties::currentMaterialIndeks;
+    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
 
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         if( i != GRUNGE_TEXTURE){ // grunge map does not scale like other images
@@ -1153,7 +1153,7 @@ void MainWindow::applyResizeImage()
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProporties::currentMaterialIndeks = materiaIndex;
+    FBOImageProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1164,9 +1164,9 @@ void MainWindow::applyResizeImage(int width, int height)
     QCoreApplication::processEvents();
 
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = FBOImageProporties::currentMaterialIndeks;
+    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         if( i != GRUNGE_TEXTURE){
@@ -1181,7 +1181,7 @@ void MainWindow::applyResizeImage(int width, int height)
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProporties::currentMaterialIndeks = materiaIndex;
+    FBOImageProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1209,9 +1209,9 @@ void MainWindow::applyScaleImage()
     int height = diffuseImageProp->getImageProporties()->scr_tex_height*scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = FBOImageProporties::currentMaterialIndeks;
+    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         glImage->resizeFBO(width,height);
@@ -1224,7 +1224,7 @@ void MainWindow::applyScaleImage()
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProporties::currentMaterialIndeks = materiaIndex;
+    FBOImageProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1287,16 +1287,16 @@ void MainWindow::selectContrastInputImage(int mode)
 {
     switch(mode){
     case(0):
-        FBOImageProporties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
         break;
     case(1):
-        FBOImageProporties::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
+        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
         break;
     case(2):
-        FBOImageProporties::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
+        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
         break;
     case(3):
-        FBOImageProporties::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
+        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
         break;
     default:
         break;
@@ -1386,16 +1386,16 @@ void MainWindow::runBatch()
 
 void MainWindow::randomizeAngles()
 {
-    FBOImageProporties::seamlessRandomTiling.randomize();
+    FBOImageProperties::seamlessRandomTiling.randomize();
     replotAllImages();
 }
 
 void MainWindow::resetRandomPatches()
 {
-    FBOImageProporties::seamlessRandomTiling = RandomTilingMode();
-    ui->horizontalSliderRandomPatchesRotate     ->setValue(FBOImageProporties::seamlessRandomTiling.common_phase);
-    ui->horizontalSliderRandomPatchesInnerRadius->setValue(FBOImageProporties::seamlessRandomTiling.inner_radius*100.0);
-    ui->horizontalSliderRandomPatchesOuterRadius->setValue(FBOImageProporties::seamlessRandomTiling.outer_radius*100.0);
+    FBOImageProperties::seamlessRandomTiling = RandomTilingMode();
+    ui->horizontalSliderRandomPatchesRotate     ->setValue(FBOImageProperties::seamlessRandomTiling.common_phase);
+    ui->horizontalSliderRandomPatchesInnerRadius->setValue(FBOImageProperties::seamlessRandomTiling.inner_radius*100.0);
+    ui->horizontalSliderRandomPatchesOuterRadius->setValue(FBOImageProperties::seamlessRandomTiling.outer_radius*100.0);
     updateSpinBoxes(0);
     replotAllImages();
 }
@@ -1454,7 +1454,7 @@ void MainWindow::convertFromNtoH()
 
 void MainWindow::convertFromBase()
 {
-    FBOImageProporties* lastActive = glImage->getActiveImage();
+    FBOImageProperties* lastActive = glImage->getActiveImage();
     glImage->setActiveImage(diffuseImageProp->getImageProporties());
     qDebug() << "Conversion from Base to others started";
     normalImageProp   ->setImageName(diffuseImageProp->getImageName());
@@ -1497,23 +1497,23 @@ void MainWindow::convertFromHNtoOcc()
 void MainWindow::updateSliders()
 {
     updateSpinBoxes(0);
-    FBOImageProporties::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
-    FBOImageProporties::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
-    FBOImageProporties::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
-    FBOImageProporties::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
-    FBOImageProporties::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
-    FBOImageProporties::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
+    FBOImageProperties::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
+    FBOImageProperties::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
+    FBOImageProperties::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
+    FBOImageProperties::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
+    FBOImageProperties::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
+    FBOImageProperties::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
 
-    FBOImageProporties::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
+    FBOImageProperties::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
     // Choose the proper mirror mode.
-    if(ui->radioButtonMirrorModeXY->isChecked()) FBOImageProporties::seamlessMirroModeType = 0;
-    if(ui->radioButtonMirrorModeX ->isChecked()) FBOImageProporties::seamlessMirroModeType = 1;
-    if(ui->radioButtonMirrorModeY ->isChecked()) FBOImageProporties::seamlessMirroModeType = 2;
+    if(ui->radioButtonMirrorModeXY->isChecked()) FBOImageProperties::seamlessMirroModeType = 0;
+    if(ui->radioButtonMirrorModeX ->isChecked()) FBOImageProperties::seamlessMirroModeType = 1;
+    if(ui->radioButtonMirrorModeY ->isChecked()) FBOImageProperties::seamlessMirroModeType = 2;
 
     // Choose the proper simple mode direction.
-    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) FBOImageProporties::seamlessSimpleModeDirection = 0;
-    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) FBOImageProporties::seamlessSimpleModeDirection = 1;
-    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) FBOImageProporties::seamlessSimpleModeDirection = 2;
+    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 0;
+    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 1;
+    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 2;
 
     glImage ->repaint();
     glWidget->repaint();

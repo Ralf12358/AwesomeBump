@@ -577,7 +577,7 @@ void GLWidget::paintGL()
         GLCHK( program_ptr->setUniformValue("gui_uvScale",           display3Dparameters.uvScale) );
         GLCHK( program_ptr->setUniformValue("gui_uvScaleOffset",     display3Dparameters.uvOffset) );
         GLCHK( program_ptr->setUniformValue("gui_bSpecular",         bToggleSpecularView) );
-        if(FBOImageProporties::bConversionBaseMap)
+        if(FBOImageProperties::bConversionBaseMap)
         {
             GLCHK( program_ptr->setUniformValue("gui_bDiffuse",      false) );
         }

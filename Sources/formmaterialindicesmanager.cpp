@@ -26,12 +26,12 @@ FormMaterialIndicesManager::~FormMaterialIndicesManager()
 
 bool FormMaterialIndicesManager::isEnabled()
 {
-    return (FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED);
+    return (FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED);
 }
 
 void FormMaterialIndicesManager::disableMaterials()
 {
-    FBOImageProporties::currentMaterialIndeks = MATERIALS_DISABLED;
+    FBOImageProperties::currentMaterialIndeks = MATERIALS_DISABLED;
 }
 
 void FormMaterialIndicesManager::setImage(QImage _image)
@@ -39,7 +39,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
     if (imageProp.glWidget_ptr->isValid())
     {
         // Remember the last id.
-        int mIndex = FBOImageProporties::currentMaterialIndeks;
+        int mIndex = FBOImageProperties::currentMaterialIndeks;
         if(updateMaterials(_image))
         {
             image = _image;
@@ -47,7 +47,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
             emit materialChanged();
         }
 
-        FBOImageProporties::currentMaterialIndeks = mIndex;
+        FBOImageProperties::currentMaterialIndeks = mIndex;
     }
     else
         qDebug() << Q_FUNC_INFO << "Invalid context.";
@@ -108,7 +108,7 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
         for(int m = 0 ; m < ui->listWidgetMaterialIndices->count() ; m++)
         {
             QString m_name = ui->listWidgetMaterialIndices->item(m)->text();
-            FBOImageProporties tmp;
+            FBOImageProperties tmp;
             tmp.copySettings(imagesPointers[i]->imageProp);
             materialIndices[i][m_name] = tmp;
         }
@@ -119,7 +119,7 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
     ui->listWidgetMaterialIndices->item(lastMaterialIndex)->setText(cText+" (selected material)");
 
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    FBOImageProporties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    FBOImageProperties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     bSkipUpdating = false;
 
@@ -143,7 +143,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
 
     // Update current mask color.
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    FBOImageProporties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    FBOImageProperties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     // Load different material.
     m_name = ui->listWidgetMaterialIndices->item(index)->text();
@@ -188,16 +188,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
     (*FormImageProp::recentDir).setPath(fileName);
 
-    int mIndex = FBOImageProporties::currentMaterialIndeks;
+    int mIndex = FBOImageProperties::currentMaterialIndeks;
     if(updateMaterials(_image))
     {
         image = _image;
         imageProp.init(image);
         emit materialChanged();
-        FBOImageProporties::currentMaterialIndeks = mIndex;
+        FBOImageProperties::currentMaterialIndeks = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -207,16 +207,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
 void FormMaterialIndicesManager::pasteImageFromClipboard(QImage& _image)
 {
-    int mIndex = FBOImageProporties::currentMaterialIndeks;
+    int mIndex = FBOImageProperties::currentMaterialIndeks;
     if(updateMaterials(_image))
     {
         image    = _image;
         imageProp.init(image);
         emit materialChanged();
-        FBOImageProporties::currentMaterialIndeks = mIndex;
+        FBOImageProperties::currentMaterialIndeks = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(FBOImageProporties::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(FBOImageProperties::currentMaterialIndeks != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -228,7 +228,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
     if(toggle == false)
     {
         // Render normally.
-        FBOImageProporties::currentMaterialIndeks = MATERIALS_DISABLED;
+        FBOImageProperties::currentMaterialIndeks = MATERIALS_DISABLED;
         emit materialChanged();
     }
     else
@@ -250,7 +250,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
 void FormMaterialIndicesManager::chooseMaterialByColor(QColor color)
 {
     // Check if materials are enabled.
-    if(FBOImageProporties::currentMaterialIndeks == MATERIALS_DISABLED) return;
+    if(FBOImageProperties::currentMaterialIndeks == MATERIALS_DISABLED) return;
 
     bool bColorFound = false;
     // Look for the color in materials.
