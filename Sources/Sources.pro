@@ -97,7 +97,8 @@ HEADERS = glwidget.h \
     basemapconvlevelproperties.h \
     fboimageproperties.h \
     openglwidgetbase.h \
-    openglframebufferobject.h
+    openglframebufferobject.h \
+    opengltexturecube.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -138,7 +139,8 @@ SOURCES = glwidget.cpp \
     basemapconvlevelproperties.cpp \
     fboimageproperties.cpp \
     openglwidgetbase.cpp \
-    openglframebufferobject.cpp
+    openglframebufferobject.cpp \
+    opengltexturecube.cpp
 
 
 RESOURCES += content.qrc
