@@ -4,8 +4,13 @@
 #include <QAction>
 #include <QLabel>
 
-#include "glwidget.h"
-#include "glimageeditor.h"
+#include "openglwidget.h"
+#include "openglimageeditor.h"
+#include "openglframebufferobject.h"
+#include "openglframebufferobjectproperties.h"
+
+//#include "glwidget.h"
+//#include "glimageeditor.h"
 #include "formimageprop.h"
 #include "formmaterialindicesmanager.h"
 #include "formsettingscontainer.h"
@@ -13,7 +18,7 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
-#include "fboimages.h"
+//#include "fboimages.h"
 
 #include "gpuinfo.h"
 #include <Property.h>
@@ -39,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bSaveCheckedImages          = false;
     bSaveCompressedFormImages   = false;
     FormImageProp::recentDir    = &recentDir;
-    GLWidget::recentMeshDir     = &recentMeshDir;
+    OpenGLWidget::recentMeshDir     = &recentMeshDir;
     abSettings                  = new QtnPropertySetAwesomeBump(this);
     
     ui->setupUi(this);
@@ -50,8 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
         statusLabel->setAttribute(Qt::WA_MacSmallSize);
 #endif
 
-    glImage          = new GLImage(this);
-    glWidget         = new GLWidget(this,glImage);
+    glImage          = new OpenGLImageEditor(this);
+    //glWidget         = new OpenGLWidget(this,glImage);
+    glWidget         = new OpenGLWidget(this);
 }
 
 #define INIT_PROGRESS(p,m) \
@@ -508,7 +514,7 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::replotAllImages()
 {
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
@@ -559,7 +565,7 @@ void MainWindow::materialsToggled(bool toggle)
 {
     static bool bLastValue;
     ui->pushButtonMaterialWarning->setVisible(toggle);
-    ui->pushButtonUVWarning->setVisible(FBOImageProperties::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(OpenGLFramebufferObjectProperties::seamlessMode != SEAMLESS_NONE);
     if(toggle){
         bLastValue = diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion;
         diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion = false;
@@ -574,9 +580,9 @@ void MainWindow::materialsToggled(bool toggle)
 
 void MainWindow::checkWarnings()
 {
-    ui->pushButtonConversionWarning->setVisible(FBOImageProperties::bConversionBaseMap);
+    ui->pushButtonConversionWarning->setVisible(OpenGLFramebufferObjectProperties::bConversionBaseMap);
     ui->pushButtonGrungeWarning->setVisible(grungeImageProp->imageProp.properties->Grunge.OverallWeight.value() > 0);
-    ui->pushButtonUVWarning->setVisible(FBOImageProperties::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(OpenGLFramebufferObjectProperties::seamlessMode != SEAMLESS_NONE);
 
     bool bOccTest = (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HO_NO) ||
                     (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HI_NI);
@@ -779,10 +785,10 @@ bool MainWindow::saveAllImages(const QString &dir)
         QCoreApplication::processEvents();
         glImage->makeCurrent();
 
-        QGLFramebufferObject* diffuseFBOImage  = diffuseImageProp->getImageProporties()->fbo;
-        QGLFramebufferObject* normalFBOImage   = normalImageProp->getImageProporties()->fbo;
-        QGLFramebufferObject* specularFBOImage = specularImageProp->getImageProporties()->fbo;
-        QGLFramebufferObject* heightFBOImage   = heightImageProp->getImageProporties()->fbo;
+        QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageProp->getImageProporties()->fbo;
+        QOpenGLFramebufferObject *normalFBOImage   = normalImageProp->getImageProporties()->fbo;
+        QOpenGLFramebufferObject *specularFBOImage = specularImageProp->getImageProporties()->fbo;
+        QOpenGLFramebufferObject *heightFBOImage   = heightImageProp->getImageProporties()->fbo;
 
         QImage diffuseImage = diffuseFBOImage->toImage() ;
         QImage normalImage  = normalFBOImage->toImage();
@@ -1081,7 +1087,7 @@ void MainWindow::initializeImages()
 
     replotAllImages();
     // SSAO recalculation
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
 
     updateImage(OCCLUSION_TEXTURE);
     //glImage->update();
@@ -1143,10 +1149,10 @@ void MainWindow::applyResizeImage()
     int height = ui->comboBoxResizeHeight->currentText().toInt();
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
 
-    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
+    int materiaIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
 
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         if( i != GRUNGE_TEXTURE){ // grunge map does not scale like other images
@@ -1161,7 +1167,7 @@ void MainWindow::applyResizeImage()
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProperties::currentMaterialIndeks = materiaIndex;
+    OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1172,9 +1178,9 @@ void MainWindow::applyResizeImage(int width, int height)
     QCoreApplication::processEvents();
 
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
+    int materiaIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         if( i != GRUNGE_TEXTURE){
@@ -1189,7 +1195,7 @@ void MainWindow::applyResizeImage(int width, int height)
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProperties::currentMaterialIndeks = materiaIndex;
+    OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1217,9 +1223,9 @@ void MainWindow::applyScaleImage()
     int height = diffuseImageProp->getImageProporties()->scr_tex_height*scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = FBOImageProperties::currentMaterialIndeks;
+    int materiaIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
     materialManager->disableMaterials();
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
         glImage->resizeFBO(width,height);
@@ -1232,7 +1238,7 @@ void MainWindow::applyScaleImage()
     glWidget->repaint();
 
     // Replot all material group after image resize.
-    FBOImageProperties::currentMaterialIndeks = materiaIndex;
+    OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled()){
         materialManager->toggleMaterials(true);
     }
@@ -1295,16 +1301,16 @@ void MainWindow::selectContrastInputImage(int mode)
 {
     switch(mode){
     case(0):
-        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+        OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
         break;
     case(1):
-        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
+        OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
         break;
     case(2):
-        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
+        OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
         break;
     case(3):
-        FBOImageProperties::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
+        OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
         break;
     default:
         break;
@@ -1394,16 +1400,16 @@ void MainWindow::runBatch()
 
 void MainWindow::randomizeAngles()
 {
-    FBOImageProperties::seamlessRandomTiling.randomize();
+    OpenGLFramebufferObjectProperties::seamlessRandomTiling.randomize();
     replotAllImages();
 }
 
 void MainWindow::resetRandomPatches()
 {
-    FBOImageProperties::seamlessRandomTiling = RandomTilingMode();
-    ui->horizontalSliderRandomPatchesRotate     ->setValue(FBOImageProperties::seamlessRandomTiling.common_phase);
-    ui->horizontalSliderRandomPatchesInnerRadius->setValue(FBOImageProperties::seamlessRandomTiling.inner_radius*100.0);
-    ui->horizontalSliderRandomPatchesOuterRadius->setValue(FBOImageProperties::seamlessRandomTiling.outer_radius*100.0);
+    OpenGLFramebufferObjectProperties::seamlessRandomTiling = RandomTilingMode();
+    ui->horizontalSliderRandomPatchesRotate     ->setValue(OpenGLFramebufferObjectProperties::seamlessRandomTiling.common_phase);
+    ui->horizontalSliderRandomPatchesInnerRadius->setValue(OpenGLFramebufferObjectProperties::seamlessRandomTiling.inner_radius*100.0);
+    ui->horizontalSliderRandomPatchesOuterRadius->setValue(OpenGLFramebufferObjectProperties::seamlessRandomTiling.outer_radius*100.0);
     updateSpinBoxes(0);
     replotAllImages();
 }
@@ -1462,7 +1468,7 @@ void MainWindow::convertFromNtoH()
 
 void MainWindow::convertFromBase()
 {
-    FBOImageProperties* lastActive = glImage->getActiveImage();
+    OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->setActiveImage(diffuseImageProp->getImageProporties());
     qDebug() << "Conversion from Base to others started";
     normalImageProp   ->setImageName(diffuseImageProp->getImageName());
@@ -1472,7 +1478,7 @@ void MainWindow::convertFromBase()
     roughnessImageProp->setImageName(diffuseImageProp->getImageName());
     metallicImageProp ->setImageName(diffuseImageProp->getImageName());
     glImage->setConversionType(CONVERT_FROM_D_TO_O);
-    glImage->updateGLNow();
+    glImage->update();
     glImage->setConversionType(CONVERT_FROM_D_TO_O);
     replotAllImages();
 
@@ -1505,23 +1511,23 @@ void MainWindow::convertFromHNtoOcc()
 void MainWindow::updateSliders()
 {
     updateSpinBoxes(0);
-    FBOImageProperties::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
-    FBOImageProperties::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
-    FBOImageProperties::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
-    FBOImageProperties::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
-    FBOImageProperties::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
-    FBOImageProperties::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
+    OpenGLFramebufferObjectProperties::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
+    OpenGLFramebufferObjectProperties::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
+    OpenGLFramebufferObjectProperties::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
+    OpenGLFramebufferObjectProperties::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
+    OpenGLFramebufferObjectProperties::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
+    OpenGLFramebufferObjectProperties::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
 
-    FBOImageProperties::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
+    OpenGLFramebufferObjectProperties::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
     // Choose the proper mirror mode.
-    if(ui->radioButtonMirrorModeXY->isChecked()) FBOImageProperties::seamlessMirroModeType = 0;
-    if(ui->radioButtonMirrorModeX ->isChecked()) FBOImageProperties::seamlessMirroModeType = 1;
-    if(ui->radioButtonMirrorModeY ->isChecked()) FBOImageProperties::seamlessMirroModeType = 2;
+    if(ui->radioButtonMirrorModeXY->isChecked()) OpenGLFramebufferObjectProperties::seamlessMirroModeType = 0;
+    if(ui->radioButtonMirrorModeX ->isChecked()) OpenGLFramebufferObjectProperties::seamlessMirroModeType = 1;
+    if(ui->radioButtonMirrorModeY ->isChecked()) OpenGLFramebufferObjectProperties::seamlessMirroModeType = 2;
 
     // Choose the proper simple mode direction.
-    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 0;
-    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 1;
-    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) FBOImageProperties::seamlessSimpleModeDirection = 2;
+    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) OpenGLFramebufferObjectProperties::seamlessSimpleModeDirection = 0;
+    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) OpenGLFramebufferObjectProperties::seamlessSimpleModeDirection = 1;
+    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) OpenGLFramebufferObjectProperties::seamlessSimpleModeDirection = 2;
 
     glImage ->repaint();
     glWidget->repaint();
@@ -1736,7 +1742,7 @@ void MainWindow::loadSettings()
     recentMeshDir = abSettings->recent_mesh_dir;
 
     ui->checkBoxUseLinearTextureInterpolation->setChecked(abSettings->use_texture_interpolation);
-    FBOImages::bUseLinearInterpolation = ui->checkBoxUseLinearTextureInterpolation->isChecked();
+    OpenGLFramebufferObject::bUseLinearInterpolation = ui->checkBoxUseLinearTextureInterpolation->isChecked();
     ui->comboBoxGUIStyle->setCurrentText(abSettings->gui_style);
 
     // UV Settings.

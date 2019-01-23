@@ -3,6 +3,7 @@
 
 #include <QOpenGLExtraFunctions>
 #include "openglwidgetbase.h"
+#include "opengltexturecube.h"
 
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
@@ -15,7 +16,7 @@
 #include "display3dsettings.h"
 #include "camera.h"
 #include "utils/Mesh.hpp"
-#include "utils/qglbuffers.h"
+//#include "utils/qglbuffers.h"
 //#include "glwidgetbase.h"
 //#include "glimageeditor.h"
 #include "properties/Dialog3DGeneralSettings.h"
@@ -145,9 +146,9 @@ private:
     Mesh* env_mesh;
 
     // Orginal cube map.
-    GLTextureCube* m_env_map;
+    OpenGLTextureCube* m_env_map;
     // Filtered lambertian cube map.
-    GLTextureCube* m_prefiltered_env_map;
+    OpenGLTextureCube* m_prefiltered_env_map;
     // Control calculating diffuse environment map.
     bool bDiffuseMapBaked;
 

@@ -442,7 +442,7 @@ void OpenGLWidget::initializeGL()
     env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
     quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
 
-    m_prefiltered_env_map = new GLTextureCube(512);
+    m_prefiltered_env_map = new OpenGLTextureCube(512);
 
     resizeFBOs();
     emit readyGL();
@@ -980,7 +980,7 @@ void OpenGLWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
 
     if(m_env_map != NULL)
         delete m_env_map;
-    m_env_map = new GLTextureCube(list);
+    m_env_map = new OpenGLTextureCube(list);
 
     if(m_env_map->failed())
     {

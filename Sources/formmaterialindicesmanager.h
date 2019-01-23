@@ -2,13 +2,14 @@
 #define FORMMATERIALINDICESMANAGER_H
 
 #include <QMainWindow>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QImage>
 #include <QString>
 #include <QRgb>
 
 #include "formimagebase.h"
 #include "formimageprop.h"
+#include "openglframebufferobjectproperties.h"
 
 namespace Ui
 {
@@ -22,7 +23,7 @@ class FormMaterialIndicesManager : public FormImageBase
     Q_OBJECT
 
 public:
-    FormMaterialIndicesManager(QMainWindow *parent = 0, QGLWidget *qlW_ptr = 0 );
+    FormMaterialIndicesManager(QMainWindow *parent = 0, QOpenGLWidget *qlW_ptr = 0 );
     ~FormMaterialIndicesManager();
 
     void setImage(QImage image);
@@ -54,7 +55,7 @@ protected:
     void pasteImageFromClipboard(QImage& image);
 
     // Settings
-    std::map<QString,FBOImageProperties> materialIndices[7];
+    std::map<QString, OpenGLFramebufferObjectProperties> materialIndices[7];
     std::map<int,QRgb> colorIndices;
     int lastMaterialIndex;
     Ui::FormMaterialIndicesManager *ui;

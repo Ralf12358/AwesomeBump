@@ -3,7 +3,7 @@
 
 extern QString _find_data_dir(const QString& resource);
 
-DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, GLWidget* ptr_gl) :
+DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGLWidget* ptr_gl) :
     QDockWidget(parent),ptr_glWidget(ptr_gl),
     ui(new Ui::DockWidget3DSettings)
 {

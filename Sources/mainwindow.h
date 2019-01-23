@@ -5,6 +5,8 @@
 #include <QSettings>
 #include <QDir>
 
+#include "openglwidget.h"
+#include "openglimageeditor.h"
 #include "postfixnames.h"
 #include "properties/ImageProperties.peg.h"
 
@@ -26,8 +28,6 @@
 
 class QAction;
 class QLabel;
-class GLWidget;
-class GLImage;
 class FormImageProp;
 class FormMaterialIndicesManager;
 class FormSettingsContainer;
@@ -143,8 +143,8 @@ private:
     bool saveAllImages(const QString &dir);
 
     Ui::MainWindow *ui;
-    GLWidget *glWidget;
-    GLImage *glImage;
+    OpenGLWidget *glWidget;
+    OpenGLImageEditor *glImage;
     
     bool bSaveCheckedImages;
     bool bSaveCompressedFormImages;

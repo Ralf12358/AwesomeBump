@@ -12,7 +12,7 @@
 
 bool FormImageProp::bLoading = false;
 
-FormImageProp::FormImageProp(QMainWindow *parent, QGLWidget* qlW_ptr) :
+FormImageProp::FormImageProp(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     FormImageBase(parent),
     ui(new Ui::FormImageProp)
 {
@@ -216,13 +216,13 @@ void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty,
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableConversion)
             {
-                FBOImageProperties::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
+                OpenGLFramebufferObjectProperties::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
             }
             // Enable BaseMapToOthers Conversion Tool Height Preview.
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableHeightPreview)
             {
-                FBOImageProperties::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
+                OpenGLFramebufferObjectProperties::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
             }
             emit imageChanged();
         }
@@ -288,8 +288,13 @@ bool FormImageProp::loadFile(const QString &fileName)
         qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
 
         imageProp.glWidget_ptr->makeCurrent();
-        if(glIsTexture(imageProp.normalMixerInputTexId)) imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+//        if(glIsTexture(imageProp.normalMixerInputTexId))
+//            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
+//        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+        if(imageProp.normalMixerInputTexId)
+            delete imageProp.normalMixerInputTexId;
+        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
+        imageProp.normalMixerInputTexId->bind();
 
         emit imageChanged();
 
@@ -510,9 +515,14 @@ void FormImageProp::pasteNormalFromClipBoard()
         QImage _image = pixmap.toImage();
 
         imageProp.glWidget_ptr->makeCurrent();
-        if(glIsTexture(imageProp.normalMixerInputTexId))
-            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+//        if(glIsTexture(imageProp.normalMixerInputTexId))
+//            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
+//        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+        if(imageProp.normalMixerInputTexId)
+            delete imageProp.normalMixerInputTexId;
+        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
+        imageProp.normalMixerInputTexId->bind();
+
         emit imageChanged();
     }
 }

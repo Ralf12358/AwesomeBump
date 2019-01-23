@@ -2,7 +2,8 @@
 #define DOCKWIDGET3DSETTINGS_H
 
 #include <QDockWidget>
-#include "glwidget.h"
+#include "openglwidget.h"
+#include "properties/ImageProperties.peg.h"
 
 namespace Ui {
 class DockWidget3DSettings;
@@ -20,7 +21,7 @@ public:
      * @param ptr_glWidget - pointer to GLWidget class, some of the control require communication
      *                       between both classes.
      */
-    explicit DockWidget3DSettings(QWidget *parent, GLWidget *ptr_glWidget);
+    explicit DockWidget3DSettings(QWidget *parent, OpenGLWidget *ptr_glWidget);
     ~DockWidget3DSettings();
 public slots:
     /*
@@ -36,7 +37,7 @@ signals:
     void signalSelectedShadingModel(int i);// this signal change Tab name in mainWindow
     void signalSettingsChanged(Display3DSettings settings);
 private:
-    GLWidget *ptr_glWidget;
+    OpenGLWidget *ptr_glWidget;
     Ui::DockWidget3DSettings *ui;
     QSize sizeHint() const;
 public:

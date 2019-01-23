@@ -6,7 +6,8 @@
 #include <QString>
 #include <QDir>
 
-#include "fboimageproperties.h"
+#include "openglframebufferobjectproperties.h"
+//#include "fboimageproperties.h"
 //#include "CommonObjects.h"
 
 // Manages all the input/output operations
@@ -22,13 +23,13 @@ public:
     FormImageBase(QWidget *parent = 0);
     ~FormImageBase();
     void keyPressEvent(QKeyEvent *event);
-    virtual FBOImageProperties* getImageProporties(){return &imageProp;}
+    virtual OpenGLFramebufferObjectProperties* getImageProporties(){return &imageProp;}
     virtual void setImageName(QString name);
     virtual QString getImageName();
     virtual void saveFileToDir(const QString &dir);
     virtual void saveImageToDir(const QString &dir,QImage& image);
     virtual void setImageType(TextureTypes imageType);
-    FBOImageProperties imageProp; // for simplicity I made this public, why not...
+    OpenGLFramebufferObjectProperties imageProp; // for simplicity I made this public, why not...
     // some properties are visible or hiden for given texture type
 
 protected:

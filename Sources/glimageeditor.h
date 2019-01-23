@@ -48,7 +48,8 @@
 #include "glwidgetbase.h"
 #include <math.h>
 #include <map>
-#include "formmaterialindicesmanager.h"
+#include "fboimageproperties.h"
+//#include "formmaterialindicesmanager.h"
 
 #ifdef USE_OPENGL_330
     #include <QOpenGLFunctions_3_3_Core>
