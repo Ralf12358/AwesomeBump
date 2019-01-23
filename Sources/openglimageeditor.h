@@ -9,15 +9,6 @@
 #include <QtOpenGL>
 #include <math.h>
 #include <map>
-//#include "formmaterialindicesmanager.h"
-
-//#ifdef USE_OPENGL_330
-//    #include <QOpenGLFunctions_3_3_Core>
-//    #define OPENGL_FUNCTIONS QOpenGLFunctions_3_3_Core
-//#else
-//    #include <QOpenGLFunctions_4_0_Core>
-//    #define OPENGL_FUNCTIONS QOpenGLFunctions_4_0_Core
-//#endif
 
 #define BasicProp activeImage->properties->Basic
 #define RemoveShadingProp activeImage->properties->RemoveShading

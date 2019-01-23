@@ -1,9 +1,7 @@
 #include "openglimageeditor.h"
 
 #include "openglframebufferobject.h"
-
 #include "qopenglerrorcheck.h"
-//#include "fboimages.h"
 
 OpenGLImageEditor::OpenGLImageEditor(QWidget *parent) :
     OpenGLWidgetBase(parent)

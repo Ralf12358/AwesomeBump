@@ -7,8 +7,6 @@
 #include <QDir>
 
 #include "openglframebufferobjectproperties.h"
-//#include "fboimageproperties.h"
-//#include "CommonObjects.h"
 
 // Manages all the input/output operations
 // like : open & save from/to file

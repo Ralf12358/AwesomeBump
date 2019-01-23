@@ -53,7 +53,6 @@
 #include "allaboutdialog.h"
 #include "qopenglerrorcheck.h"
 #include "display3dsettings.h"
-//#include "CommonObjects.h"
 
 #ifdef USE_OPENGL_330
 #define GL_MAJOR 3

@@ -1,7 +1,6 @@
 #include "openglwidget.h"
 
 #include <QColor>
-
 #include <QtWidgets>
 #include <QtOpenGL>
 #include <math.h>

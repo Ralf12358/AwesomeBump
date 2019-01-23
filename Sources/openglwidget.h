@@ -2,23 +2,17 @@
 #define OPENGLWIDGET_H
 
 #include <QOpenGLExtraFunctions>
-#include "openglwidgetbase.h"
-#include "opengltexturecube.h"
-
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
+#include <QtMath>
 
+#include "openglwidgetbase.h"
+#include "opengltexturecube.h"
 #include "openglframebufferobject.h"
 #include "postfixnames.h"
-
-#include <qmath.h>
-
 #include "display3dsettings.h"
 #include "camera.h"
 #include "utils/Mesh.hpp"
-//#include "utils/qglbuffers.h"
-//#include "glwidgetbase.h"
-//#include "glimageeditor.h"
 #include "properties/Dialog3DGeneralSettings.h"
 #include "utils/glslshaderparser.h"
 

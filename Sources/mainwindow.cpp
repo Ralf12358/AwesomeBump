@@ -4,13 +4,15 @@
 #include <QAction>
 #include <QLabel>
 
+#include <Property.h>
+#include <PropertySet.h>
+
+#include <iostream>
+
 #include "openglwidget.h"
 #include "openglimageeditor.h"
 #include "openglframebufferobject.h"
 #include "openglframebufferobjectproperties.h"
-
-//#include "glwidget.h"
-//#include "glimageeditor.h"
 #include "formimageprop.h"
 #include "formmaterialindicesmanager.h"
 #include "formsettingscontainer.h"
@@ -18,13 +20,7 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
-//#include "fboimages.h"
-
 #include "gpuinfo.h"
-#include <Property.h>
-#include <PropertySet.h>
-
-#include <iostream>
 
 extern QString _find_data_dir(const QString& resource);
 
