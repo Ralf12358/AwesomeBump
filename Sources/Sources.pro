@@ -57,17 +57,15 @@ DEFINES += RESOURCE_BASE=\\\"./\\\"
 VPATH += ../shared
 INCLUDEPATH += ../shared include utils utils/QtnProperty utils/contextinfo
 
-HEADERS = glwidget.h \
+HEADERS = \
     mainwindow.h \
     formimageprop.h \
-    glimageeditor.h \
     camera.h \
     dialogheightcalculator.h \
     qopenglerrorcheck.h \
     formsettingsfield.h \
     formsettingscontainer.h \
     dialoglogger.h \
-    glwidgetbase.h \
     formmaterialindicesmanager.h \
     dialogshortcuts.h \
     allaboutdialog.h \    
@@ -81,7 +79,6 @@ HEADERS = glwidget.h \
     properties/Dialog3DGeneralSettings.h \
 	utils/DebugMetricsMonitor.h \
     utils/Mesh.hpp \
-    utils/qglbuffers.h \
     utils/tinyobj/tiny_obj_loader.h \
     utils/glslshaderparser.h \
     utils/glslparsedshadercontainer.h \
@@ -93,9 +90,7 @@ HEADERS = glwidget.h \
     postfixnames.h \
     randomtilingmode.h \
     display3dsettings.h \
-    fboimages.h \
     basemapconvlevelproperties.h \
-    fboimageproperties.h \
     openglwidgetbase.h \
     openglframebufferobject.h \
     opengltexturecube.h \
@@ -103,20 +98,17 @@ HEADERS = glwidget.h \
     openglimageeditor.h \
     openglwidget.h
 
-SOURCES = glwidget.cpp \
+SOURCES = \
     main.cpp \
     mainwindow.cpp \
     formimageprop.cpp \
-    glimageeditor.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
     utils/Mesh.cpp \
     utils/tinyobj/tiny_obj_loader.cc \
     formsettingsfield.cpp \
     formsettingscontainer.cpp \
-    utils/qglbuffers.cpp \
     dialoglogger.cpp \
-    glwidgetbase.cpp \
     formmaterialindicesmanager.cpp \
     dialogshortcuts.cpp \
     allaboutdialog.cpp \
@@ -138,9 +130,7 @@ SOURCES = glwidget.cpp \
     postfixnames.cpp \
     randomtilingmode.cpp \
     display3dsettings.cpp \
-    fboimages.cpp \
     basemapconvlevelproperties.cpp \
-    fboimageproperties.cpp \
     openglwidgetbase.cpp \
     openglframebufferobject.cpp \
     opengltexturecube.cpp \
