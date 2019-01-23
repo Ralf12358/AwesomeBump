@@ -100,7 +100,8 @@ HEADERS = glwidget.h \
     openglframebufferobject.h \
     opengltexturecube.h \
     openglframebufferobjectproperties.h \
-    openglimageeditor.h
+    openglimageeditor.h \
+    openglwidget.h
 
 SOURCES = glwidget.cpp \
     main.cpp \
@@ -144,7 +145,8 @@ SOURCES = glwidget.cpp \
     openglframebufferobject.cpp \
     opengltexturecube.cpp \
     openglframebufferobjectproperties.cpp \
-    openglimageeditor.cpp
+    openglimageeditor.cpp \
+    openglwidget.cpp
 
 
 RESOURCES += content.qrc
