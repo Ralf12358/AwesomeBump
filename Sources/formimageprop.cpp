@@ -180,8 +180,7 @@ void FormImageProp::setupPopertiesGUI()
     }
 }
 
-void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty,
-                                    const QtnPropertyBase* firedProperty,
+void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty, const QtnPropertyBase*,
                                     QtnPropertyChangeReason reason)
 {
     if (bLoading) return;
@@ -242,7 +241,7 @@ void FormImageProp::propertyFinishedEditing()
     emit imageChanged();
 }
 
-void FormImageProp::applyBaseConversion(const QtnPropertyButton* button)
+void FormImageProp::applyBaseConversion(const QtnPropertyButton*)
 {
     emit conversionBaseConversionApplied();
 }
@@ -333,7 +332,7 @@ void FormImageProp::setImage(QImage _image)
         qDebug() << Q_FUNC_INFO << "Invalid context.";
 }
 
-void FormImageProp::updateComboBoxes(int index=0)
+void FormImageProp::updateComboBoxes(int)
 {
     // Input image case study.
     switch(imageProp.imageType)

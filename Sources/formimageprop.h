@@ -31,16 +31,16 @@ public:
 
 public slots:
     void propertyChanged(const QtnPropertyBase* changedProperty,
-                         const QtnPropertyBase* firedProperty,
+                         const QtnPropertyBase*,
                          QtnPropertyChangeReason reason);
     void propertyFinishedEditing();
     // Convert basemap to other textures.
-    void applyBaseConversion(const QtnPropertyButton* button);
+    void applyBaseConversion(const QtnPropertyButton*);
     void pasteNormalFromClipBoard(const QtnPropertyButton*);
     void reloadImageSettings();
     void pasteFromClipboard();
     void copyToClipboard();
-    void updateComboBoxes(int index);
+    void updateComboBoxes(int);
     void updateGuiSpinBoxesAndLabes(int);
     void updateSlidersOnRelease();
     void applyHeightToNormalConversion();
