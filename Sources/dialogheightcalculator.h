@@ -19,13 +19,13 @@ class DialogHeightCalculator : public QDialog
 public:
     explicit DialogHeightCalculator(QWidget *parent = 0);
     ~DialogHeightCalculator();
-    void setImageSize(int width, int height); // set current image size
-    // calculate the depth of the normal map based on given parameters
-    // this parameter is then used during normal map evaluation
+    // Set current image size.
+    void setImageSize(int width, int height);
+    // Calculate the depth of the normal map based on given parameters.
     float getDepthInPixels();
 
 private slots:
-    void calculateDepthInPixels(double p_depth);
+    void calculateDepthInPixels(double);
 
 private:
 

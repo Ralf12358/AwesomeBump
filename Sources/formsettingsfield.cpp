@@ -3,7 +3,7 @@
 
 int FormSettingsField::settingsGlobalID = 0;
 
-FormSettingsField::FormSettingsField(QString _name,QString _description,QWidget *parent) :
+FormSettingsField::FormSettingsField(QString _name, QString _description, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormSettingsField)
 {
@@ -39,7 +39,6 @@ FormSettingsField::FormSettingsField(QString config_name, QWidget *parent):
     QWidget(parent),
     ui(new Ui::FormSettingsField)
 {
-
     ui->setupUi(this);
     ui->textEditDescription->hide();
     qDebug() << "Loading Settings:" << config_name ;
@@ -47,7 +46,6 @@ FormSettingsField::FormSettingsField(QString config_name, QWidget *parent):
     name         = settings.value("settings_name",QString("name")).toString();
     description  = settings.value("settings_description",QString("Nothing here???")).toString();
     settingsPath = settings.value("settings_path",QString("nope")).toString();
-
 
     ui->textEditDescription->setText(description);
     ui->lineEditName->setText(name);
@@ -65,23 +63,25 @@ FormSettingsField::~FormSettingsField()
     delete ui;
 }
 
-const QString& FormSettingsField::getName(){
+const QString& FormSettingsField::getName()
+{
     return name;
 }
 
-void FormSettingsField::deleteSettings(){
+void FormSettingsField::deleteSettings()
+{
     QFile::remove(settingsPath);
     qDebug() << "Removing settings file:" << settingsPath ;
     emit emitDeleteSettings(this);
 }
-void FormSettingsField::saveSettings(){
 
+void FormSettingsField::saveSettings()
+{
     emit emitSaveSettings();
 
     description = ui->textEditDescription->toPlainText();
     name        = ui->lineEditName->text();
     ui->pushButtonSave->setText("");
-
 
     QFile::remove(settingsPath);
     bool test = QFile::copy("config.ini",settingsPath);
@@ -98,7 +98,9 @@ void FormSettingsField::saveSettings(){
     setAutoFillBackground(true);
     setPalette(p);
 }
-void FormSettingsField::loadSettings(){
+
+void FormSettingsField::loadSettings()
+{
     QFile::remove("config.ini");
     bool test = QFile::copy(settingsPath,"config.ini");
     qDebug() << "Copying from file " << settingsPath + " to config.ini with result:" << test;
@@ -110,22 +112,27 @@ void FormSettingsField::loadSettings(){
     setPalette(p);
 }
 
-void FormSettingsField::loadAndConvert(){
+void FormSettingsField::loadAndConvert()
+{
     loadSettings();
     emit emitLoadAndConvert();
 }
 
 
-void FormSettingsField::resetBackGroundColor(){
+void FormSettingsField::resetBackGroundColor()
+{
     QPalette p(palette());
     p.setColor(QPalette::Background, Qt::transparent);
     setAutoFillBackground(false);
     setPalette(p);
 }
-void FormSettingsField::dataChanged(){
-    ui->pushButtonSave->setText("Save*");
-}
-void FormSettingsField::nameChanged(QString text){
+
+void FormSettingsField::dataChanged()
+{
     ui->pushButtonSave->setText("Save*");
 }
 
+void FormSettingsField::nameChanged(QString)
+{
+    ui->pushButtonSave->setText("Save*");
+}

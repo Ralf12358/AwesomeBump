@@ -10,7 +10,8 @@
 #include "utils/glslshaderparser.h"
 #include "utils/glslparsedshadercontainer.h"
 
-namespace Ui {
+namespace Ui
+{
 class PropertyDialog;
 }
 
@@ -21,30 +22,36 @@ class Dialog3DGeneralSettings : public QDialog
 public:
     Dialog3DGeneralSettings(QWidget* parent);
     ~Dialog3DGeneralSettings();
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent*);
 
-    void saveSettings();   // save current properties to file
-public slots:
-    void show();           // opens settings window
-    void cancelSettings(); // restore last settings when window is cancelled
-    void acceptSettings(); // save current settings to file when OK button is pressed
-    void propertyChanged(const QtnPropertyBase*changedProperty, const QtnPropertyBase*firedProperty, QtnPropertyChangeReason reason);
-    void recompileCustomShader();
-    void shaderChanged(int index);
-    static void updateParsedShaders();
-    static void setUniforms();
-signals:
-    void signalPropertyChanged();
-    void signalRecompileCustomShader();
-private:
-    QtnPropertyDelegateInfo delegate;
-    Ui::PropertyDialog *ui;
-    QtnPropertySet* cpyPropertySet;//keeps last settings before window was open
-public:
+    // Save current properties to file.
+    void saveSettings();
+
     static QtnPropertySetFilters3D* settings3D;
     static GLSLShaderParser* currentRenderShader;
     static GLSLParsedShaderContainer* glslParsedShaders;
 
+signals:
+    void signalPropertyChanged();
+    void signalRecompileCustomShader();
+
+public slots:
+    // Opens settings window.
+    void show();
+    // Restore last settings when window is cancelled.
+    void cancelSettings();
+    // Save current settings to file when OK button is pressed.
+    void acceptSettings();
+    void propertyChanged(const QtnPropertyBase *, const QtnPropertyBase *, QtnPropertyChangeReason reason);
+    void recompileCustomShader();
+    void shaderChanged(int index);
+    static void updateParsedShaders();
+    static void setUniforms();
+
+private:
+    QtnPropertyDelegateInfo delegate;
+    Ui::PropertyDialog *ui;
+    QtnPropertySet* cpyPropertySet;//keeps last settings before window was open
 };
 
 #endif // MYDIALOG_H

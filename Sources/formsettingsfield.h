@@ -27,7 +27,7 @@ public slots:
     void loadSettings();  // copy settings file to main config.ini file
     void loadAndConvert(); // same as loadSettings but also convert images from diffuse
     void dataChanged();
-    void nameChanged(QString text);
+    void nameChanged(QString);
     void resetBackGroundColor();
 
 

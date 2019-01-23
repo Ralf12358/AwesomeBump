@@ -74,7 +74,7 @@ void FormSettingsContainer::removeSetting(FormSettingsField* field){
     delete field;
 }
 
-void FormSettingsContainer::reloadSettings(FormSettingsField* field){
+void FormSettingsContainer::reloadSettings(FormSettingsField *){
     for(int i = 0 ; i < settingsList.size() ; i++){
         settingsList[i]->resetBackGroundColor();
     }

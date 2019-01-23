@@ -7,7 +7,8 @@
 #include "formsettingsfield.h"
 #include <QVector>
 
-namespace Ui {
+namespace Ui
+{
 class FormSettingsContainer;
 }
 
@@ -19,20 +20,26 @@ public:
     explicit FormSettingsContainer(QWidget *parent = 0);
     ~FormSettingsContainer();
 
+signals:
+    // Force main window to read config.ini again.
+    void reloadConfigFile();
+    // Current configs will be save to config.ini file.
+    void forceSaveCurrentConfig();
+    // Load settings and convert images
+    void emitLoadAndConvert();
+
 public slots:
-    void addNewSettingsField(); // create a new settings record
+    // Create a new settings record.
+    void addNewSettingsField();
     void toggleAdding();
-    void removeSetting(FormSettingsField* field); // destroys also files
-    void reloadSettings(FormSettingsField* field);
+    // Also destroys files.
+    void removeSetting(FormSettingsField *field);
+    void reloadSettings(FormSettingsField *);
     void saveSettings();
     void loadAndConvert();
     void filterPresets(QString filter);
-signals:
-    void reloadConfigFile(); // force main window to read config.ini again
-    void forceSaveCurrentConfig(); // current configs will be save to config.ini file
-    void emitLoadAndConvert(); // load settings and convert images
-private:
 
+private:
     Ui::FormSettingsContainer *ui;
     QVector<FormSettingsField*> settingsList;
 };
