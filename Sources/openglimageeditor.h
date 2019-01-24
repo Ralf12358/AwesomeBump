@@ -131,7 +131,6 @@ public:
     void applyRoughnessFilter(QOpenGLFramebufferObject *inputFBO,
                               QOpenGLFramebufferObject *auxFBO,
                               QOpenGLFramebufferObject *outputFBO);
-
     void applyDGaussiansFilter(QOpenGLFramebufferObject *inputFBO,
                              QOpenGLFramebufferObject *auxFBO,
                              QOpenGLFramebufferObject *outputFBO);
@@ -139,8 +138,7 @@ public:
                              QOpenGLFramebufferObject *outputFBO);
     void applyHeightProcessingFilter( QOpenGLFramebufferObject *inputFBO,
                                       QOpenGLFramebufferObject *outputFBO);
-    void applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO,
-                                  QOpenGLFramebufferObject *auxFBO,
+    void applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO, QOpenGLFramebufferObject *,
                                   QOpenGLFramebufferObject *outputFBO);
     void applyInverseColorFilter(QOpenGLFramebufferObject *inputFBO,
                                  QOpenGLFramebufferObject *outputFBO);
