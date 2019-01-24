@@ -62,7 +62,6 @@ HEADERS = \
     formimageprop.h \
     camera.h \
     dialogheightcalculator.h \
-    qopenglerrorcheck.h \
     formsettingsfield.h \
     formsettingscontainer.h \
     dialoglogger.h \
@@ -96,7 +95,8 @@ HEADERS = \
     openglframebufferobjectproperties.h \
     openglimageeditor.h \
     openglwidget.h \
-    utils/mesh.h
+    utils/mesh.h \
+    openglerrorcheck.h
 
 SOURCES = \
     main.cpp \

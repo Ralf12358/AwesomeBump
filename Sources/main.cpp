@@ -51,7 +51,7 @@
 #include "mainwindow.h"
 #include "splashscreen.h"
 #include "allaboutdialog.h"
-#include "qopenglerrorcheck.h"
+#include "openglerrorcheck.h"
 #include "display3dsettings.h"
 
 #ifdef USE_OPENGL_330

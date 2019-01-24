@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "qopenglerrorcheck.h"
+#include "openglerrorcheck.h"
 #include "openglframebufferobject.h"
 
 SeamlessMode OpenGLFramebufferObjectProperties::seamlessMode                 = SEAMLESS_NONE;

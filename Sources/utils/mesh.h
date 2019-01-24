@@ -8,7 +8,7 @@
 #include <QVector>
 #include <QVector3D>
 #include <iostream>
-#include "../qopenglerrorcheck.h"
+#include "../openglerrorcheck.h"
 #include "tinyobj/tiny_obj_loader.h"
 
 class Mesh : public QOpenGLFunctions_4_5_Core

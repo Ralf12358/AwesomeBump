@@ -1,6 +1,6 @@
 #include "glslshaderparser.h"
 
-#include "qopenglerrorcheck.h"
+#include "openglerrorcheck.h"
 
 GLSLShaderParser::GLSLShaderParser()
 {

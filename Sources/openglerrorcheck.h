@@ -1,5 +1,5 @@
-#ifndef QOPENGLERRORCHECK_H
-#define QOPENGLERRORCHECK_H
+#ifndef OPENGLERRORCHECK_H
+#define OPENGLERRORCHECK_H
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qdebug.h>
@@ -10,7 +10,8 @@
 
 QT_BEGIN_NAMESPACE
 
-static void checkOpenGLError( const char* stmt, const char* function, const char* file, int line, const char* info )
+__attribute__((used))
+static void checkOpenGLError(const char *stmt, const char *function, const char *file, int line, const char *info)
 {
   GLenum err = glGetError();
   while (err != GL_NO_ERROR)
@@ -59,21 +60,21 @@ static void checkOpenGLError( const char* stmt, const char* function, const char
     }
 
 #ifdef GNU_C
-    // In GNU_C we can use statement macros as expressions...
+    // In GNU_C we can use statement macros as expressions ...
     #define GLCHK2(stmt, R) {(                                          \
         R __ret=(stmt);                                                 \
         checkOpenGLError(#stmt, Q_FUNC_INFO, __FILE__, __LINE__, NULL); \
         __ret;					    \
     })
 #else
-    //... otherwise we just use lambda functions
+    // ... otherwise we just use lambda functions
     #define GLCHK2(stmt, R) [](){                                         \
           R __ret=(stmt);                                                 \
           checkOpenGLError(#stmt, Q_FUNC_INFO, __FILE__, __LINE__, NULL); \
           return __ret;                                                   \
     }();
-#endif
+#endif // GNU_C
 
-#endif
+#endif // !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
 
-#endif // QOPENGLERRORCHECK_H
+#endif // OPENGLERRORCHECK_H

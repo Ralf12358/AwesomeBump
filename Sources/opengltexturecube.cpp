@@ -1,6 +1,6 @@
 #include "opengltexturecube.h"
 
-#include "qopenglerrorcheck.h"
+#include "openglerrorcheck.h"
 
 OpenGLTextureCube::OpenGLTextureCube(int size) : m_texture(0), m_failed(false)
 {
