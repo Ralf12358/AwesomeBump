@@ -12,7 +12,7 @@
 #include "postfixnames.h"
 #include "display3dsettings.h"
 #include "camera.h"
-#include "utils/Mesh.hpp"
+#include "utils/mesh.h"
 #include "properties/Dialog3DGeneralSettings.h"
 #include "utils/glslshaderparser.h"
 

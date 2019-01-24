@@ -78,7 +78,6 @@ HEADERS = \
     properties/PropertyDelegateABColor.h \
     properties/Dialog3DGeneralSettings.h \
 	utils/DebugMetricsMonitor.h \
-    utils/Mesh.hpp \
     utils/tinyobj/tiny_obj_loader.h \
     utils/glslshaderparser.h \
     utils/glslparsedshadercontainer.h \
@@ -96,7 +95,8 @@ HEADERS = \
     opengltexturecube.h \
     openglframebufferobjectproperties.h \
     openglimageeditor.h \
-    openglwidget.h
+    openglwidget.h \
+    utils/mesh.h
 
 SOURCES = \
     main.cpp \
@@ -104,7 +104,6 @@ SOURCES = \
     formimageprop.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
-    utils/Mesh.cpp \
     utils/tinyobj/tiny_obj_loader.cc \
     formsettingsfield.cpp \
     formsettingscontainer.cpp \
@@ -136,7 +135,8 @@ SOURCES = \
     opengltexturecube.cpp \
     openglframebufferobjectproperties.cpp \
     openglimageeditor.cpp \
-    openglwidget.cpp
+    openglwidget.cpp \
+    utils/mesh.cpp
 
 
 RESOURCES += content.qrc
