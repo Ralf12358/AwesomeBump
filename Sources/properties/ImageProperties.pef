@@ -4,7 +4,7 @@
 
 #include_cpp <QFileDialog>
 #include_cpp "propertyconstructor.h"
-#include_cpp "../CommonObjects.h"
+#include_cpp "../postfixnames.h"
 
 
 enum COLOR
