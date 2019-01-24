@@ -72,7 +72,6 @@ HEADERS = \
     dockwidget3dsettings.h \
     gpuinfo.h \
     properties/propertyconstructor.h \
-    properties/propertydelegateabfloatslider.h \
     properties/PropertyABColor.h \
     properties/PropertyDelegateABColor.h \
     properties/Dialog3DGeneralSettings.h \
