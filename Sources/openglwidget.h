@@ -32,6 +32,12 @@ public:
     QSize sizeHint() const;
     void setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureTypes type);
 
+signals:
+    void renderGL();
+    void readyGL();
+    // Emit material index color.
+    void materialColorPicked(QColor);
+
 public slots:
     void toggleDiffuseView(bool);
     void toggleSpecularView(bool);
@@ -42,7 +48,6 @@ public slots:
     void toggleMetallicView(bool);
     void setCameraMouseSensitivity(int value);
     void resetCameraPosition();
-    void cleanup();
 
     // Mesh functions.
     void loadMeshFromFile();//opens file dialog
@@ -54,12 +59,6 @@ public slots:
     void updatePerformanceSettings(Display3DSettings settings);
     // Read and compile custom fragment shader again, can be called from 3D settings GUI.
     void recompileRenderShader();
-
-signals:
-    void renderGL();
-    void readyGL();
-    // Emit material index color.
-    void materialColorPicked(QColor);
 
 protected:
     void initializeGL();
@@ -93,12 +92,13 @@ private:
                       QVector4D& objectCoordinate);
     // Calculate prefiltered enviromental map.
     void bakeEnviromentalMaps();
+
     // Same as "program" but instead of triangles lines are used
     QOpenGLShaderProgram *line_program;
     QOpenGLShaderProgram *skybox_program;
     QOpenGLShaderProgram *env_program;
 
-    QOpenGLFramebufferObject**  fboIdPtrs[8];
+    QOpenGLFramebufferObject **fboIdPtrs[8];
 
     bool bToggleDiffuseView;
     bool bToggleSpecularView;
@@ -128,7 +128,7 @@ private:
     AwesomeCamera newCamera;
 
     double cameraInterpolation;
-    //Second light - use camera class to rotate light
+    // Second light - use camera class to rotate light
     AwesomeCamera lightDirection;
     QCursor lightCursor;
 

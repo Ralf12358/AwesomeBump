@@ -52,11 +52,6 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
 
 OpenGLWidget::~OpenGLWidget()
 {
-    cleanup();
-}
-
-void OpenGLWidget::cleanup()
-{
     makeCurrent();
     deleteFBOs();
 
@@ -94,20 +89,38 @@ QSize OpenGLWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGLWidget::setCameraMouseSensitivity(int value)
+void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureTypes tType)
 {
-    camera.setMouseSensitivity(value);
+    switch(tType)
+    {
+    case DIFFUSE_TEXTURE:
+        fboIdPtrs[0] = pointer;
+        break;
+    case NORMAL_TEXTURE:
+        fboIdPtrs[1] = pointer;
+        break;
+    case SPECULAR_TEXTURE:
+        fboIdPtrs[2] = pointer;
+        break;
+    case HEIGHT_TEXTURE:
+        fboIdPtrs[3] = pointer;
+        break;
+    case OCCLUSION_TEXTURE:
+        fboIdPtrs[4] = pointer;
+        break;
+    case ROUGHNESS_TEXTURE:
+        fboIdPtrs[5] = pointer;
+        break;
+    case METALLIC_TEXTURE:
+        fboIdPtrs[6] = pointer;
+        break;
+    case MATERIAL_TEXTURE:
+        fboIdPtrs[7] = pointer;
+        break;
+    default:
+        break;
+    }
 }
-
-void OpenGLWidget::resetCameraPosition()
-{
-    camera.reset();
-    newCamera.reset();
-    cameraInterpolation = 1.0;
-    emit changeCamPositionApplied(false);
-    update();
-}
-
 
 void OpenGLWidget::toggleDiffuseView(bool enable)
 {
@@ -151,6 +164,221 @@ void OpenGLWidget::toggleMetallicView(bool enable)
     update();
 }
 
+void OpenGLWidget::setCameraMouseSensitivity(int value)
+{
+    camera.setMouseSensitivity(value);
+}
+
+void OpenGLWidget::resetCameraPosition()
+{
+    camera.reset();
+    newCamera.reset();
+    cameraInterpolation = 1.0;
+    emit changeCamPositionApplied(false);
+    update();
+}
+
+void OpenGLWidget::loadMeshFromFile()
+{
+    QStringList picturesLocations;
+    if(recentMeshDir == NULL )
+        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    else
+        picturesLocations << recentMeshDir->absolutePath();
+
+    QFileDialog dialog(
+                this,
+                tr("Open Mesh File"),
+                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
+                tr("OBJ file format (*.obj *.OBJ );;"));
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    while (dialog.exec() == QDialog::Accepted && !loadMeshFile(dialog.selectedFiles().first()))
+    {}
+}
+
+bool OpenGLWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
+{
+    // Load new mesh.
+    Mesh* new_mesh;
+    if(bAddExtension)
+    {
+        new_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/",fileName+QString(".obj"));
+    }
+    else
+    {
+        new_mesh = new Mesh(QString(""),fileName);
+    }
+
+    if(new_mesh->isLoaded())
+    {
+        if(mesh != NULL)
+            delete mesh;
+        mesh = new_mesh;
+        recentMeshDir->setPath(fileName);
+        if( new_mesh->getMeshLog() != QString("")  )
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Warning! There were some problems during model loading.");
+            msgBox.setInformativeText("Loader message:\n"+new_mesh->getMeshLog());
+            msgBox.setStandardButtons(QMessageBox::Cancel);
+            msgBox.exec();
+        }
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Error! Cannot load given model.");
+        msgBox.setInformativeText("Sorry, but the loaded mesh is incorrect.\nLoader message:\n"+new_mesh->getMeshLog());
+        msgBox.setStandardButtons(QMessageBox::Cancel);
+        msgBox.exec();
+        delete new_mesh;
+    }
+
+    update();
+    return true;
+}
+
+void OpenGLWidget::chooseMeshFile(const QString &fileName)
+{
+    loadMeshFile(fileName,true);
+}
+
+void OpenGLWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
+{
+    QStringList list;
+    makeCurrent();
+    list << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posx.jpg"
+         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negx.jpg"
+         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posy.jpg"
+         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negy.jpg"
+         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posz.jpg"
+         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negz.jpg";
+
+    qDebug() << "Reading new cube map:" << list;
+    bDiffuseMapBaked = false;
+
+    if(m_env_map != NULL)
+        delete m_env_map;
+    m_env_map = new OpenGLTextureCube(list);
+
+    if(m_env_map->failed())
+    {
+        qWarning() << "Cannot load cube map: check if images listed above exist.";
+    }
+    // Skip when loading first cube map.
+    if(!bFirstTime)
+        update();
+    else
+        qDebug() << "Skipping OpenGLWidget repainting during first Env. maps. load.";
+}
+
+void OpenGLWidget::updatePerformanceSettings(Display3DSettings settings)
+{
+    display3Dparameters = settings;
+    update();
+}
+
+void OpenGLWidget::recompileRenderShader()
+{
+    makeCurrent();
+    currentShader->reparseShader();
+    currentShader->program->release();
+    delete currentShader->program;
+    currentShader->program = new QOpenGLShaderProgram(this);
+
+    QOpenGLShader *vshader  = NULL;
+    QOpenGLShader *tcshader = NULL;
+    QOpenGLShader *teshader = NULL;
+    QOpenGLShader *gshader  = NULL;
+
+    qDebug() << "Recompiling shaders:";
+    gshader = new QOpenGLShader(QOpenGLShader::Geometry, this);
+    QFile gFile(":/resources/shaders/plane.geom");
+    gFile.open(QFile::ReadOnly);
+    QTextStream in(&gFile);
+    QString shaderCode = in.readAll();
+    QString preambule = "#version 330 core\n"
+                        "layout(triangle_strip, max_vertices = 3) out;\n" ;
+    gshader->compileSourceCode(preambule+shaderCode);
+    if (!gshader->log().isEmpty()) qDebug() << gshader->log();
+    else qDebug() << "  Geometry shader: OK";
+
+#ifndef USE_OPENGL_330
+    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
+    vshader->compileSourceFile(":/resources/shaders/plane.vert");
+    if (!vshader->log().isEmpty())
+        qDebug() << vshader->log();
+    else
+        qDebug() << "  Vertex shader (GLSL4.0): OK";
+
+    tcshader = new QOpenGLShader(QOpenGLShader::TessellationControl, this);
+    tcshader->compileSourceFile(":/resources/shaders/plane.tcs.vert");
+    if (!tcshader->log().isEmpty())
+        qDebug() << tcshader->log();
+    else
+        qDebug() << "  Tessellation control shader (GLSL4.0): OK";
+
+    teshader = new QOpenGLShader(QOpenGLShader::TessellationEvaluation, this);
+    teshader->compileSourceFile(":/resources/shaders/plane.tes.vert");
+    if (!teshader->log().isEmpty())
+        qDebug() << teshader->log();
+    else
+        qDebug() << "  Tessellation evaluation shader (GLSL4.0): OK";
+#else
+    // Set shaders for 3.30 version of openGL
+    qDebug() << "Loading quad (vertex shader) for openGL 3.30";
+    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
+    vshader->compileSourceFile(":/resources/shaders/plane_330.vert");
+    if (!vshader->log().isEmpty())
+        qDebug() << vshader->log();
+    else
+        qDebug() << "  Vertex shader (GLSL3.3): OK";
+#endif
+
+    // Load custom fragment shader.
+    QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
+    pfshader->compileSourceFile(currentShader->shaderPath);
+    if (!pfshader->log().isEmpty())
+        qDebug() << pfshader->log();
+    else
+        qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
+
+#ifndef USE_OPENGL_330
+    currentShader->program->addShader(tcshader);
+    currentShader->program->addShader(teshader);
+#endif
+    currentShader->program->addShader(vshader);
+    currentShader->program->addShader(pfshader);
+    currentShader->program->addShader(gshader);
+    currentShader->program->bindAttributeLocation("FragColor",0);
+    currentShader->program->bindAttributeLocation("FragNormal",1);
+    currentShader->program->bindAttributeLocation("FragGlowColor",2);
+    currentShader->program->bindAttributeLocation("FragPosition",3);
+    GLCHK(currentShader->program->link());
+
+    delete pfshader;
+    if(vshader  != NULL) delete vshader;
+    if(tcshader != NULL) delete tcshader;
+    if(teshader != NULL) delete teshader;
+    if(gshader  != NULL) delete gshader;
+
+    GLCHK(currentShader->program->bind());
+    currentShader->program->setUniformValue("texDiffuse",           0);
+    currentShader->program->setUniformValue("texNormal",            1);
+    currentShader->program->setUniformValue("texSpecular",          2);
+    currentShader->program->setUniformValue("texHeight",            3);
+    currentShader->program->setUniformValue("texSSAO",              4);
+    currentShader->program->setUniformValue("texRoughness",         5);
+    currentShader->program->setUniformValue("texMetallic",          6);
+    currentShader->program->setUniformValue("texMaterial",          7);
+    currentShader->program->setUniformValue("texPrefilteredEnvMap", 8);
+    currentShader->program->setUniformValue("texSourceEnvMap",      9);
+
+    GLCHK(currentShader->program->release());
+    Dialog3DGeneralSettings::updateParsedShaders();
+    update();
+}
 
 void OpenGLWidget::initializeGL()
 {
@@ -667,35 +895,6 @@ void OpenGLWidget::paintGL()
     emit renderGL();
 }
 
-void OpenGLWidget::bakeEnviromentalMaps()
-{
-    if(bDiffuseMapBaked) return;
-    bDiffuseMapBaked = true;
-
-    // Drawing env - one pass method
-    env_program->bind();
-    m_prefiltered_env_map->bindFBO();
-    glViewport(0,0,512,512);
-
-    objectMatrix.setToIdentity();
-    objectMatrix.scale(1.0);
-    objectMatrix.rotate(90.0,1,0,0);
-
-    modelViewMatrix = viewMatrix * objectMatrix;
-    NormalMatrix    = modelViewMatrix.normalMatrix();
-
-    GLCHK( env_program->setUniformValue("ModelViewMatrix",  modelViewMatrix) );
-    GLCHK( env_program->setUniformValue("NormalMatrix",     NormalMatrix) );
-    GLCHK( env_program->setUniformValue("ModelMatrix",      objectMatrix) );
-    GLCHK( env_program->setUniformValue("ProjectionMatrix", projectionMatrix) );
-    GLCHK( glActiveTexture(GL_TEXTURE0) );
-    GLCHK( m_env_map->bind());
-    GLCHK( env_mesh->drawMesh(true) );
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, width(), height()) ;
-}
-
 void OpenGLWidget::resizeGL(int width, int height)
 {
     ratio = float(width)/height;
@@ -716,7 +915,8 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event)
     else if(event->buttons() & Qt::MiddleButton)
     {
         setCursor(lightCursor);
-    }else if((event->buttons() & Qt::LeftButton) && (keyPressed == Qt::Key_Shift) )
+    }
+    else if((event->buttons() & Qt::LeftButton) && (keyPressed == Qt::Key_Shift) )
     {
         colorFBO->bind();
         // NormalFBO contains World Space position.
@@ -766,35 +966,6 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     setCursor(Qt::PointingHandCursor);
     event->accept();
-}
-
-int OpenGLWidget::glhUnProjectf(float& winx, float& winy, float& winz,
-                            QMatrix4x4& modelview, QMatrix4x4& projection,
-                            QVector4D& objectCoordinate)
-{
-    //Transformation matrices
-    QVector4D in,out;
-
-    // Compute projection x modelview.
-    QMatrix4x4  A = projection * modelview;
-    // Compute the inverse of matrix A
-    QMatrix4x4  m = A.inverted();
-
-    // Transform normalized coordinates between -1 and 1
-    in[0]=(winx)/(float)width()*2.0-1.0;
-    in[1]=(1-(winy)/(float)height())*2.0-1.0;
-    in[2]=2.0*winz-1.0;
-    in[3]=1.0;
-    // Object's coordinates
-    out = m * in;
-
-    if(out[3]==0.0)
-        return 0;
-    out[3]=1.0/out[3];
-    objectCoordinate[0]=out[0]*out[3];
-    objectCoordinate[1]=out[1]*out[3];
-    objectCoordinate[2]=out[2]*out[3];
-    return 1;
 }
 
 void OpenGLWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
@@ -857,248 +1028,6 @@ void OpenGLWidget::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureTypes tType)
-{
-    switch(tType)
-    {
-    case(DIFFUSE_TEXTURE ):
-        fboIdPtrs[0] = pointer;
-        break;
-    case(NORMAL_TEXTURE  ):
-        fboIdPtrs[1] = pointer;
-        break;
-    case(SPECULAR_TEXTURE):
-        fboIdPtrs[2] = pointer;
-        break;
-    case(HEIGHT_TEXTURE  ):
-        fboIdPtrs[3] = pointer;
-        break;
-    case(OCCLUSION_TEXTURE ):
-        fboIdPtrs[4] = pointer;
-        break;
-    case(ROUGHNESS_TEXTURE ):
-        fboIdPtrs[5] = pointer;
-        break;
-    case(METALLIC_TEXTURE ):
-        fboIdPtrs[6] = pointer;
-        break;
-    case(MATERIAL_TEXTURE ):
-        fboIdPtrs[7] = pointer;
-        break;
-    default:
-        break;
-    }
-}
-
-QPointF OpenGLWidget::pixelPosToViewPos(const QPointF& p)
-{
-    return QPointF(2.0 * float(p.x()) / width() - 1.0,
-                   1.0 - 2.0 * float(p.y()) / height());
-}
-
-
-void OpenGLWidget::loadMeshFromFile()
-{
-    QStringList picturesLocations;
-    if(recentMeshDir == NULL )
-        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    else
-        picturesLocations << recentMeshDir->absolutePath();
-
-    QFileDialog dialog(
-                this,
-                tr("Open Mesh File"),
-                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
-                tr("OBJ file format (*.obj *.OBJ );;"));
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-    while (dialog.exec() == QDialog::Accepted && !loadMeshFile(dialog.selectedFiles().first()))
-    {}
-}
-
-bool OpenGLWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
-{
-    // Load new mesh.
-    Mesh* new_mesh;
-    if(bAddExtension)
-    {
-        new_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/",fileName+QString(".obj"));
-    }
-    else
-    {
-        new_mesh = new Mesh(QString(""),fileName);
-    }
-
-    if(new_mesh->isLoaded())
-    {
-        if(mesh != NULL)
-            delete mesh;
-        mesh = new_mesh;
-        recentMeshDir->setPath(fileName);
-        if( new_mesh->getMeshLog() != QString("")  )
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Warning! There were some problems during model loading.");
-            msgBox.setInformativeText("Loader message:\n"+new_mesh->getMeshLog());
-            msgBox.setStandardButtons(QMessageBox::Cancel);
-            msgBox.exec();
-        }
-    }
-    else
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Error! Cannot load given model.");
-        msgBox.setInformativeText("Sorry, but the loaded mesh is incorrect.\nLoader message:\n"+new_mesh->getMeshLog());
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        delete new_mesh;
-    }
-
-    update();
-    return true;
-}
-
-void OpenGLWidget::chooseMeshFile(const QString &fileName)
-{
-    loadMeshFile(fileName,true);
-}
-
-void OpenGLWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
-{
-    QStringList list;
-    makeCurrent();
-    list << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posx.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negx.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posy.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negy.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posz.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negz.jpg";
-
-    qDebug() << "Reading new cube map:" << list;
-    bDiffuseMapBaked = false;
-
-    if(m_env_map != NULL)
-        delete m_env_map;
-    m_env_map = new OpenGLTextureCube(list);
-
-    if(m_env_map->failed())
-    {
-        qWarning() << "Cannot load cube map: check if images listed above exist.";
-    }
-    // Skip when loading first cube map.
-    if(!bFirstTime)
-        update();
-    else
-        qDebug() << "Skipping OpenGLWidget repainting during first Env. maps. load.";
-}
-
-void OpenGLWidget::updatePerformanceSettings(Display3DSettings settings)
-{
-    display3Dparameters = settings;
-    update();
-}
-
-void OpenGLWidget::recompileRenderShader()
-{
-    makeCurrent();
-    currentShader->reparseShader();
-    currentShader->program->release();
-    delete currentShader->program;
-    currentShader->program = new QOpenGLShaderProgram(this);
-
-    QOpenGLShader *vshader  = NULL;
-    QOpenGLShader *tcshader = NULL;
-    QOpenGLShader *teshader = NULL;
-    QOpenGLShader *gshader  = NULL;
-
-    qDebug() << "Recompiling shaders:";
-    gshader = new QOpenGLShader(QOpenGLShader::Geometry, this);
-    QFile gFile(":/resources/shaders/plane.geom");
-    gFile.open(QFile::ReadOnly);
-    QTextStream in(&gFile);
-    QString shaderCode = in.readAll();
-    QString preambule = "#version 330 core\n"
-                        "layout(triangle_strip, max_vertices = 3) out;\n" ;
-    gshader->compileSourceCode(preambule+shaderCode);
-    if (!gshader->log().isEmpty()) qDebug() << gshader->log();
-    else qDebug() << "  Geometry shader: OK";
-
-#ifndef USE_OPENGL_330
-    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceFile(":/resources/shaders/plane.vert");
-    if (!vshader->log().isEmpty())
-        qDebug() << vshader->log();
-    else
-        qDebug() << "  Vertex shader (GLSL4.0): OK";
-
-    tcshader = new QOpenGLShader(QOpenGLShader::TessellationControl, this);
-    tcshader->compileSourceFile(":/resources/shaders/plane.tcs.vert");
-    if (!tcshader->log().isEmpty())
-        qDebug() << tcshader->log();
-    else
-        qDebug() << "  Tessellation control shader (GLSL4.0): OK";
-
-    teshader = new QOpenGLShader(QOpenGLShader::TessellationEvaluation, this);
-    teshader->compileSourceFile(":/resources/shaders/plane.tes.vert");
-    if (!teshader->log().isEmpty())
-        qDebug() << teshader->log();
-    else
-        qDebug() << "  Tessellation evaluation shader (GLSL4.0): OK";
-#else
-    // Set shaders for 3.30 version of openGL
-    qDebug() << "Loading quad (vertex shader) for openGL 3.30";
-    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceFile(":/resources/shaders/plane_330.vert");
-    if (!vshader->log().isEmpty())
-        qDebug() << vshader->log();
-    else
-        qDebug() << "  Vertex shader (GLSL3.3): OK";
-#endif
-
-    // Load custom fragment shader.
-    QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    pfshader->compileSourceFile(currentShader->shaderPath);
-    if (!pfshader->log().isEmpty())
-        qDebug() << pfshader->log();
-    else
-        qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
-
-#ifndef USE_OPENGL_330
-    currentShader->program->addShader(tcshader);
-    currentShader->program->addShader(teshader);
-#endif
-    currentShader->program->addShader(vshader);
-    currentShader->program->addShader(pfshader);
-    currentShader->program->addShader(gshader);
-    currentShader->program->bindAttributeLocation("FragColor",0);
-    currentShader->program->bindAttributeLocation("FragNormal",1);
-    currentShader->program->bindAttributeLocation("FragGlowColor",2);
-    currentShader->program->bindAttributeLocation("FragPosition",3);
-    GLCHK(currentShader->program->link());
-
-    delete pfshader;
-    if(vshader  != NULL) delete vshader;
-    if(tcshader != NULL) delete tcshader;
-    if(teshader != NULL) delete teshader;
-    if(gshader  != NULL) delete gshader;
-
-    GLCHK(currentShader->program->bind());
-    currentShader->program->setUniformValue("texDiffuse",           0);
-    currentShader->program->setUniformValue("texNormal",            1);
-    currentShader->program->setUniformValue("texSpecular",          2);
-    currentShader->program->setUniformValue("texHeight",            3);
-    currentShader->program->setUniformValue("texSSAO",              4);
-    currentShader->program->setUniformValue("texRoughness",         5);
-    currentShader->program->setUniformValue("texMetallic",          6);
-    currentShader->program->setUniformValue("texMaterial",          7);
-    currentShader->program->setUniformValue("texPrefilteredEnvMap", 8);
-    currentShader->program->setUniformValue("texSourceEnvMap",      9);
-
-    GLCHK(currentShader->program->release());
-    Dialog3DGeneralSettings::updateParsedShaders();
-    update();
-}
-
 void OpenGLWidget::resizeFBOs()
 {
     if(colorFBO != NULL) delete colorFBO;
@@ -1133,7 +1062,6 @@ void OpenGLWidget::resizeFBOs()
             delete toneMipmaps[i];
         toneMipmaps[i] = new OpenGLFramebufferObject(qMax(width()/pow(2.0,i+1),1.0),qMax(height()/pow(2.0,i+1),1.0));
     }
-
 }
 
 void OpenGLWidget::deleteFBOs()
@@ -1463,4 +1391,68 @@ void OpenGLWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObje
     quad_mesh->drawMesh(true);
     copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
+}
+
+QPointF OpenGLWidget::pixelPosToViewPos(const QPointF& p)
+{
+    return QPointF(2.0 * float(p.x()) / width() - 1.0,
+                   1.0 - 2.0 * float(p.y()) / height());
+}
+
+int OpenGLWidget::glhUnProjectf(float& winx, float& winy, float& winz,
+                            QMatrix4x4& modelview, QMatrix4x4& projection,
+                            QVector4D& objectCoordinate)
+{
+    //Transformation matrices
+    QVector4D in,out;
+
+    // Compute projection x modelview.
+    QMatrix4x4  A = projection * modelview;
+    // Compute the inverse of matrix A
+    QMatrix4x4  m = A.inverted();
+
+    // Transform normalized coordinates between -1 and 1
+    in[0]=(winx)/(float)width()*2.0-1.0;
+    in[1]=(1-(winy)/(float)height())*2.0-1.0;
+    in[2]=2.0*winz-1.0;
+    in[3]=1.0;
+    // Object's coordinates
+    out = m * in;
+
+    if(out[3]==0.0)
+        return 0;
+    out[3]=1.0/out[3];
+    objectCoordinate[0]=out[0]*out[3];
+    objectCoordinate[1]=out[1]*out[3];
+    objectCoordinate[2]=out[2]*out[3];
+    return 1;
+}
+
+void OpenGLWidget::bakeEnviromentalMaps()
+{
+    if(bDiffuseMapBaked) return;
+    bDiffuseMapBaked = true;
+
+    // Drawing env - one pass method
+    env_program->bind();
+    m_prefiltered_env_map->bindFBO();
+    glViewport(0,0,512,512);
+
+    objectMatrix.setToIdentity();
+    objectMatrix.scale(1.0);
+    objectMatrix.rotate(90.0,1,0,0);
+
+    modelViewMatrix = viewMatrix * objectMatrix;
+    NormalMatrix    = modelViewMatrix.normalMatrix();
+
+    GLCHK( env_program->setUniformValue("ModelViewMatrix",  modelViewMatrix) );
+    GLCHK( env_program->setUniformValue("NormalMatrix",     NormalMatrix) );
+    GLCHK( env_program->setUniformValue("ModelMatrix",      objectMatrix) );
+    GLCHK( env_program->setUniformValue("ProjectionMatrix", projectionMatrix) );
+    GLCHK( glActiveTexture(GL_TEXTURE0) );
+    GLCHK( m_env_map->bind());
+    GLCHK( env_mesh->drawMesh(true) );
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, width(), height()) ;
 }
