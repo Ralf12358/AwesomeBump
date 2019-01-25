@@ -162,16 +162,15 @@ private:
     FormImageProp *metallicImageProp;
     FormImageProp *grungeImageProp;
 
-    // Material manager
+    // Material manager.
     FormMaterialIndicesManager *materialManager;
-
-    // Settings container
+    // Settings container.
     FormSettingsContainer *settingsContainer;
-    QtnPropertySetAwesomeBump *abSettings;// use qtn to keep all settings in one place
-    // 3D settings manager
+    // Use qtn to keep all settings in one place.
+    QtnPropertySetAwesomeBump *abSettings;
+    // 3D settings manager.
     DockWidget3DSettings *dock3Dsettings;
-
-    // 3D shading & display settings dialog
+    // 3D shading & display settings dialog.
     Dialog3DGeneralSettings *dialog3dGeneralSettings;
 
     QAction *aboutQtAction;

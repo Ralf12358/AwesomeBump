@@ -22,6 +22,10 @@
 #include "dialogshortcuts.h"
 #include "gpuinfo.h"
 
+#define INIT_PROGRESS(p,m) \
+    emit initProgress(p); \
+    emit initMessage(m);
+
 extern QString _find_data_dir(const QString& resource);
 
 // Compressed texture type.
@@ -33,19 +37,20 @@ enum CompressedFromTypes
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    bSaveCheckedImages(false),
+    bSaveCompressedFormImages(false)
+  //    recentDir(NULL),
+  //    recentMeshDir(NULL)
 {
-    recentDir                   = NULL;
-    recentMeshDir               = NULL;
-    bSaveCheckedImages          = false;
-    bSaveCompressedFormImages   = false;
-    FormImageProp::recentDir    = &recentDir;
-    OpenGLWidget::recentMeshDir     = &recentMeshDir;
-    abSettings                  = new QtnPropertySetAwesomeBump(this);
-    
     ui->setupUi(this);
 
+    abSettings = new QtnPropertySetAwesomeBump(this);
     statusLabel = new QLabel("GPU memory status: n/a");
+
+    FormImageProp::recentDir = &recentDir;
+    OpenGLWidget::recentMeshDir = &recentMeshDir;
+
 #ifdef Q_OS_MAC
     if(!statusLabel->testAttribute(Qt::WA_MacNormalSize))
         statusLabel->setAttribute(Qt::WA_MacSmallSize);
@@ -55,10 +60,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //glWidget         = new OpenGLWidget(this,glImage);
     glWidget         = new OpenGLWidget(this);
 }
-
-#define INIT_PROGRESS(p,m) \
-    emit initProgress(p); \
-    emit initMessage(m);
 
 void MainWindow::initializeApp()
 {
@@ -514,7 +515,8 @@ void MainWindow::replotAllImages()
     glImage->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
-    if(glImage->getConversionType() != CONVERT_FROM_D_TO_O){
+    if(glImage->getConversionType() != CONVERT_FROM_D_TO_O)
+    {
         updateImage(GRUNGE_TEXTURE);
     }
 
@@ -562,13 +564,16 @@ void MainWindow::materialsToggled(bool toggle)
     static bool bLastValue;
     ui->pushButtonMaterialWarning->setVisible(toggle);
     ui->pushButtonUVWarning->setVisible(OpenGLFramebufferObjectProperties::seamlessMode != SEAMLESS_NONE);
-    if(toggle){
+    if(toggle)
+    {
         bLastValue = diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion;
         diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion = false;
         ui->pushButtonUVWarning->setVisible(false);
         if(bLastValue)
             replotAllImages();
-    }else{
+    }
+    else
+    {
         diffuseImageProp->imageProp.properties->BaseMapToOthers.EnableConversion = bLastValue;
     }
     diffuseImageProp->imageProp.properties->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
@@ -581,7 +586,7 @@ void MainWindow::checkWarnings()
     ui->pushButtonUVWarning->setVisible(OpenGLFramebufferObjectProperties::seamlessMode != SEAMLESS_NONE);
 
     bool bOccTest = (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HO_NO) ||
-                    (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HI_NI);
+            (occlusionImageProp->imageProp.inputImageType == INPUT_FROM_HI_NI);
     ui->pushButtonOccWarning->setVisible(bOccTest);
 }
 
@@ -648,7 +653,6 @@ void MainWindow::selectUVsTab()
 {
     ui->tabWidget->setCurrentIndex(TAB_SETTINGS+1);
 }
-
 
 void MainWindow::fitImage()
 {
@@ -723,7 +727,8 @@ void MainWindow::saveImages()
 bool MainWindow::saveAllImages(const QString &dir)
 {
     QFileInfo fileInfo(dir);
-    if (!fileInfo.exists()) {
+    if (!fileInfo.exists())
+    {
         QMessageBox::information(
                     this, QGuiApplication::applicationDisplayName(),
                     tr("Cannot save to %1.").arg(QDir::toNativeSeparators(dir)));
@@ -810,10 +815,13 @@ bool MainWindow::saveAllImages(const QString &dir)
         int h = diffuseImage.height();
 
         // Put height or specular color to alpha channel according to compression type
-        switch(ui->comboBoxSaveAsOptions->currentIndex()){
+        switch(ui->comboBoxSaveAsOptions->currentIndex())
+        {
         case(H_TO_D_AND_S_TO_N):
-            for(int i = 0; i <h; i++){
-                for(int j = 0; j < w; j++){
+            for(int i = 0; i <h; i++)
+            {
+                for(int j = 0; j < w; j++)
+                {
                     newDiffuseBuffer[4 * (i * w + j) + 0] = srcDiffuseBuffer[4 * (i * w + j)+0  ] ;
                     newDiffuseBuffer[4 * (i * w + j) + 1] = srcDiffuseBuffer[4 * (i * w + j)+1  ] ;
                     newDiffuseBuffer[4 * (i * w + j) + 2] = srcDiffuseBuffer[4 * (i * w + j)+2  ] ;
@@ -827,8 +835,10 @@ bool MainWindow::saveAllImages(const QString &dir)
             }
             break;
         case(S_TO_D_AND_H_TO_N):
-            for(int i = 0; i <h; i++){
-                for(int j = 0; j < w; j++){
+            for(int i = 0; i <h; i++)
+            {
+                for(int j = 0; j < w; j++)
+                {
                     newDiffuseBuffer[4 * (i * w + j) + 0] = srcDiffuseBuffer[4 * (i * w + j)+0  ] ;
                     newDiffuseBuffer[4 * (i * w + j) + 1] = srcDiffuseBuffer[4 * (i * w + j)+1  ] ;
                     newDiffuseBuffer[4 * (i * w + j) + 2] = srcDiffuseBuffer[4 * (i * w + j)+2  ] ;
@@ -851,7 +861,6 @@ bool MainWindow::saveAllImages(const QString &dir)
         ui->progressBar->setValue(80);
         ui->labelProgressInfo->setText("Saving diffuse image...");
         normalImageProp->saveImageToDir(dir,newNormalImage);
-
     } // End of save as compressed formats.
 
     QCoreApplication::processEvents();
@@ -883,7 +892,8 @@ void MainWindow::updateDiffuseImage()
     glImage->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(specularImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT){
+    if(specularImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
         //glImage->updateGL();
@@ -893,7 +903,8 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(roughnessImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT){
+    if(roughnessImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
         //glImage->updateGL();
@@ -903,7 +914,8 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(metallicImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT){
+    if(metallicImageProp->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
         //glImage->updateGL();
@@ -921,7 +933,8 @@ void MainWindow::updateNormalImage()
     glImage->repaint();
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageProp->getImageProporties()->inputImageType == INPUT_FROM_HO_NO){
+    if(occlusionImageProp->getImageProporties()->inputImageType == INPUT_FROM_HO_NO)
+    {
         glImage->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
         //glImage->updateGL();
@@ -946,7 +959,8 @@ void MainWindow::updateHeightImage()
     glImage->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(normalImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT){
+    if(normalImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(NORMAL_TEXTURE);
         //glImage->updateGL();
@@ -956,7 +970,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(specularImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT){
+    if(specularImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
         //glImage->updateGL();
@@ -967,7 +982,8 @@ void MainWindow::updateHeightImage()
 
     // Replot normal if was changed in attached mode.
     if(occlusionImageProp->getImageProporties()->inputImageType == INPUT_FROM_HI_NI||
-            occlusionImageProp->getImageProporties()->inputImageType == INPUT_FROM_HO_NO){
+            occlusionImageProp->getImageProporties()->inputImageType == INPUT_FROM_HO_NO)
+    {
         glImage->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
         //glImage->updateGL();
@@ -977,7 +993,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(roughnessImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT){
+    if(roughnessImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
         //glImage->updateGL();
@@ -987,7 +1004,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode
-    if(metallicImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT){
+    if(metallicImageProp->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    {
         glImage->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
         //glImage->updateGL();
@@ -1024,10 +1042,13 @@ void MainWindow::updateGrungeImage()
     bool test = (grungeImageProp->getImageProporties()->properties->Grunge.ReplotAll == true);
 
     // If replot enabled and grunge weight > 0 then replot all textures.
-    if(test){
+    if(test)
+    {
         replotAllImages();
-
-    }else{ // Otherwise replot only the grunge map.
+    }
+    else
+    {
+        // Otherwise replot only the grunge map.
         glImage->repaint();
         glWidget->repaint();
     }
@@ -1043,7 +1064,8 @@ void MainWindow::initializeGL()
 {
     static bool one_time = false;
     // Context is vallid at this moment
-    if (!one_time){
+    if (!one_time)
+    {
         one_time = true;
         qDebug() << "calling" << Q_FUNC_INFO;
 
@@ -1076,6 +1098,7 @@ void MainWindow::initializeImages()
     static bool bInitializedFirstDraw = false;
 
     if(bInitializedFirstDraw) return;
+
     bInitializedFirstDraw = true;
 
     qDebug() << "MainWindow::Initialization";
@@ -1092,35 +1115,36 @@ void MainWindow::initializeImages()
 
 void MainWindow::updateImage(int tType)
 {
-    switch(tType){
-    case(DIFFUSE_TEXTURE ):
+    switch(tType)
+    {
+    case DIFFUSE_TEXTURE:
         glImage->setActiveImage(diffuseImageProp->getImageProporties());
         break;
-    case(NORMAL_TEXTURE  ):
+    case NORMAL_TEXTURE:
         glImage->setActiveImage(normalImageProp->getImageProporties());
         break;
-    case(SPECULAR_TEXTURE):
+    case SPECULAR_TEXTURE:
         glImage->setActiveImage(specularImageProp->getImageProporties());
         break;
-    case(HEIGHT_TEXTURE  ):
+    case HEIGHT_TEXTURE:
         glImage->setActiveImage(heightImageProp->getImageProporties());
         break;
-    case(OCCLUSION_TEXTURE  ):
+    case OCCLUSION_TEXTURE:
         glImage->setActiveImage(occlusionImageProp->getImageProporties());
         break;
-    case(ROUGHNESS_TEXTURE  ):
+    case ROUGHNESS_TEXTURE:
         glImage->setActiveImage(roughnessImageProp->getImageProporties());
         break;
-    case(METALLIC_TEXTURE  ):
+    case METALLIC_TEXTURE:
         glImage->setActiveImage(metallicImageProp->getImageProporties());
         break;
-    case(MATERIAL_TEXTURE  ):
+    case MATERIAL_TEXTURE:
         glImage->setActiveImage(materialManager->getImageProporties());
         break;
-    case(GRUNGE_TEXTURE  ):
+    case GRUNGE_TEXTURE:
         glImage->setActiveImage(grungeImageProp->getImageProporties());
         break;
-    default: // Settings
+    default:
         return;
     }
     glWidget->update();
@@ -1150,8 +1174,11 @@ void MainWindow::applyResizeImage()
 
     OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
-    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
-        if( i != GRUNGE_TEXTURE){ // grunge map does not scale like other images
+    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
+    {
+        if( i != GRUNGE_TEXTURE)
+        {
+            // Grunge map does not scale like other images.
             glImage->resizeFBO(width,height);
             updateImage(i);
         }
@@ -1164,7 +1191,8 @@ void MainWindow::applyResizeImage()
 
     // Replot all material group after image resize.
     OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
-    if(materialManager->isEnabled()){
+    if(materialManager->isEnabled())
+    {
         materialManager->toggleMaterials(true);
     }
 }
@@ -1178,8 +1206,10 @@ void MainWindow::applyResizeImage(int width, int height)
     materialManager->disableMaterials();
     OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
-    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
-        if( i != GRUNGE_TEXTURE){
+    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
+    {
+        if( i != GRUNGE_TEXTURE)
+        {
             glImage->resizeFBO(width,height);
             updateImage(i);
         }
@@ -1192,20 +1222,24 @@ void MainWindow::applyResizeImage(int width, int height)
 
     // Replot all material group after image resize.
     OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
-    if(materialManager->isEnabled()){
+    if(materialManager->isEnabled())
+    {
         materialManager->toggleMaterials(true);
     }
 }
 
 void MainWindow::scaleWidth(double)
 {
-    if(ui->pushButtonRescalePropTo->isChecked()){
+    if(ui->pushButtonRescalePropTo->isChecked())
+    {
         ui->doubleSpinBoxRescaleHeight->setValue(ui->doubleSpinBoxRescaleWidth->value());
     }
 }
+
 void MainWindow::scaleHeight(double)
 {
-    if(ui->pushButtonRescalePropTo->isChecked()){
+    if(ui->pushButtonRescalePropTo->isChecked())
+    {
         ui->doubleSpinBoxRescaleWidth->setValue(ui->doubleSpinBoxRescaleHeight->value());
     }
 }
@@ -1223,7 +1257,8 @@ void MainWindow::applyScaleImage()
     materialManager->disableMaterials();
     OpenGLFramebufferObjectProperties* lastActive = glImage->getActiveImage();
     glImage->enableShadowRender(true);
-    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++){
+    for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
+    {
         glImage->resizeFBO(width,height);
         updateImage(i);
     }
@@ -1235,7 +1270,8 @@ void MainWindow::applyScaleImage()
 
     // Replot all material group after image resize.
     OpenGLFramebufferObjectProperties::currentMaterialIndeks = materiaIndex;
-    if(materialManager->isEnabled()){
+    if(materialManager->isEnabled())
+    {
         materialManager->toggleMaterials(true);
     }
 }
@@ -1267,18 +1303,19 @@ void MainWindow::selectSeamlessMode(int mode)
     ui->horizontalSliderSeamlessContrastPower->setEnabled(true);
     ui->comboBoxSeamlessContrastInputImage->setEnabled(true);
     ui->doubleSpinBoxSeamlessContrastPower->setEnabled(true);
-    switch(mode){
-    case(SEAMLESS_NONE):
+    switch(mode)
+    {
+    case SEAMLESS_NONE:
         break;
-    case(SEAMLESS_SIMPLE):
+    case SEAMLESS_SIMPLE:
         ui->groupBoxSimpleSeamlessMode->show();
         ui->labelContrastStrenght->setText("Contrast strenght");
         break;
-    case(SEAMLESS_MIRROR):
+    case SEAMLESS_MIRROR:
         ui->groupBoxMirrorMode->show();
         ui->groupBoxUVContrastSettings->setDisabled(true);
         break;
-    case(SEAMLESS_RANDOM):
+    case SEAMLESS_RANDOM:
         ui->groupBoxRandomPatchesMode->show();
         ui->labelContrastStrenght->setText("Radius");
         ui->doubleSpinBoxSeamlessContrastPower->setEnabled(false);
@@ -1295,7 +1332,8 @@ void MainWindow::selectSeamlessMode(int mode)
 
 void MainWindow::selectContrastInputImage(int mode)
 {
-    switch(mode){
+    switch(mode)
+    {
     case(0):
         OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
         break;
@@ -1317,8 +1355,10 @@ void MainWindow::selectContrastInputImage(int mode)
 void MainWindow::selectSourceImages()
 {
     QString startPath;
-    if(recentDir.exists()) startPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
-    else  startPath = recentDir.absolutePath();
+    if(recentDir.exists())
+        startPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
+    else
+        startPath = recentDir.absolutePath();
 
     QString source = QFileDialog::getExistingDirectory(
                 this, tr("Select source directory"),
@@ -1333,7 +1373,8 @@ void MainWindow::selectSourceImages()
     QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
 
     ui->listWidgetImageBatch->clear();
-    foreach (QFileInfo fileInfo, fileInfoList) {
+    foreach (QFileInfo fileInfo, fileInfoList)
+    {
         qDebug() << "Found:" << fileInfo.absoluteFilePath();
         ui->listWidgetImageBatch->addItem(fileInfo.fileName());
     }
@@ -1343,8 +1384,10 @@ void MainWindow::selectSourceImages()
 void MainWindow::selectOutputPath()
 {
     QString startPath;
-    if(recentDir.exists()) startPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
-    else  startPath = recentDir.absolutePath();
+    if(recentDir.exists())
+        startPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
+    else
+        startPath = recentDir.absolutePath();
 
     QString path = QFileDialog::getExistingDirectory(
                 this, tr("Select source directory"),
@@ -1360,7 +1403,8 @@ void MainWindow::runBatch()
     QString outputFolder = ui->lineEditImageBatchOutput->text();
 
     // Check if output path exists.
-    if(!QDir(outputFolder).exists() || outputFolder == ""){
+    if(!QDir(outputFolder).exists() || outputFolder == "")
+    {
         QMessageBox msgBox;
         msgBox.setText("Info");
         msgBox.setInformativeText("Output path is not provided");
@@ -1370,7 +1414,8 @@ void MainWindow::runBatch()
     }
 
     qDebug() << "Starting batch mode: this may take some time";
-    while(ui->listWidgetImageBatch->count() > 0){
+    while(ui->listWidgetImageBatch->count() > 0)
+    {
         QListWidgetItem* item = ui->listWidgetImageBatch->takeItem(0);
         ui->labelBatchProgress->setText("Images left: " + QString::number(ui->listWidgetImageBatch->count()+1));
         ui->labelBatchProgress->repaint();
@@ -1551,32 +1596,34 @@ QSize MainWindow::sizeHint() const
 
 void MainWindow::loadImageSettings(TextureTypes type)
 {
-    switch(type){
-    case(DIFFUSE_TEXTURE):
+    switch(type)
+    {
+    case DIFFUSE_TEXTURE:
         diffuseImageProp    ->imageProp.properties->copyValues(&abSettings->Diffuse);
         break;
-    case(NORMAL_TEXTURE):
+    case NORMAL_TEXTURE:
         normalImageProp     ->imageProp.properties->copyValues(&abSettings->Normal);
         break;
-    case(SPECULAR_TEXTURE):
+    case SPECULAR_TEXTURE:
         specularImageProp   ->imageProp.properties->copyValues(&abSettings->Specular);
         break;
-    case(HEIGHT_TEXTURE):
+    case HEIGHT_TEXTURE:
         heightImageProp     ->imageProp.properties->copyValues(&abSettings->Height);
         break;
-    case(OCCLUSION_TEXTURE):
+    case OCCLUSION_TEXTURE:
         occlusionImageProp  ->imageProp.properties->copyValues(&abSettings->Occlusion);
         break;
-    case(ROUGHNESS_TEXTURE):
+    case ROUGHNESS_TEXTURE:
         roughnessImageProp  ->imageProp.properties->copyValues(&abSettings->Roughness);
         break;
-    case(METALLIC_TEXTURE):
+    case METALLIC_TEXTURE:
         metallicImageProp   ->imageProp.properties->copyValues(&abSettings->Metallic);
         break;
-    case(GRUNGE_TEXTURE):
+    case GRUNGE_TEXTURE:
         grungeImageProp     ->imageProp.properties->copyValues(&abSettings->Grunge);
         break;
-    default: qWarning() << "Trying to load non supported image! Given textureType:" << type;
+    default:
+        qWarning() << "Trying to load non supported image! Given textureType:" << type;
     }
     glImage ->repaint();
     glWidget->repaint();
@@ -1711,7 +1758,8 @@ void MainWindow::loadSettings()
     grungeImageProp     ->imageProp.properties->copyValues(&abSettings->Grunge);
 
     // Update general settings.
-    if(bFirstTime){
+    if(bFirstTime)
+    {
         this->resize(abSettings->d_win_w,abSettings->d_win_h);
         ui->tabWidget->resize(abSettings->tab_win_w,abSettings->tab_win_h);
     }
