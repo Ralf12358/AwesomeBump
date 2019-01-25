@@ -139,7 +139,7 @@ void DockWidget3DSettings::loadSettings(QtnPropertySetAwesomeBump* settings)
     updateSettings();
 }
 
-QSize DockWidget3DSettings::sizeHint() const
-{
-    return QSize(200, 60);
-}
+//QSize DockWidget3DSettings::sizeHint() const
+//{
+//    return QSize(200, 60);
+//}
