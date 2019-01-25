@@ -4,112 +4,117 @@
 extern QString _find_data_dir(const QString& resource);
 
 DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGLWidget* ptr_gl) :
-    QDockWidget(parent),ptr_glWidget(ptr_gl),
+    QDockWidget(parent),
+    ptr_glWidget(ptr_gl),
     ui(new Ui::DockWidget3DSettings)
 {
     ui->setupUi(this);
+    setContentsMargins(0, 0, 0, 0);
     close();
-    setContentsMargins(0,0,0,0);
 
     // Connect all the sliders and other widgets
-    connect(ui->horizontalSliderDepthScale ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderUVScale    ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderUVXOffset  ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderUVYOffset  ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
+    connect(ui->horizontalSliderDepthScale,   SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderUVScale,      SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderUVXOffset,    SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderUVYOffset,    SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
 
-    connect(ui->horizontalSliderSpecularI     ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderDiffuseI      ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderLightPower    ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
-    connect(ui->horizontalSliderLightRadius   ,SIGNAL(valueChanged(int)),this,SLOT(updateSettings(int)));
+    connect(ui->horizontalSliderSpecularI,    SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderDiffuseI,     SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderLightPower,   SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
+    connect(ui->horizontalSliderLightRadius,  SIGNAL (valueChanged(int)), this, SLOT (updateSettings(int)));
 
-    connect(ui->comboBoxPerformanceNoRays     ,SIGNAL(activated(int)),this,SLOT(updateSettings(int)));
-    connect(ui->comboBoxPerformanceNoTessSub  ,SIGNAL(activated(int)),this,SLOT(updateSettings(int)));
-    connect(ui->checkBoxPerformanceCullFace   ,SIGNAL(clicked()),this,SLOT(updateSettings()));
-    connect(ui->checkBoxPerformanceSimplePBR  ,SIGNAL(clicked()),this,SLOT(updateSettings()));
-    connect(ui->checkBoxBloomEffect           ,SIGNAL(clicked()),this,SLOT(updateSettings()));
-    connect(ui->checkBoxDOFEffect             ,SIGNAL(clicked()),this,SLOT(updateSettings()));
-    connect(ui->checkBoxLensFlaresEffect      ,SIGNAL(clicked()),this,SLOT(updateSettings()));
-    connect(ui->checkBoxShowTriangleEdges     ,SIGNAL(clicked()),this,SLOT(updateSettings()));
+    connect(ui->comboBoxPerformanceNoRays,    SIGNAL (activated(int)), this, SLOT (updateSettings(int)));
+    connect(ui->comboBoxPerformanceNoTessSub, SIGNAL (activated(int)), this, SLOT (updateSettings(int)));
+    connect(ui->checkBoxPerformanceCullFace,  SIGNAL (clicked()), this, SLOT (updateSettings()));
+    connect(ui->checkBoxPerformanceSimplePBR, SIGNAL (clicked()), this, SLOT (updateSettings()));
+    connect(ui->checkBoxBloomEffect,          SIGNAL (clicked()), this, SLOT (updateSettings()));
+    connect(ui->checkBoxDOFEffect,            SIGNAL (clicked()), this, SLOT (updateSettings()));
+    connect(ui->checkBoxLensFlaresEffect,     SIGNAL (clicked()), this, SLOT (updateSettings()));
+    connect(ui->checkBoxShowTriangleEdges,    SIGNAL (clicked()), this, SLOT (updateSettings()));
 
-    connect(ui->comboBoxShadingModel          ,SIGNAL(activated(int)),    this,SLOT(selectShadingModel(int)));
-    connect(ui->comboBoxShadingType           ,SIGNAL(activated(int)),    this,SLOT(updateSettings(int)));
+    connect(ui->comboBoxShadingModel,         SIGNAL (activated(int)), this, SLOT (selectShadingModel(int)));
+    connect(ui->comboBoxShadingType,          SIGNAL (activated(int)), this, SLOT (updateSettings(int)));
 
-    // loading 3d mesh signal and eviromental maps
-    connect(ui->pushButtonLoadMesh            ,SIGNAL(released()),        ptr_glWidget,SLOT(loadMeshFromFile()));
-    connect(ui->comboBoxChooseOBJModel        ,SIGNAL(activated(QString)),ptr_glWidget,SLOT(chooseMeshFile(QString)));
-    connect(ui->comboBoxSkyBox                ,SIGNAL(activated(QString)),ptr_glWidget,SLOT(chooseSkyBox(QString)));
-
+    // Loading 3D mesh signal and eviromental maps.
+    connect(ui->pushButtonLoadMesh,           SIGNAL (released()), ptr_glWidget, SLOT (loadMeshFromFile()));
+    connect(ui->comboBoxChooseOBJModel,       SIGNAL (activated(QString)), ptr_glWidget, SLOT (chooseMeshFile(QString)));
+    connect(ui->comboBoxSkyBox,               SIGNAL (activated(QString)), ptr_glWidget, SLOT (chooseSkyBox(QString)));
 
     // send current settings to glWidget
-    connect(this,SIGNAL(signalSettingsChanged(Display3DSettings)),ptr_glWidget,SLOT(updatePerformanceSettings(Display3DSettings)));
-    // ------------------------------------------------------- //
-    //               Loading cub maps folders
-    // ------------------------------------------------------- //
+    connect(this, SIGNAL (signalSettingsChanged(Display3DSettings)), ptr_glWidget, SLOT (updatePerformanceSettings(Display3DSettings)));
+
+    // Load cubemap folders.
     qDebug() << "Loading cubemaps folders:";
     QDir currentDir(_find_data_dir(QString(RESOURCE_BASE) + "Core/2D/skyboxes"));
     currentDir.setFilter(QDir::Dirs);
     QStringList entries = currentDir.entryList();
     qDebug() << "Looking for enviromental maps in Core/2D/skyboxes:";
-    for( QStringList::ConstIterator entry=entries.begin(); entry!=entries.end(); ++entry ){
+
+    for( QStringList::ConstIterator entry=entries.begin(); entry!=entries.end(); ++entry )
+    {
         QString dirname=*entry;
-        if(dirname != tr(".") && dirname != tr("..")){
+        if(dirname != tr(".") && dirname != tr(".."))
+        {
             qDebug() << "Enviromental map:" << dirname;
             ui->comboBoxSkyBox->addItem(dirname);
         }
-    }// end of for
-    // setting cube map for glWidget
-    ptr_glWidget->chooseSkyBox(ui->comboBoxSkyBox->currentText(),true);
+    }
 
+    // Set cubemap for glWidget.
+    ptr_glWidget->chooseSkyBox(ui->comboBoxSkyBox->currentText(), true);
 }
-QSize DockWidget3DSettings::sizeHint() const
+
+DockWidget3DSettings::~DockWidget3DSettings()
 {
-    return QSize(200, 60);
+    qDebug() << "calling" << Q_FUNC_INFO;
+    delete ui;
 }
 
-void DockWidget3DSettings::updateSettings(int){
+void DockWidget3DSettings::updateSettings(int)
+{
+    settings.bUseCullFace       = ui->checkBoxPerformanceCullFace ->isChecked();
+    settings.bUseSimplePBR      = ui->checkBoxPerformanceSimplePBR->isChecked();
+    settings.noPBRRays          = ui->comboBoxPerformanceNoRays   ->currentText().toInt();
+    settings.noTessSubdivision  = ui->comboBoxPerformanceNoTessSub->currentText().toInt();
+    settings.bBloomEffect       = ui->checkBoxBloomEffect         ->isChecked();
+    settings.bDofEffect         = ui->checkBoxDOFEffect           ->isChecked();
+    settings.bShowTriangleEdges = ui->checkBoxShowTriangleEdges   ->isChecked();
+    settings.bLensFlares        = ui->checkBoxLensFlaresEffect    ->isChecked();
 
-    settings.bUseCullFace       = ui->checkBoxPerformanceCullFace   ->isChecked();
-    settings.bUseSimplePBR      = ui->checkBoxPerformanceSimplePBR  ->isChecked();
-    settings.noPBRRays          = ui->comboBoxPerformanceNoRays     ->currentText().toInt();
-    settings.noTessSubdivision  = ui->comboBoxPerformanceNoTessSub  ->currentText().toInt();
-    settings.bBloomEffect       = ui->checkBoxBloomEffect           ->isChecked();
-    settings.bDofEffect         = ui->checkBoxDOFEffect             ->isChecked();
-    settings.bShowTriangleEdges = ui->checkBoxShowTriangleEdges     ->isChecked();
-    settings.bLensFlares        = ui->checkBoxLensFlaresEffect      ->isChecked();
+    settings.depthScale         = ui->horizontalSliderDepthScale  ->value() / 50.;
+    settings.uvScale            = ui->horizontalSliderUVScale     ->value() / 10.;
 
-    settings.depthScale  = ui->horizontalSliderDepthScale->value()/50.0;
-    settings.uvScale     = ui->horizontalSliderUVScale->value()/10.0;
+    ui->doubleSpinBoxDepthScale ->setValue(ui->horizontalSliderDepthScale ->value() / 100.);
+    ui->doubleSpinBoxUVScale    ->setValue(ui->horizontalSliderUVScale    ->value() / 10.);
+    ui->doubleSpinBoxUVXOffset  ->setValue(ui->horizontalSliderUVXOffset  ->value() / 100.);
+    ui->doubleSpinBoxUVYOffset  ->setValue(ui->horizontalSliderUVYOffset  ->value() / 100.);
+    ui->doubleSpinBoxLightPower ->setValue(ui->horizontalSliderLightPower ->value() / 100.);
+    ui->doubleSpinBoxLightRadius->setValue(ui->horizontalSliderLightRadius->value() / 100.);
 
-
-    ui->doubleSpinBoxDepthScale  ->setValue(ui->horizontalSliderDepthScale->value()/100.0);
-    ui->doubleSpinBoxUVScale     ->setValue(ui->horizontalSliderUVScale   ->value()/10.0);
-    ui->doubleSpinBoxUVXOffset   ->setValue(ui->horizontalSliderUVXOffset ->value()/100.0);
-    ui->doubleSpinBoxUVYOffset   ->setValue(ui->horizontalSliderUVYOffset ->value()/100.0);
-
-    ui->doubleSpinBoxLightPower ->setValue(ui->horizontalSliderLightPower  ->value()/100.0);
-    ui->doubleSpinBoxLightRadius->setValue(ui->horizontalSliderLightRadius->value()/100.0);
-
-    settings.lightPower  = ui->doubleSpinBoxLightPower->value();
+    settings.lightPower  = ui->doubleSpinBoxLightPower ->value();
     settings.lightRadius = ui->doubleSpinBoxLightRadius->value();
-    settings.uvOffset = QVector2D(ui->doubleSpinBoxUVXOffset->value(),ui->doubleSpinBoxUVYOffset->value());
 
-    ui->doubleSpinBoxSpecularI->setValue(ui->horizontalSliderSpecularI->value()/50.0);
-    ui->doubleSpinBoxDiffuseI ->setValue(ui->horizontalSliderDiffuseI ->value()/50.0);
+    settings.uvOffset = QVector2D(ui->doubleSpinBoxUVXOffset->value(), ui->doubleSpinBoxUVYOffset->value());
+
+    ui->doubleSpinBoxSpecularI->setValue(ui->horizontalSliderSpecularI->value() / 50.);
+    ui->doubleSpinBoxDiffuseI ->setValue(ui->horizontalSliderDiffuseI ->value() / 50.);
     settings.specularIntensity = ui->doubleSpinBoxSpecularI->value();
     settings.diffuseIntensity  = ui->doubleSpinBoxDiffuseI ->value();
 
-    settings.shadingType  = (ShadingType)  ui->comboBoxShadingType->currentIndex();
+    settings.shadingType  = (ShadingType)  ui->comboBoxShadingType ->currentIndex();
     settings.shadingModel = (ShadingModel) ui->comboBoxShadingModel->currentIndex();
     emit signalSettingsChanged(settings);
 }
 
-void DockWidget3DSettings::selectShadingModel(int i){
-      updateSettings();
-      emit signalSelectedShadingModel(i);
+void DockWidget3DSettings::selectShadingModel(int i)
+{
+    updateSettings();
+    emit signalSelectedShadingModel(i);
 }
-void DockWidget3DSettings::saveSettings(QtnPropertySetAwesomeBump* settings){
 
-    settings->depth_3d=ui->horizontalSliderDepthScale->value()/100.0;
+void DockWidget3DSettings::saveSettings(QtnPropertySetAwesomeBump* settings)
+{
+    settings->depth_3d=ui->horizontalSliderDepthScale->value() / 100.;
     settings->bUseCullFace=ui->checkBoxPerformanceCullFace->isChecked();
     settings->bUseSimplePBR=ui->checkBoxPerformanceSimplePBR->isChecked();
     settings->noPBRRays=ui->comboBoxPerformanceNoRays->currentIndex();
@@ -120,8 +125,9 @@ void DockWidget3DSettings::saveSettings(QtnPropertySetAwesomeBump* settings){
     updateSettings();
 }
 
-void DockWidget3DSettings::loadSettings(QtnPropertySetAwesomeBump* settings){
-    // 3D settings:    
+void DockWidget3DSettings::loadSettings(QtnPropertySetAwesomeBump* settings)
+{
+    // 3D settings:
     ui->horizontalSliderDepthScale  ->setValue(settings->depth_3d*100);
     ui->checkBoxPerformanceCullFace ->setChecked(settings->bUseCullFace);
     ui->checkBoxPerformanceSimplePBR->setChecked(settings->bUseSimplePBR);
@@ -133,8 +139,7 @@ void DockWidget3DSettings::loadSettings(QtnPropertySetAwesomeBump* settings){
     updateSettings();
 }
 
-DockWidget3DSettings::~DockWidget3DSettings()
+QSize DockWidget3DSettings::sizeHint() const
 {
-    qDebug() << "calling" << Q_FUNC_INFO;
-    delete ui;
+    return QSize(200, 60);
 }
