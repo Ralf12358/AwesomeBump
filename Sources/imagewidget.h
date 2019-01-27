@@ -23,14 +23,13 @@ public:
     explicit ImageWidget(QWidget *parent = 0, QOpenGLWidget* openGLWidget = 0);
     ~ImageWidget();
 
-    void setImage(QImage image);
+    void setImage(QImage newImage);
     void setOpenGLWidget(QOpenGLWidget *openGLWidget);
     void setupPropertiesGUI();
     void reloadSettings();
     bool loadFile(const QString &fileName);
 
-    static bool bLoading;
-    bool bOpenNormalMapMixer;
+    static bool loadingImages;
 
 signals:
     void reloadSettingsFromConfigFile(TextureTypes type);

@@ -144,8 +144,8 @@ private:
     bool checkOpenGL();
 
     Ui::MainWindow *ui;
-    OpenGLWidget *glWidget;
-    OpenGLImageEditor *glImage;
+    OpenGLWidget *openGLWidget;
+    OpenGLImageEditor *openGLImageEditor;
     
     bool bSaveCheckedImages;
     bool bSaveCompressedFormImages;
@@ -154,14 +154,14 @@ private:
     // Path to last loaded OBJ Mesh folder
     QDir recentMeshDir;
 
-    ImageWidget *diffuseImageProp;
-    ImageWidget *normalImageProp;
-    ImageWidget *specularImageProp;
-    ImageWidget *heightImageProp;
-    ImageWidget *occlusionImageProp;
-    ImageWidget *roughnessImageProp;
-    ImageWidget *metallicImageProp;
-    ImageWidget *grungeImageProp;
+    ImageWidget *diffuseImageWidget;
+    ImageWidget *normalImageWidget;
+    ImageWidget *specularImageWidget;
+    ImageWidget *heightImageWidget;
+    ImageWidget *occlusionImageWidget;
+    ImageWidget *roughnessImageWidget;
+    ImageWidget *metallicImageWidget;
+    ImageWidget *grungeImageWidget;
 
     // Material manager.
     FormMaterialIndicesManager *materialManager;

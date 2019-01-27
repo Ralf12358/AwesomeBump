@@ -10,7 +10,7 @@
 
 #include "targaimage.h"
 
-bool ImageWidget::bLoading = false;
+bool ImageWidget::loadingImages = false;
 
 ImageWidget::ImageWidget(QWidget *parent, QOpenGLWidget* openGLWidget) :
     ImageBaseWidget(parent),
@@ -50,7 +50,6 @@ ImageWidget::ImageWidget(QWidget *parent, QOpenGLWidget* openGLWidget) :
                      SLOT(pickColorFromImage( QtnPropertyABColor*)));
 
     ui->groupBoxConvertToHeightSettings->hide();
-    bOpenNormalMapMixer = false;
 
     imageProp.glWidget_ptr = openGLWidget;
     
@@ -99,9 +98,9 @@ ImageWidget::~ImageWidget()
     delete ui;
 }
 
-void ImageWidget::setImage(QImage _image)
+void ImageWidget::setImage(QImage newImage)
 {
-    image    = _image;
+    image = newImage;
     if (imageProp.glWidget_ptr->isValid())
         imageProp.init(image);
     else
@@ -204,7 +203,7 @@ void ImageWidget::setupPropertiesGUI()
 
 void ImageWidget::reloadSettings()
 {
-    bLoading = true;
+    loadingImages = true;
 
     if(imageProp.imageType == HEIGHT_TEXTURE)
     {
@@ -332,7 +331,7 @@ void ImageWidget::reloadSettings()
         break;
     };
 
-    bLoading = false;
+    loadingImages = false;
 }
 
 bool ImageWidget::loadFile(const QString &fileName)
@@ -566,7 +565,7 @@ void ImageWidget::updateComboBoxes(int)
 
 void ImageWidget::updateGuiSpinBoxesAndLabes(int)
 {
-    if(bLoading == true) return;
+    if(loadingImages == true) return;
 
     ui->doubleSpinBoxConversionHNDepth->setValue(ui->horizontalSliderConversionHNDepth->value()/5.0);
 
@@ -583,7 +582,7 @@ void ImageWidget::updateGuiSpinBoxesAndLabes(int)
 
 void ImageWidget::updateSlidersOnRelease()
 {
-    if(bLoading == true) return;
+    if(loadingImages == true) return;
     updateGuiSpinBoxesAndLabes(0);
     emit imageChanged();
 }
@@ -591,7 +590,7 @@ void ImageWidget::updateSlidersOnRelease()
 void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const QtnPropertyBase*,
                                   QtnPropertyChangeReason reason)
 {
-    if (bLoading) return;
+    if (loadingImages) return;
     if (reason & QtnPropertyChangeReasonValue)
     {
         // Grunge Load predefined pattern
