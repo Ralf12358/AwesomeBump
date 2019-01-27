@@ -117,7 +117,7 @@ in mat3 TBN; 		// Wordl space TBN matrix calculated from transpose(mat3(WSTangen
 // The number of user defined uniform variables is limited to about 20 for now.
 //				***
 // EXAMPLE usage of user define variable:
-uniform float example_float; // value=0.0; min = -10.0 ; max= 10.0 ; step = 0.1 ; name = "Example float" ; description = "This parameter does nothing"
+// uniform float example_float; // value=0.0; min = -10.0 ; max= 10.0 ; step = 0.1 ; name = "Example float" ; description = "This parameter does nothing"
 // NOTE that each uniform has to be followed by special one line comment:
 // 	min 	(must be define)- minimum allowed value
 //	max 	(must be define)- maximum value

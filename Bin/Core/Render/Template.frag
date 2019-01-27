@@ -118,7 +118,7 @@ in mat3 TBN; 		// Wordl space TBN matrix calculated from transpose(mat3(WSTangen
 // The number of user defined uniform variables is limited to about 20 for now.
 //				***
 // EXAMPLE usage of user define uniform variable:
-uniform float example_float; // value=0.0; min = -10.0 ; max= 10.0 ; step = 0.1 ; name = "Example float" ; description = "This parameter does nothing"
+// uniform float example_float; // value=0.0; min = -10.0 ; max= 10.0 ; step = 0.1 ; name = "Example float" ; description = "This parameter does nothing"
 // NOTE that each uniform has to be followed by special one line comment: filled with following parameters
 // 	min 	(must be define)- minimum allowed value
 //	max 	(must be define)- maximum value
@@ -128,8 +128,8 @@ uniform float example_float; // value=0.0; min = -10.0 ; max= 10.0 ; step = 0.1 
 //	description (optional)	- explanation for other users what this parameter does
 // --------------------------------------------------------------------
 
-uniform float glow_Level; // value = 0.4 ; min = 0.0 ; max = 1.0 ; step = 0.01 ; name = "Glow level" ; description = "Changes the cutoff color of the glow input image"
-uniform float specular_Strength; // value = 3.0; min=0.0;max=100;step =0.1 ; name = "Specular strength" ; description = "Change the specular reflection influence"
+// uniform float glow_Level; // value = 0.4 ; min = 0.0 ; max = 1.0 ; step = 0.01 ; name = "Glow level" ; description = "Changes the cutoff color of the glow input image"
+// uniform float specular_Strength; // value = 3.0; min=0.0;max=100;step =0.1 ; name = "Specular strength" ; description = "Change the specular reflection influence"
 // ---------------------------------------------------------------------
 // TEMPLATE FRAGMENT SHADER - written by Krzysztof Kolasinski @2015
 // Only standard relief mapping is done here
