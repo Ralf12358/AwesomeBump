@@ -68,7 +68,6 @@ HEADERS = \
     formmaterialindicesmanager.h \
     dialogshortcuts.h \
     allaboutdialog.h \    
-    formimagebase.h \
     dockwidget3dsettings.h \
     gpuinfo.h \
     properties/propertyconstructor.h \
@@ -95,7 +94,8 @@ HEADERS = \
     openglimageeditor.h \
     openglwidget.h \
     utils/mesh.h \
-    openglerrorcheck.h
+    openglerrorcheck.h \
+    imagebasewidget.h
 
 SOURCES = \
     main.cpp \
@@ -110,7 +110,6 @@ SOURCES = \
     formmaterialindicesmanager.cpp \
     dialogshortcuts.cpp \
     allaboutdialog.cpp \
-    formimagebase.cpp \
     dockwidget3dsettings.cpp \
     gpuinfo.cpp \
     properties/Dialog3DGeneralSettings.cpp \
@@ -135,7 +134,8 @@ SOURCES = \
     openglframebufferobjectproperties.cpp \
     openglimageeditor.cpp \
     openglwidget.cpp \
-    utils/mesh.cpp
+    utils/mesh.cpp \
+    imagebasewidget.cpp
 
 
 RESOURCES += content.qrc

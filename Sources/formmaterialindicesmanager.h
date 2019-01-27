@@ -7,7 +7,7 @@
 #include <QString>
 #include <QRgb>
 
-#include "formimagebase.h"
+#include "imagebasewidget.h"
 #include "formimageprop.h"
 #include "openglframebufferobjectproperties.h"
 
@@ -18,7 +18,7 @@ class FormMaterialIndicesManager;
 
 typedef std::map<int,QRgb>::iterator it_type;
 
-class FormMaterialIndicesManager : public FormImageBase
+class FormMaterialIndicesManager : public ImageBaseWidget
 {
     Q_OBJECT
 

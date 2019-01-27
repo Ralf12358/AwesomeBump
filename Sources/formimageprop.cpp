@@ -13,7 +13,7 @@
 bool FormImageProp::bLoading = false;
 
 FormImageProp::FormImageProp(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
-    FormImageBase(parent),
+    ImageBaseWidget(parent),
     ui(new Ui::FormImageProp)
 {
     ui->setupUi(this);

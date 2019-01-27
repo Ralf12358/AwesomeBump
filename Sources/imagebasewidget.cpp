@@ -1,4 +1,4 @@
-#include "formimagebase.h"
+#include "imagebasewidget.h"
 
 #include <QStandardPaths>
 #include <QFileDialog>
@@ -13,9 +13,9 @@
 
 #include "targaimage.h"
 
-QDir* FormImageBase::recentDir;
+QDir* ImageBaseWidget::recentDir;
 
-FormImageBase::FormImageBase(QWidget *parent) : QWidget(parent)
+ImageBaseWidget::ImageBaseWidget(QWidget *parent) : QWidget(parent)
 {
     setMouseTracking(true);
     setFocus();
@@ -23,12 +23,12 @@ FormImageBase::FormImageBase(QWidget *parent) : QWidget(parent)
     setAcceptDrops(true);
 }
 
-FormImageBase::~FormImageBase()
+ImageBaseWidget::~ImageBaseWidget()
 {
 }
 
 
-void FormImageBase::open()
+void ImageBaseWidget::open()
 {
     QStringList picturesLocations;
     if(recentDir == NULL )
@@ -54,7 +54,7 @@ void FormImageBase::open()
     {}
 }
 
-void FormImageBase::saveFileToDir(const QString &dir)
+void ImageBaseWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             imageName +
@@ -63,7 +63,7 @@ void FormImageBase::saveFileToDir(const QString &dir)
     saveFile(fullFileName);
 }
 
-void FormImageBase::saveImageToDir(const QString &dir,QImage& image)
+void ImageBaseWidget::saveImageToDir(const QString &dir,QImage& image)
 {
     QString fullFileName = dir + "/" +
             imageName +
@@ -83,22 +83,22 @@ void FormImageBase::saveImageToDir(const QString &dir,QImage& image)
         image.save(fullFileName);
 }
 
-void FormImageBase::setImageName(QString name)
+void ImageBaseWidget::setImageName(QString name)
 {
     imageName = name;
 }
 
-QString FormImageBase::getImageName()
+QString ImageBaseWidget::getImageName()
 {
     return imageName;
 }
 
-void  FormImageBase::setImageType(TextureTypes imageType)
+void  ImageBaseWidget::setImageType(TextureTypes imageType)
 {
     imageProp.imageType = imageType;
 }
 
-void FormImageBase::save()
+void ImageBaseWidget::save()
 {
     QStringList picturesLocations;
     if(recentDir == NULL )
@@ -128,7 +128,7 @@ void FormImageBase::save()
     {}
 }
 
-bool FormImageBase::saveFile(const QString &fileName)
+bool ImageBaseWidget::saveFile(const QString &fileName)
 {
     qDebug() << Q_FUNC_INFO << "image:" << fileName;
 
@@ -150,7 +150,7 @@ bool FormImageBase::saveFile(const QString &fileName)
     return true;
 }
 
-void FormImageBase::dropEvent(QDropEvent *event)
+void ImageBaseWidget::dropEvent(QDropEvent *event)
 {
     QList<QUrl> droppedUrls = event->mimeData()->urls();
     int i = 0;
@@ -161,7 +161,7 @@ void FormImageBase::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 }
 
-void FormImageBase::dragEnterEvent(QDragEnterEvent *event)
+void ImageBaseWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     if(event->mimeData()->hasText() || event->mimeData()->hasImage())
     {
@@ -169,7 +169,7 @@ void FormImageBase::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void FormImageBase::keyPressEvent(QKeyEvent *event)
+void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
     {

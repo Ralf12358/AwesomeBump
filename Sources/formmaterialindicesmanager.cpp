@@ -12,7 +12,7 @@
 #include "openglframebufferobjectproperties.h"
 
 FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
-    FormImageBase(parent),
+    ImageBaseWidget(parent),
     ui(new Ui::FormMaterialIndicesManager)
 {
     ui->setupUi(this);

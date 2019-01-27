@@ -1,5 +1,5 @@
-#ifndef FORMIMAGEBASE_H
-#define FORMIMAGEBASE_H
+#ifndef IMAGEBASEWIDGET_H
+#define IMAGEBASEWIDGET_H
 
 #include <QWidget>
 #include <QImage>
@@ -13,13 +13,13 @@
 // paste & copy from/to clipboard
 // drag & drop events
 
-class FormImageBase : public QWidget
+class ImageBaseWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    FormImageBase(QWidget *parent = 0);
-    ~FormImageBase();
+    ImageBaseWidget(QWidget *parent = 0);
+    ~ImageBaseWidget();
     void keyPressEvent(QKeyEvent *event);
     virtual OpenGLFramebufferObjectProperties* getImageProporties(){return &imageProp;}
     virtual void setImageName(QString name);
@@ -47,4 +47,4 @@ public:
     static QDir* recentDir;
 };
 
-#endif // FORMIMAGEBASE_H
+#endif // IMAGEBASEWIDGET_H

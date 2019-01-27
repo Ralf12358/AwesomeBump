@@ -6,7 +6,7 @@
 #include <QImage>
 #include <QString>
 
-#include "formimagebase.h"
+#include "imagebasewidget.h"
 #include "PropertyBase.h"
 #include "dialogheightcalculator.h"
 
@@ -15,7 +15,7 @@ namespace Ui
 class FormImageProp;
 }
 
-class FormImageProp : public FormImageBase
+class FormImageProp : public ImageBaseWidget
 {
     Q_OBJECT
 
