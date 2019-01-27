@@ -61,7 +61,7 @@ DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGLWidget* ptr_gl
     }
 
     // Set cubemap for glWidget.
-    ptr_glWidget->chooseSkyBox(ui->comboBoxSkyBox->currentText(), true);
+    //ptr_glWidget->chooseSkyBox(ui->comboBoxSkyBox->currentText(), true);
 }
 
 DockWidget3DSettings::~DockWidget3DSettings()
