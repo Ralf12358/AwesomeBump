@@ -23,7 +23,6 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
-#include "gpuinfo.h"
 
 #define INIT_PROGRESS(p,m) \
     emit initProgress(p); \
@@ -546,29 +545,6 @@ void MainWindow::replotAllImages()
     openGLImageEditor->enableShadowRender(false);
     openGLImageEditor->setActiveImage(lastActive);
     openGLWidget->update();
-    
-    QGLContext* glContext = (QGLContext *) openGLWidget->context();
-    GLCHK(glContext->makeCurrent());
-
-#ifndef Q_OS_MAC
-    GpuInfo glGpu(glContext);
-    QString menu_text;
-    
-    GLint gpuMemTotal = glGpu.getTotalMem();
-    GLint gpuMemAvail = glGpu.getAvailMem();
-    if(gpuMemTotal > 0)
-    {
-        menu_text = QString("GPU memory used:") + QString::number(float(gpuMemTotal - gpuMemAvail) / 1024.0f) + QString("[MB]")
-                + QString(" GPU memory free:") + QString::number(float(gpuMemAvail) / 1024.0f) + QString("[MB]")
-                + QString(" GPU total memory:") + QString::number(float(gpuMemTotal) / 1024.0f) + QString("[MB]");
-    }
-    else
-    {
-        menu_text = QString("GPU memory free:") + QString::number(float(gpuMemAvail) / 1024.0f) + QString("[MB]");
-    }
-
-    statusLabel->setText(menu_text);
-#endif
 }
 
 void MainWindow::materialsToggled(bool toggle)

@@ -68,7 +68,6 @@ HEADERS = \
     dialogshortcuts.h \
     allaboutdialog.h \    
     dockwidget3dsettings.h \
-    gpuinfo.h \
     properties/propertyconstructor.h \
     properties/PropertyABColor.h \
     properties/PropertyDelegateABColor.h \
@@ -110,7 +109,6 @@ SOURCES = \
     dialogshortcuts.cpp \
     allaboutdialog.cpp \
     dockwidget3dsettings.cpp \
-    gpuinfo.cpp \
     properties/Dialog3DGeneralSettings.cpp \
 	utils/DebugMetricsMonitor.cpp \
     utils/glslshaderparser.cpp \
