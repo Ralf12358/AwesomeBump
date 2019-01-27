@@ -3,6 +3,9 @@
 
 #include <QAction>
 #include <QLabel>
+#include <QtDebug>
+#include <QDateTime>
+#include <QMessageBox>
 
 #include <Property.h>
 #include <PropertySet.h>
@@ -26,7 +29,7 @@
     emit initProgress(p); \
     emit initMessage(m);
 
-extern QString _find_data_dir(const QString& resource);
+extern QString getDataDirectory(const QString& resource);
 
 // Compressed texture type.
 enum CompressedFromTypes
@@ -61,8 +64,14 @@ MainWindow::MainWindow(QWidget *parent) :
     glWidget         = new OpenGLWidget(this);
 }
 
-void MainWindow::initializeApp()
+void MainWindow::initialiseWindow()
 {
+    //qInstallMessageHandler(customMessageHandler);
+
+    qDebug() << "Starting application:";
+    qDebug() << "Application dir:" << QApplication::applicationDirPath();
+    qDebug() << "Data dir:" << getDataDirectory(RESOURCE_BASE);
+
     connect(glImage, SIGNAL (rendered()), this, SLOT (initializeImages()));
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
@@ -464,6 +473,9 @@ void MainWindow::initializeApp()
 
     qDebug() << "Initialization: Done - UI ready.";
     INIT_PROGRESS(100, tr("Done - UI ready."));
+
+    setWindowTitle(AWESOME_BUMP_VERSION);
+    resize(sizeHint());
 }
 
 MainWindow::~MainWindow()
@@ -1843,4 +1855,118 @@ void MainWindow::about()
 void MainWindow::aboutQt()
 {
     QMessageBox::aboutQt(this, tr(AWESOME_BUMP_VERSION));
+}
+
+/*
+if(!checkOpenGL()){
+    AllAboutDialog msgBox;
+    msgBox.setPixmap(":/resources/icons/icon-off.png");
+    msgBox.setText("Fatal Error!");
+    msgBox.setInformativeText(QString("Sorry but it seems that your graphics card does not support openGL %1.%2.\n"
+                                      "Program will not run :(\n"
+                                      "See " AB_LOG " file for more info.").arg(GL_MAJOR).arg(GL_MINOR));
+    msgBox.setVersionText(AWESOME_BUMP_VERSION);
+    msgBox.show();
+
+    return app.exec();
+}
+*/
+
+bool MainWindow::checkOpenGL()
+{
+    QGLWidget *glWidget = new QGLWidget;
+
+    QGLContext* glContext = (QGLContext *) glWidget->context();
+    GLCHK( glContext->makeCurrent() );
+
+    int glMajorVersion, glMinorVersion;
+
+    glMajorVersion = glContext->format().majorVersion();
+    glMinorVersion = glContext->format().minorVersion();
+
+    qDebug() << "Running the " + QString(AWESOME_BUMP_VERSION);
+    qDebug() << "Checking OpenGL widget:";
+    qDebug() << "Widget OpenGL:" << QString("%1.%2").arg(glMajorVersion).arg(glMinorVersion);
+    qDebug() << "Context valid:" << glContext->isValid() ;
+    qDebug() << "OpenGL information:" ;
+    qDebug() << "VENDOR:"       << (const char*)glGetString(GL_VENDOR) ;
+    qDebug() << "RENDERER:"     << (const char*)glGetString(GL_RENDERER) ;
+    qDebug() << "VERSION:"      << (const char*)glGetString(GL_VERSION) ;
+    qDebug() << "GLSL VERSION:" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION) ;
+
+    delete glWidget;
+
+    /*
+    Display3DSettings::openGLVersion = GL_MAJOR + (GL_MINOR * 0.1);
+    // Check openGL version.
+    if( glMajorVersion < GL_MAJOR || (glMajorVersion == GL_MAJOR && glMinorVersion < GL_MINOR))
+    {
+        qWarning() << QString("Error: This version of AwesomeBump does not support openGL versions lower than %1.%2 :(").arg(GL_MAJOR).arg(GL_MINOR) ;
+        return false;
+    }
+    */
+    return true;
+}
+
+void customMessageHandler(
+        QtMsgType type,
+        const QMessageLogContext& context,
+        const QString& msg)
+{
+    Q_UNUSED(context);
+
+    QString dateTimeString = QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss");
+    QString errorMessage = QString("[%1] ").arg(dateTimeString);
+
+    switch (type)
+    {
+    case QtDebugMsg:
+        errorMessage += QString("{Debug} \t\t %1").arg(msg);
+        break;
+    case QtWarningMsg:
+        errorMessage += QString("{Warning} \t %1").arg(msg);
+        break;
+    case QtCriticalMsg:
+        errorMessage += QString("{Critical} \t %1").arg(msg);
+        break;
+    case QtFatalMsg:
+        errorMessage += QString("{Fatal} \t\t %1").arg(msg);
+        abort();
+        break;
+    case QtInfoMsg:
+        break;
+    }
+
+    // Avoid recursive calling.
+    QFile logFile(AB_LOG);
+    if (!logFile.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        // Try any safe location.
+        QString glob = QString("%1/%2")
+                .arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation))
+                .arg(QFileInfo(AB_LOG).fileName());
+        logFile.setFileName(glob);
+        if (!logFile.open(QIODevice::WriteOnly | QIODevice::Append))
+            return;
+    }
+
+    QTextStream logFileStream(&logFile);
+    logFileStream << errorMessage << endl;
+}
+
+QString getDataDirectory(const QString& resource)
+{
+    if (resource.startsWith(":"))
+        return resource;
+
+    QString fpath = QApplication::applicationDirPath();
+#if defined(Q_OS_MAC)
+    fpath += "/../../../"+resource;
+#elif defined(Q_OS_WIN32)
+    fpath = resource;
+#else
+    fpath = resource;
+#endif
+
+    return fpath;
 }

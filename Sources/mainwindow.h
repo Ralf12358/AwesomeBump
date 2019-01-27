@@ -61,7 +61,7 @@ signals:
 public slots:
     void aboutQt();
     void about();
-    void initializeApp();
+    void initialiseWindow();
     void initializeGL();
     void initializeImages();
     void saveImages();
@@ -141,6 +141,7 @@ public slots:
 private:    
     // Save all textures to given directory.
     bool saveAllImages(const QString &dir);
+    bool checkOpenGL();
 
     Ui::MainWindow *ui;
     OpenGLWidget *glWidget;
@@ -186,5 +187,14 @@ private:
     DialogShortcuts *dialogShortcuts;
     QSettings defaults;
 };
+
+// Redirect qDebug() to log file.
+void customMessageHandler(
+        QtMsgType type,
+        const QMessageLogContext& context,
+        const QString& msg);
+
+// Find data directory for each platform.
+QString getDataDirectory(const QString& resource);
 
 #endif // MAINWINDOW_H

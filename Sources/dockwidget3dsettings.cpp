@@ -1,7 +1,7 @@
 #include "dockwidget3dsettings.h"
 #include "ui_dockwidget3dsettings.h"
 
-extern QString _find_data_dir(const QString& resource);
+extern QString getDataDirectory(const QString& resource);
 
 DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGLWidget* ptr_gl) :
     QDockWidget(parent),
@@ -45,7 +45,7 @@ DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGLWidget* ptr_gl
 
     // Load cubemap folders.
     qDebug() << "Loading cubemaps folders:";
-    QDir currentDir(_find_data_dir(QString(RESOURCE_BASE) + "Core/2D/skyboxes"));
+    QDir currentDir(getDataDirectory(QString(RESOURCE_BASE) + "Core/2D/skyboxes"));
     currentDir.setFilter(QDir::Dirs);
     QStringList entries = currentDir.entryList();
     qDebug() << "Looking for enviromental maps in Core/2D/skyboxes:";

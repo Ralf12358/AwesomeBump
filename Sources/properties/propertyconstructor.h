@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QString>
 
-extern QString _find_data_dir(const QString& resource);
+extern QString getDataDirectory(const QString& resource);
 
 
 QStringList init_grunge_maps(){
