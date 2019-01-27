@@ -6,6 +6,8 @@
 #include "splashscreen.h"
 
 #define SplashImage ":/resources/logo/splash.png"
+#define GL_MAJOR 4
+#define GL_MINOR 5
 
 // Register delegates.
 extern void regABSliderDelegates();
@@ -77,7 +79,8 @@ int main(int argc, char *argv[])
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     surfaceFormat.setDepthBufferSize(24);
     surfaceFormat.setStencilBufferSize(8);
-    //surfaceFormat.setVersion( GL_MAJOR, GL_MINOR );
+    surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
+    surfaceFormat.setVersion(GL_MAJOR, GL_MINOR);
     QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
     // Create main application window.
