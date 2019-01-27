@@ -4,7 +4,7 @@
 
 GLSLShaderParser::GLSLShaderParser()
 {
-    initializeOpenGLFunctions();
+    //initializeOpenGLFunctions();
     reservedNames   << "num_mipmaps"
                     << "gui_bSpecular"
                     << "bOcclusion"
