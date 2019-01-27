@@ -196,7 +196,7 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
     qDebug() << "<FormImageProp> Open material image:" << fileName;
 
-    (*FormImageProp::recentDir).setPath(fileName);
+    (*ImageWidget::recentDir).setPath(fileName);
 
     int mIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
     if(updateMaterials(_image))

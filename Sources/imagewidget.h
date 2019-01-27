@@ -1,5 +1,5 @@
-#ifndef FORMIMAGEPROP_H
-#define FORMIMAGEPROP_H
+#ifndef IMAGEWIDGET_H
+#define IMAGEWIDGET_H
 
 #include <QMainWindow>
 #include <QOpenGLWidget>
@@ -12,16 +12,16 @@
 
 namespace Ui
 {
-class FormImageProp;
+class ImageWidget;
 }
 
-class FormImageProp : public ImageBaseWidget
+class ImageWidget : public ImageBaseWidget
 {
     Q_OBJECT
 
 public:
-    explicit FormImageProp(QMainWindow *parent = 0, QOpenGLWidget* qlW_ptr = 0);
-    ~FormImageProp();
+    explicit ImageWidget(QMainWindow *parent = 0, QOpenGLWidget* qlW_ptr = 0);
+    ~ImageWidget();
 
     void setImage(QImage image);
     void setPtrToGLWidget(QOpenGLWidget* ptr){ imageProp.glWidget_ptr = ptr;  }
@@ -69,7 +69,7 @@ signals:
 private:
     void pasteImageFromClipboard(QImage& _image);
 
-    Ui::FormImageProp *ui;
+    Ui::ImageWidget *ui;
     // Height calculator tool.
     DialogHeightCalculator *heightCalculator;
 
@@ -78,4 +78,4 @@ public:
     bool bOpenNormalMapMixer;
 };
 
-#endif // FORMIMAGEPROP_H
+#endif // IMAGEWIDGET_H

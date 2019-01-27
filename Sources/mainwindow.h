@@ -28,7 +28,7 @@
 
 class QAction;
 class QLabel;
-class FormImageProp;
+class ImageWidget;
 class FormMaterialIndicesManager;
 class FormSettingsContainer;
 class DockWidget3DSettings;
@@ -154,14 +154,14 @@ private:
     // Path to last loaded OBJ Mesh folder
     QDir recentMeshDir;
 
-    FormImageProp *diffuseImageProp;
-    FormImageProp *normalImageProp;
-    FormImageProp *specularImageProp;
-    FormImageProp *heightImageProp;
-    FormImageProp *occlusionImageProp;
-    FormImageProp *roughnessImageProp;
-    FormImageProp *metallicImageProp;
-    FormImageProp *grungeImageProp;
+    ImageWidget *diffuseImageProp;
+    ImageWidget *normalImageProp;
+    ImageWidget *specularImageProp;
+    ImageWidget *heightImageProp;
+    ImageWidget *occlusionImageProp;
+    ImageWidget *roughnessImageProp;
+    ImageWidget *metallicImageProp;
+    ImageWidget *grungeImageProp;
 
     // Material manager.
     FormMaterialIndicesManager *materialManager;

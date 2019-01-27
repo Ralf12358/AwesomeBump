@@ -1,4 +1,4 @@
-#include "formimageprop.h"
+#include "imagewidget.h"
 #include "ui_formimageprop.h"
 
 #include <QDebug>
@@ -10,11 +10,11 @@
 
 #include "targaimage.h"
 
-bool FormImageProp::bLoading = false;
+bool ImageWidget::bLoading = false;
 
-FormImageProp::FormImageProp(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
+ImageWidget::ImageWidget(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     ImageBaseWidget(parent),
-    ui(new Ui::FormImageProp)
+    ui(new Ui::ImageWidget)
 {
     ui->setupUi(this);
     ui->widgetProperty->setParts(QtnPropertyWidgetPartsDescriptionPanel);
@@ -91,7 +91,7 @@ FormImageProp::FormImageProp(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     setFocusPolicy(Qt::ClickFocus);
 }
 
-void FormImageProp::setupPopertiesGUI()
+void ImageWidget::setupPopertiesGUI()
 {
     imageProp.properties->ImageType.setValue((imageProp.imageType));
 
@@ -180,7 +180,7 @@ void FormImageProp::setupPopertiesGUI()
     }
 }
 
-void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty, const QtnPropertyBase*,
+void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const QtnPropertyBase*,
                                     QtnPropertyChangeReason reason)
 {
     if (bLoading) return;
@@ -236,22 +236,22 @@ void FormImageProp::propertyChanged(const QtnPropertyBase* changedProperty, cons
     } // End of if reason value
 }
 
-void FormImageProp::propertyFinishedEditing()
+void ImageWidget::propertyFinishedEditing()
 {
     emit imageChanged();
 }
 
-void FormImageProp::applyBaseConversion(const QtnPropertyButton*)
+void ImageWidget::applyBaseConversion(const QtnPropertyButton*)
 {
     emit conversionBaseConversionApplied();
 }
 
-void FormImageProp::pasteNormalFromClipBoard(const QtnPropertyButton*)
+void ImageWidget::pasteNormalFromClipBoard(const QtnPropertyButton*)
 {
     emit pasteNormalFromClipBoard();
 }
 
-FormImageProp::~FormImageProp()
+ImageWidget::~ImageWidget()
 {
     qDebug() << "calling" << Q_FUNC_INFO;
     delete heightCalculator;
@@ -259,7 +259,7 @@ FormImageProp::~FormImageProp()
     delete ui;
 }
 
-bool FormImageProp::loadFile(const QString &fileName)
+bool ImageWidget::loadFile(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
     QImage _image;
@@ -314,7 +314,7 @@ bool FormImageProp::loadFile(const QString &fileName)
     return true;
 }
 
-void FormImageProp::pasteImageFromClipboard(QImage& _image)
+void ImageWidget::pasteImageFromClipboard(QImage& _image)
 {
     imageName = "clipboard_image";
     image     = _image;
@@ -323,7 +323,7 @@ void FormImageProp::pasteImageFromClipboard(QImage& _image)
     if(imageProp.imageType == GRUNGE_TEXTURE)emit imageChanged();
 }
 
-void FormImageProp::setImage(QImage _image)
+void ImageWidget::setImage(QImage _image)
 {
     image    = _image;
     if (imageProp.glWidget_ptr->isValid())
@@ -332,7 +332,7 @@ void FormImageProp::setImage(QImage _image)
         qDebug() << Q_FUNC_INFO << "Invalid context.";
 }
 
-void FormImageProp::updateComboBoxes(int)
+void ImageWidget::updateComboBoxes(int)
 {
     // Input image case study.
     switch(imageProp.imageType)
@@ -437,7 +437,7 @@ void FormImageProp::updateComboBoxes(int)
     emit imageChanged();
 }
 
-void FormImageProp::updateGuiSpinBoxesAndLabes(int)
+void ImageWidget::updateGuiSpinBoxesAndLabes(int)
 {
     if(bLoading == true) return;
 
@@ -454,34 +454,34 @@ void FormImageProp::updateGuiSpinBoxesAndLabes(int)
     imageProp.properties->NormalHeightConv.VerySmall  = ui->horizontalSliderNormalToHeightItersVerySmall ->value();
 }
 
-void FormImageProp::updateSlidersOnRelease()
+void ImageWidget::updateSlidersOnRelease()
 {
     if(bLoading == true) return;
     updateGuiSpinBoxesAndLabes(0);
     emit imageChanged();
 }
 
-void FormImageProp::applyHeightToNormalConversion()
+void ImageWidget::applyHeightToNormalConversion()
 {
     emit conversionHeightToNormalApplied();
 }
 
-void FormImageProp::applyNormalToHeightConversion()
+void ImageWidget::applyNormalToHeightConversion()
 {
     emit conversionNormalToHeightApplied();
 }
 
-void FormImageProp::applyBaseConversionConversion()
+void ImageWidget::applyBaseConversionConversion()
 {
     emit conversionBaseConversionApplied();
 }
 
-void FormImageProp::applyHeightNormalToOcclusionConversion()
+void ImageWidget::applyHeightNormalToOcclusionConversion()
 {
     emit conversionHeightNormalToOcclusionApplied();
 }
 
-void FormImageProp::showHeightCalculatorDialog()
+void ImageWidget::showHeightCalculatorDialog()
 {
     //heightCalculator->setImageSize(imageProp.ref_fbo->width(),imageProp.ref_fbo->height());
     heightCalculator->setImageSize(imageProp.fbo->width(),imageProp.fbo->height());
@@ -494,13 +494,13 @@ void FormImageProp::showHeightCalculatorDialog()
     }
 }
 
-void FormImageProp::pickColorFromImage( QtnPropertyABColor* property)
+void ImageWidget::pickColorFromImage( QtnPropertyABColor* property)
 {
     // Some customizations here
     emit pickImageColor(property);
 }
 
-void FormImageProp::pasteNormalFromClipBoard()
+void ImageWidget::pasteNormalFromClipBoard()
 {
     const QClipboard *clipboard = QApplication::clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
@@ -526,18 +526,18 @@ void FormImageProp::pasteNormalFromClipBoard()
     }
 }
 
-void FormImageProp::toggleGrungeImageSettingsGroup(bool toggle)
+void ImageWidget::toggleGrungeImageSettingsGroup(bool toggle)
 {
     imageProp.properties->GrungeOnImage.switchState(QtnPropertyStateInvisible,!toggle);
 }
 
-void FormImageProp::loadPredefinedGrunge(QString image)
+void ImageWidget::loadPredefinedGrunge(QString image)
 {
     loadFile(QString(RESOURCE_BASE) + "Core/2D/grunge/" + image);
 }
 
 
-void FormImageProp::reloadSettings()
+void ImageWidget::reloadSettings()
 {
     bLoading = true;
 
@@ -664,12 +664,12 @@ void FormImageProp::reloadSettings()
     bLoading = false;
 }
 
-void FormImageProp::reloadImageSettings()
+void ImageWidget::reloadImageSettings()
 {
     emit reloadSettingsFromConfigFile(imageProp.imageType);
 }
 
-void FormImageProp::pasteFromClipboard()
+void ImageWidget::pasteFromClipboard()
 {
     const QClipboard *clipboard = QApplication::clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
@@ -685,7 +685,7 @@ void FormImageProp::pasteFromClipboard()
     }
 }
 
-void FormImageProp::copyToClipboard()
+void ImageWidget::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
                 PostfixNames::getTextureName(imageProp.imageType) +

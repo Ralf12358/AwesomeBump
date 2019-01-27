@@ -8,7 +8,7 @@
 #include <QRgb>
 
 #include "imagebasewidget.h"
-#include "formimageprop.h"
+#include "imagewidget.h"
 #include "openglframebufferobjectproperties.h"
 
 namespace Ui
@@ -34,7 +34,7 @@ public:
     void disableMaterials();
 
     // just pointers to images
-    FormImageProp* imagesPointers[7];
+    ImageWidget* imagesPointers[7];
 
 public slots:
     void changeMaterial(int index);

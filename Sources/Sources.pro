@@ -59,7 +59,6 @@ INCLUDEPATH += ../shared include utils utils/QtnProperty utils/contextinfo
 
 HEADERS = \
     mainwindow.h \
-    formimageprop.h \
     camera.h \
     dialogheightcalculator.h \
     formsettingsfield.h \
@@ -95,12 +94,12 @@ HEADERS = \
     openglwidget.h \
     utils/mesh.h \
     openglerrorcheck.h \
-    imagebasewidget.h
+    imagebasewidget.h \
+    imagewidget.h
 
 SOURCES = \
     main.cpp \
     mainwindow.cpp \
-    formimageprop.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
     utils/tinyobj/tiny_obj_loader.cc \
@@ -135,7 +134,8 @@ SOURCES = \
     openglimageeditor.cpp \
     openglwidget.cpp \
     utils/mesh.cpp \
-    imagebasewidget.cpp
+    imagebasewidget.cpp \
+    imagewidget.cpp
 
 
 RESOURCES += content.qrc
@@ -153,7 +153,6 @@ RC_FILE = resources/icon.rc
 
 FORMS += \
     mainwindow.ui \
-    formimageprop.ui \
     dialogheightcalculator.ui \
     formsettingsfield.ui \
     formsettingscontainer.ui \
@@ -163,7 +162,8 @@ FORMS += \
     dialogshortcuts.ui \
     dockwidget3dsettings.ui \
     properties/Dialog3DGeneralSettings.ui \
-    formimagebatch.ui
+    formimagebatch.ui \
+    imagewidget.ui
 
 ICON = resources/icons/icon.icns
 

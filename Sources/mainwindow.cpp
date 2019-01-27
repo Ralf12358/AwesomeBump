@@ -16,7 +16,7 @@
 #include "openglimageeditor.h"
 #include "openglframebufferobject.h"
 #include "openglframebufferobjectproperties.h"
-#include "formimageprop.h"
+#include "imagewidget.h"
 #include "formmaterialindicesmanager.h"
 #include "formsettingscontainer.h"
 #include "dockwidget3dsettings.h"
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     abSettings = new QtnPropertySetAwesomeBump(this);
     statusLabel = new QLabel("GPU memory status: n/a");
 
-    FormImageProp::recentDir = &recentDir;
+    ImageWidget::recentDir = &recentDir;
     OpenGLWidget::recentMeshDir = &recentMeshDir;
 
 #ifdef Q_OS_MAC
@@ -76,14 +76,14 @@ void MainWindow::initialiseWindow()
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
 
-    diffuseImageProp   = new FormImageProp(this, glImage);
-    normalImageProp    = new FormImageProp(this, glImage);
-    specularImageProp  = new FormImageProp(this, glImage);
-    heightImageProp    = new FormImageProp(this, glImage);
-    occlusionImageProp = new FormImageProp(this, glImage);
-    roughnessImageProp = new FormImageProp(this, glImage);
-    metallicImageProp  = new FormImageProp(this, glImage);
-    grungeImageProp    = new FormImageProp(this, glImage);
+    diffuseImageProp   = new ImageWidget(this, glImage);
+    normalImageProp    = new ImageWidget(this, glImage);
+    specularImageProp  = new ImageWidget(this, glImage);
+    heightImageProp    = new ImageWidget(this, glImage);
+    occlusionImageProp = new ImageWidget(this, glImage);
+    roughnessImageProp = new ImageWidget(this, glImage);
+    metallicImageProp  = new ImageWidget(this, glImage);
+    grungeImageProp    = new ImageWidget(this, glImage);
 
     materialManager    = new FormMaterialIndicesManager(this, glImage);
 
