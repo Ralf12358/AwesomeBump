@@ -1,24 +1,24 @@
-#include "openglframebufferobjectproperties.h"
+#include "openglimage.h"
 
 #include <QDebug>
 
 #include "openglerrorcheck.h"
 #include "openglframebufferobject.h"
 
-SeamlessMode OpenGLFramebufferObjectProperties::seamlessMode                 = SEAMLESS_NONE;
-float OpenGLFramebufferObjectProperties::seamlessSimpleModeRadius            = 0.5;
-float OpenGLFramebufferObjectProperties::seamlessContrastPower               = 0.0;
-float OpenGLFramebufferObjectProperties::seamlessContrastStrenght            = 0.0;
-int OpenGLFramebufferObjectProperties::seamlessSimpleModeDirection           = 0; // xy
-SourceImageType OpenGLFramebufferObjectProperties::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
-bool OpenGLFramebufferObjectProperties::bSeamlessTranslationsFirst           = true;
-int OpenGLFramebufferObjectProperties::seamlessMirroModeType                 = 0;
-bool OpenGLFramebufferObjectProperties::bConversionBaseMap                   = false;
-bool OpenGLFramebufferObjectProperties::bConversionBaseMapShowHeightTexture  = false;
-int OpenGLFramebufferObjectProperties::currentMaterialIndeks                 = MATERIALS_DISABLED;
-RandomTilingMode OpenGLFramebufferObjectProperties::seamlessRandomTiling     = RandomTilingMode();
+SeamlessMode OpenGLImage::seamlessMode                 = SEAMLESS_NONE;
+float OpenGLImage::seamlessSimpleModeRadius            = 0.5;
+float OpenGLImage::seamlessContrastPower               = 0.0;
+float OpenGLImage::seamlessContrastStrenght            = 0.0;
+int OpenGLImage::seamlessSimpleModeDirection           = 0; // xy
+SourceImageType OpenGLImage::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+bool OpenGLImage::bSeamlessTranslationsFirst           = true;
+int OpenGLImage::seamlessMirroModeType                 = 0;
+bool OpenGLImage::bConversionBaseMap                   = false;
+bool OpenGLImage::bConversionBaseMapShowHeightTexture  = false;
+int OpenGLImage::currentMaterialIndeks                 = MATERIALS_DISABLED;
+RandomTilingMode OpenGLImage::seamlessRandomTiling     = RandomTilingMode();
 
-OpenGLFramebufferObjectProperties::OpenGLFramebufferObjectProperties()
+OpenGLImage::OpenGLImage()
 {
     bSkipProcessing       = false;
     properties            = NULL;
@@ -34,7 +34,7 @@ OpenGLFramebufferObjectProperties::OpenGLFramebufferObjectProperties()
     properties            = new QtnPropertySetFormImageProp;
 }
 
-OpenGLFramebufferObjectProperties::~OpenGLFramebufferObjectProperties()
+OpenGLImage::~OpenGLImage()
 {
     if(glWidget_ptr != NULL)
     {
@@ -56,7 +56,7 @@ OpenGLFramebufferObjectProperties::~OpenGLFramebufferObjectProperties()
     }
 }
 
-void OpenGLFramebufferObjectProperties::copySettings(OpenGLFramebufferObjectProperties &src)
+void OpenGLImage::copySettings(OpenGLImage &src)
 {
     bFirstDraw         = src.bFirstDraw;
     conversionHNDepth  = src.conversionHNDepth;
@@ -67,7 +67,7 @@ void OpenGLFramebufferObjectProperties::copySettings(OpenGLFramebufferObjectProp
         properties->copyValues(src.properties);
 }
 
-void OpenGLFramebufferObjectProperties::init(QImage& image)
+void OpenGLImage::init(QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -99,7 +99,7 @@ void OpenGLFramebufferObjectProperties::init(QImage& image)
     GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
 }
 
-void OpenGLFramebufferObjectProperties::updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo)
+void OpenGLImage::updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo)
 {
     glWidget_ptr->makeCurrent();
     if(scr_tex_id)
@@ -109,7 +109,7 @@ void OpenGLFramebufferObjectProperties::updateSrcTexId(QOpenGLFramebufferObject*
     scr_tex_id = new QOpenGLTexture(image);
 }
 
-void OpenGLFramebufferObjectProperties::resizeFBO(int width, int height)
+void OpenGLImage::resizeFBO(int width, int height)
 {
     GLuint internal_format = TEXTURE_FORMAT;
     if(imageType == HEIGHT_TEXTURE)
@@ -118,7 +118,7 @@ void OpenGLFramebufferObjectProperties::resizeFBO(int width, int height)
     bFirstDraw = true;
 }
 
-QImage OpenGLFramebufferObjectProperties::getImage()
+QImage OpenGLImage::getImage()
 {
     glWidget_ptr->makeCurrent();
     return fbo->toImage();

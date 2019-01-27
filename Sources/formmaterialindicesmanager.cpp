@@ -9,7 +9,7 @@
 
 #include "targaimage.h"
 //#include "OpenGLFramebufferObjectProperties.h"
-#include "openglframebufferobjectproperties.h"
+#include "openglimage.h"
 
 FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     ImageBaseWidget(parent),
@@ -36,12 +36,12 @@ FormMaterialIndicesManager::~FormMaterialIndicesManager()
 
 bool FormMaterialIndicesManager::isEnabled()
 {
-    return (OpenGLFramebufferObjectProperties::currentMaterialIndeks != MATERIALS_DISABLED);
+    return (OpenGLImage::currentMaterialIndeks != MATERIALS_DISABLED);
 }
 
 void FormMaterialIndicesManager::disableMaterials()
 {
-    OpenGLFramebufferObjectProperties::currentMaterialIndeks = MATERIALS_DISABLED;
+    OpenGLImage::currentMaterialIndeks = MATERIALS_DISABLED;
 }
 
 void FormMaterialIndicesManager::setImage(QImage _image)
@@ -49,7 +49,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
     if (imageProp.glWidget_ptr->isValid())
     {
         // Remember the last id.
-        int mIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
+        int mIndex = OpenGLImage::currentMaterialIndeks;
         if(updateMaterials(_image))
         {
             image = _image;
@@ -57,7 +57,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
             emit materialChanged();
         }
 
-        OpenGLFramebufferObjectProperties::currentMaterialIndeks = mIndex;
+        OpenGLImage::currentMaterialIndeks = mIndex;
     }
     else
         qDebug() << Q_FUNC_INFO << "Invalid context.";
@@ -118,7 +118,7 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
         for(int m = 0 ; m < ui->listWidgetMaterialIndices->count() ; m++)
         {
             QString m_name = ui->listWidgetMaterialIndices->item(m)->text();
-            OpenGLFramebufferObjectProperties tmp;
+            OpenGLImage tmp;
             tmp.copySettings(imagesPointers[i]->imageProp);
             materialIndices[i][m_name] = tmp;
         }
@@ -129,7 +129,7 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
     ui->listWidgetMaterialIndices->item(lastMaterialIndex)->setText(cText+" (selected material)");
 
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    OpenGLFramebufferObjectProperties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    OpenGLImage::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     bSkipUpdating = false;
 
@@ -153,7 +153,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
 
     // Update current mask color.
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    OpenGLFramebufferObjectProperties::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    OpenGLImage::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     // Load different material.
     m_name = ui->listWidgetMaterialIndices->item(index)->text();
@@ -198,16 +198,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
     (*ImageWidget::recentDir).setPath(fileName);
 
-    int mIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
+    int mIndex = OpenGLImage::currentMaterialIndeks;
     if(updateMaterials(_image))
     {
         image = _image;
         imageProp.init(image);
         emit materialChanged();
-        OpenGLFramebufferObjectProperties::currentMaterialIndeks = mIndex;
+        OpenGLImage::currentMaterialIndeks = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(OpenGLFramebufferObjectProperties::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(OpenGLImage::currentMaterialIndeks != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -217,16 +217,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
 void FormMaterialIndicesManager::pasteImageFromClipboard(QImage& _image)
 {
-    int mIndex = OpenGLFramebufferObjectProperties::currentMaterialIndeks;
+    int mIndex = OpenGLImage::currentMaterialIndeks;
     if(updateMaterials(_image))
     {
         image    = _image;
         imageProp.init(image);
         emit materialChanged();
-        OpenGLFramebufferObjectProperties::currentMaterialIndeks = mIndex;
+        OpenGLImage::currentMaterialIndeks = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(OpenGLFramebufferObjectProperties::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(OpenGLImage::currentMaterialIndeks != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -238,7 +238,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
     if(toggle == false)
     {
         // Render normally.
-        OpenGLFramebufferObjectProperties::currentMaterialIndeks = MATERIALS_DISABLED;
+        OpenGLImage::currentMaterialIndeks = MATERIALS_DISABLED;
         emit materialChanged();
     }
     else
@@ -260,7 +260,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
 void FormMaterialIndicesManager::chooseMaterialByColor(QColor color)
 {
     // Check if materials are enabled.
-    if(OpenGLFramebufferObjectProperties::currentMaterialIndeks == MATERIALS_DISABLED) return;
+    if(OpenGLImage::currentMaterialIndeks == MATERIALS_DISABLED) return;
 
     bool bColorFound = false;
     // Look for the color in materials.

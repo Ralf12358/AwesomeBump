@@ -2,7 +2,7 @@
 
 #include <QOpenGLFramebufferObjectFormat>
 
-#include "openglframebufferobjectproperties.h"
+#include "openglimage.h"
 #include "openglerrorcheck.h"
 
 bool OpenGLFramebufferObject::bUseLinearInterpolation = true;

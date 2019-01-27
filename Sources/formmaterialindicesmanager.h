@@ -9,7 +9,7 @@
 
 #include "imagebasewidget.h"
 #include "imagewidget.h"
-#include "openglframebufferobjectproperties.h"
+#include "openglimage.h"
 
 namespace Ui
 {
@@ -55,7 +55,7 @@ protected:
     void pasteImageFromClipboard(QImage& image);
 
     // Settings
-    std::map<QString, OpenGLFramebufferObjectProperties> materialIndices[7];
+    std::map<QString, OpenGLImage> materialIndices[7];
     std::map<int,QRgb> colorIndices;
     int lastMaterialIndex;
     Ui::FormMaterialIndicesManager *ui;

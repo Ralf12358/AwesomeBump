@@ -88,13 +88,13 @@ HEADERS = \
     openglwidgetbase.h \
     openglframebufferobject.h \
     opengltexturecube.h \
-    openglframebufferobjectproperties.h \
     openglimageeditor.h \
     openglwidget.h \
     utils/mesh.h \
     openglerrorcheck.h \
     imagebasewidget.h \
-    imagewidget.h
+    imagewidget.h \
+    openglimage.h
 
 SOURCES = \
     main.cpp \
@@ -128,12 +128,12 @@ SOURCES = \
     openglwidgetbase.cpp \
     openglframebufferobject.cpp \
     opengltexturecube.cpp \
-    openglframebufferobjectproperties.cpp \
     openglimageeditor.cpp \
     openglwidget.cpp \
     utils/mesh.cpp \
     imagebasewidget.cpp \
-    imagewidget.cpp
+    imagewidget.cpp \
+    openglimage.cpp
 
 
 RESOURCES += content.qrc

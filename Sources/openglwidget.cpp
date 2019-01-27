@@ -5,7 +5,7 @@
 #include <QtOpenGL>
 #include <math.h>
 
-#include "openglframebufferobjectproperties.h"
+#include "openglimage.h"
 
 QDir* OpenGLWidget::recentMeshDir = NULL;
 
@@ -776,7 +776,7 @@ void OpenGLWidget::paintGL()
         GLCHK( program_ptr->setUniformValue("gui_uvScale",           display3Dparameters.uvScale) );
         GLCHK( program_ptr->setUniformValue("gui_uvScaleOffset",     display3Dparameters.uvOffset) );
         GLCHK( program_ptr->setUniformValue("gui_bSpecular",         bToggleSpecularView) );
-        if(OpenGLFramebufferObjectProperties::bConversionBaseMap)
+        if(OpenGLImage::bConversionBaseMap)
         {
             GLCHK( program_ptr->setUniformValue("gui_bDiffuse",      false) );
         }

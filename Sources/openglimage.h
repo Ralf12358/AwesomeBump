@@ -1,5 +1,5 @@
-#ifndef OPENGLFRAMEBUFFEROBJECTPROPERTIES_H
-#define OPENGLFRAMEBUFFEROBJECTPROPERTIES_H
+#ifndef OPENGLIMAGE
+#define OPENGLIMAGE
 
 #include <QImage>
 #include <QOpenGLWidget>
@@ -48,13 +48,13 @@ enum SeamlessMode
     SEAMLESS_RANDOM
 };
 
-class OpenGLFramebufferObjectProperties
+class OpenGLImage
 {
 public:
-    OpenGLFramebufferObjectProperties();
-    ~OpenGLFramebufferObjectProperties();
+    OpenGLImage();
+    ~OpenGLImage();
 
-    void copySettings(OpenGLFramebufferObjectProperties &src);
+    void copySettings(OpenGLImage &src);
     void init(QImage& image);
     void updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
@@ -102,4 +102,4 @@ public:
     static int currentMaterialIndeks;
 };
 
-#endif // OPENGLFRAMEBUFFEROBJECTPROPERTIES_H
+#endif // OPENGLIMAGE

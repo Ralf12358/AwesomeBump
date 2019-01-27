@@ -622,13 +622,13 @@ void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const 
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableConversion)
             {
-                OpenGLFramebufferObjectProperties::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
+                OpenGLImage::bConversionBaseMap = imageProp.properties->BaseMapToOthers.EnableConversion;
             }
             // Enable BaseMapToOthers Conversion Tool Height Preview.
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &imageProp.properties->BaseMapToOthers.EnableHeightPreview)
             {
-                OpenGLFramebufferObjectProperties::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
+                OpenGLImage::bConversionBaseMapShowHeightTexture = imageProp.properties->BaseMapToOthers.EnableHeightPreview;
             }
             emit imageChanged();
         }
