@@ -89,7 +89,7 @@ QSize OpenGLWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureTypes tType)
+void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureType tType)
 {
     switch(tType)
     {

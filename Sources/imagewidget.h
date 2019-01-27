@@ -2,11 +2,11 @@
 #define IMAGEWIDGET_H
 
 #include <QMainWindow>
-#include <QOpenGLWidget>
 #include <QImage>
 #include <QString>
 
 #include "imagebasewidget.h"
+#include "openglimageeditor.h"
 #include "PropertyBase.h"
 #include "dialogheightcalculator.h"
 
@@ -20,7 +20,7 @@ class ImageWidget : public ImageBaseWidget
     Q_OBJECT
 
 public:
-    explicit ImageWidget(QWidget *parent = 0, QOpenGLWidget* openGLWidget = 0);
+    explicit ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType);
     ~ImageWidget();
 
     void setImage(QImage newImage);
@@ -32,7 +32,7 @@ public:
     static bool loadingImages;
 
 signals:
-    void reloadSettingsFromConfigFile(TextureTypes type);
+    void reloadSettingsFromConfigFile(TextureType type);
     void imageChanged();
     void imageLoaded(int width, int height);
     void conversionHeightToNormalApplied();

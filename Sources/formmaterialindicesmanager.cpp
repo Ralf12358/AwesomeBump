@@ -26,6 +26,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpe
 
     ui->groupBox->setDisabled(true);
     setAcceptDrops(true);
+    getImageProporties()->imageType = MATERIAL_TEXTURE;
 }
 
 FormMaterialIndicesManager::~FormMaterialIndicesManager()

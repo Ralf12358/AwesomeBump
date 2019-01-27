@@ -30,7 +30,7 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureTypes type);
+    void setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureType type);
 
 signals:
     void renderGL();

@@ -77,7 +77,7 @@ public:
     // Pointer to GL context.
     QOpenGLWidget* glWidget_ptr;
     // This will define what kind of preprocessing will be applied to image
-    TextureTypes imageType;
+    TextureType imageType;
 
     bool bFirstDraw;
     // Conversion settings

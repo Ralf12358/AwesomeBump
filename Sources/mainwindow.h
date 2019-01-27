@@ -71,7 +71,7 @@ public slots:
     void changeGUIFontSize(int);
     // Load the application setting from ini file.
     void loadSettings();
-    void loadImageSettings(TextureTypes type);
+    void loadImageSettings(TextureType type);
     void showSettingsManager();
     void setOutputFormat(int);
     void replotAllImages();

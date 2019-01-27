@@ -93,7 +93,7 @@ QString ImageBaseWidget::getImageName()
     return imageName;
 }
 
-void  ImageBaseWidget::setImageType(TextureTypes imageType)
+void  ImageBaseWidget::setImageType(TextureType imageType)
 {
     imageProp.imageType = imageType;
 }

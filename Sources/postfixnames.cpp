@@ -9,7 +9,7 @@ QString  PostfixNames::roughnessName = "_r";
 QString  PostfixNames::metallicName  = "_m";
 QString  PostfixNames::outputFormat  = ".png";
 
-QString PostfixNames::getPostfix(TextureTypes tType)
+QString PostfixNames::getPostfix(TextureType tType)
 {
     switch(tType)
     {
@@ -40,7 +40,7 @@ QString PostfixNames::getPostfix(TextureTypes tType)
     }
 }
 
-QString PostfixNames::getTextureName(TextureTypes tType)
+QString PostfixNames::getTextureName(TextureType tType)
 {
     switch(tType)
     {

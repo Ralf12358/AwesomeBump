@@ -75,40 +75,19 @@ void MainWindow::initialiseWindow()
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
 
-    diffuseImageWidget   = new ImageWidget(this, openGLImageEditor);
-    normalImageWidget    = new ImageWidget(this, openGLImageEditor);
-    specularImageWidget  = new ImageWidget(this, openGLImageEditor);
-    heightImageWidget    = new ImageWidget(this, openGLImageEditor);
-    occlusionImageWidget = new ImageWidget(this, openGLImageEditor);
-    roughnessImageWidget = new ImageWidget(this, openGLImageEditor);
-    metallicImageWidget  = new ImageWidget(this, openGLImageEditor);
-    grungeImageWidget    = new ImageWidget(this, openGLImageEditor);
+    diffuseImageWidget   = new ImageWidget(this, openGLImageEditor, DIFFUSE_TEXTURE);
+    normalImageWidget    = new ImageWidget(this, openGLImageEditor, NORMAL_TEXTURE);
+    specularImageWidget  = new ImageWidget(this, openGLImageEditor, SPECULAR_TEXTURE);
+    heightImageWidget    = new ImageWidget(this, openGLImageEditor, HEIGHT_TEXTURE);
+    occlusionImageWidget = new ImageWidget(this, openGLImageEditor, OCCLUSION_TEXTURE);
+    roughnessImageWidget = new ImageWidget(this, openGLImageEditor, ROUGHNESS_TEXTURE);
+    metallicImageWidget  = new ImageWidget(this, openGLImageEditor, METALLIC_TEXTURE);
+    grungeImageWidget    = new ImageWidget(this, openGLImageEditor, GRUNGE_TEXTURE);
 
     materialManager    = new FormMaterialIndicesManager(this, openGLImageEditor);
 
     qDebug() << "Initialization: Setup image properties";
     INIT_PROGRESS(20, "Setup image properties");
-
-    // Selecting type of image for each texture
-    diffuseImageWidget  ->getImageProporties()->imageType = DIFFUSE_TEXTURE;
-    normalImageWidget   ->getImageProporties()->imageType = NORMAL_TEXTURE;
-    specularImageWidget ->getImageProporties()->imageType = SPECULAR_TEXTURE;
-    heightImageWidget   ->getImageProporties()->imageType = HEIGHT_TEXTURE;
-    occlusionImageWidget->getImageProporties()->imageType = OCCLUSION_TEXTURE;
-    roughnessImageWidget->getImageProporties()->imageType = ROUGHNESS_TEXTURE;
-    metallicImageWidget ->getImageProporties()->imageType = METALLIC_TEXTURE;
-    grungeImageWidget   ->getImageProporties()->imageType = GRUNGE_TEXTURE;
-    materialManager     ->getImageProporties()->imageType = MATERIAL_TEXTURE;
-
-    diffuseImageWidget  ->setupPropertiesGUI();
-    normalImageWidget   ->setupPropertiesGUI();
-    specularImageWidget ->setupPropertiesGUI();
-    heightImageWidget   ->setupPropertiesGUI();
-    occlusionImageWidget->setupPropertiesGUI();
-    roughnessImageWidget->setupPropertiesGUI();
-    metallicImageWidget ->setupPropertiesGUI();
-    grungeImageWidget   ->setupPropertiesGUI();
-    //materialManager   ->setupPopertiesGUI();
 
     // Set pointers to images
     materialManager->imagesPointers[0] = diffuseImageWidget;
@@ -236,14 +215,14 @@ void MainWindow::initialiseWindow()
     connect(materialManager,   SIGNAL (imageLoaded(int,int)), this, SLOT (applyResizeImage(int,int)));
 
     // Connect image reload settings signal.
-    connect(diffuseImageWidget,   SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(normalImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(specularImageWidget,  SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(heightImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(occlusionImageWidget, SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(roughnessImageWidget, SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(metallicImageWidget,  SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
-    connect(grungeImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureTypes)), this, SLOT (loadImageSettings(TextureTypes)));
+    connect(diffuseImageWidget,   SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(normalImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(specularImageWidget,  SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(heightImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(occlusionImageWidget, SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(roughnessImageWidget, SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(metallicImageWidget,  SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
+    connect(grungeImageWidget,    SIGNAL (reloadSettingsFromConfigFile(TextureType)), this, SLOT (loadImageSettings(TextureType)));
 
     // Connect conversion signals.
     connect(diffuseImageWidget,   SIGNAL (conversionBaseConversionApplied()), this, SLOT (convertFromBase()));
@@ -415,15 +394,6 @@ void MainWindow::initialiseWindow()
     metallicImageWidget  ->setImage(QImage(QString(":/resources/logo/logo_M.png")));
     grungeImageWidget    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
     materialManager    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-
-    diffuseImageWidget   ->setImageName(ui->lineEditOutputName->text());
-    normalImageWidget    ->setImageName(ui->lineEditOutputName->text());
-    heightImageWidget    ->setImageName(ui->lineEditOutputName->text());
-    specularImageWidget  ->setImageName(ui->lineEditOutputName->text());
-    occlusionImageWidget ->setImageName(ui->lineEditOutputName->text());
-    roughnessImageWidget ->setImageName(ui->lineEditOutputName->text());
-    metallicImageWidget  ->setImageName(ui->lineEditOutputName->text());
-    grungeImageWidget    ->setImageName(ui->lineEditOutputName->text());
 
     // Set the active image
     openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
@@ -1582,7 +1552,7 @@ QSize MainWindow::sizeHint() const
     return QSize(abSettings->d_win_w,abSettings->d_win_h);
 }
 
-void MainWindow::loadImageSettings(TextureTypes type)
+void MainWindow::loadImageSettings(TextureType type)
 {
     switch(type)
     {

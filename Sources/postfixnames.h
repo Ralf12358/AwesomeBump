@@ -3,7 +3,7 @@
 
 #include <QString>
 
-enum TextureTypes
+enum TextureType
 {
     DIFFUSE_TEXTURE = 0,
     NORMAL_TEXTURE ,
@@ -20,8 +20,8 @@ enum TextureTypes
 class PostfixNames
 {
 public:
-    static QString getPostfix(TextureTypes tType);
-    static QString getTextureName(TextureTypes tType);
+    static QString getPostfix(TextureType tType);
+    static QString getTextureName(TextureType tType);
 
     static QString diffuseName;
     static QString normalName;

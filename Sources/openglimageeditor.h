@@ -279,7 +279,7 @@ private:
     UVManipulationMethods uvManilupationMethod;
 
     // OpenGL 330 variables.
-    TextureTypes openGL330ForceTexType;
+    TextureType openGL330ForceTexType;
 
     // Rendering variables
     // Define if OpenGL is currently rendering some textures.

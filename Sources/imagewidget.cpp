@@ -12,7 +12,7 @@
 
 bool ImageWidget::loadingImages = false;
 
-ImageWidget::ImageWidget(QWidget *parent, QOpenGLWidget* openGLWidget) :
+ImageWidget::ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType) :
     ImageBaseWidget(parent),
     ui(new Ui::ImageWidget)
 {
@@ -88,6 +88,10 @@ ImageWidget::ImageWidget(QWidget *parent, QOpenGLWidget* openGLWidget) :
     setMouseTracking(true);
     setFocus();
     setFocusPolicy(Qt::ClickFocus);
+
+    getImageProporties()->imageType = textureType;
+    setupPropertiesGUI();
+    setImageName("image");
 }
 
 ImageWidget::~ImageWidget()
