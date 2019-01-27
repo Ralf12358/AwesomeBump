@@ -1,5 +1,5 @@
 #include "imagewidget.h"
-#include "ui_formimageprop.h"
+#include "ui_imagewidget.h"
 
 #include <QDebug>
 #include <QFileInfo>
