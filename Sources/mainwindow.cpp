@@ -101,14 +101,14 @@ void MainWindow::initialiseWindow()
     grungeImageProp   ->getImageProporties()->imageType = GRUNGE_TEXTURE;
     materialManager   ->getImageProporties()->imageType = MATERIAL_TEXTURE;
 
-    diffuseImageProp  ->setupPopertiesGUI();
-    normalImageProp   ->setupPopertiesGUI();
-    specularImageProp ->setupPopertiesGUI();
-    heightImageProp   ->setupPopertiesGUI();
-    occlusionImageProp->setupPopertiesGUI();
-    roughnessImageProp->setupPopertiesGUI();
-    metallicImageProp ->setupPopertiesGUI();
-    grungeImageProp   ->setupPopertiesGUI();
+    diffuseImageProp  ->setupPropertiesGUI();
+    normalImageProp   ->setupPropertiesGUI();
+    specularImageProp ->setupPropertiesGUI();
+    heightImageProp   ->setupPropertiesGUI();
+    occlusionImageProp->setupPropertiesGUI();
+    roughnessImageProp->setupPropertiesGUI();
+    metallicImageProp ->setupPropertiesGUI();
+    grungeImageProp   ->setupPropertiesGUI();
     //materialManager   ->setupPopertiesGUI();
 
     // Set pointers to images

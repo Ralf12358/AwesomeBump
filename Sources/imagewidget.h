@@ -20,43 +20,22 @@ class ImageWidget : public ImageBaseWidget
     Q_OBJECT
 
 public:
-    explicit ImageWidget(QMainWindow *parent = 0, QOpenGLWidget* qlW_ptr = 0);
+    explicit ImageWidget(QWidget *parent = 0, QOpenGLWidget* openGLWidget = 0);
     ~ImageWidget();
 
     void setImage(QImage image);
-    void setPtrToGLWidget(QOpenGLWidget* ptr){ imageProp.glWidget_ptr = ptr;  }
-    void setupPopertiesGUI();
+    void setOpenGLWidget(QOpenGLWidget *openGLWidget);
+    void setupPropertiesGUI();
     void reloadSettings();
     bool loadFile(const QString &fileName);
 
-public slots:
-    void propertyChanged(const QtnPropertyBase* changedProperty,
-                         const QtnPropertyBase*,
-                         QtnPropertyChangeReason reason);
-    void propertyFinishedEditing();
-    // Convert basemap to other textures.
-    void applyBaseConversion(const QtnPropertyButton*);
-    void pasteNormalFromClipBoard(const QtnPropertyButton*);
-    void reloadImageSettings();
-    void pasteFromClipboard();
-    void copyToClipboard();
-    void updateComboBoxes(int);
-    void updateGuiSpinBoxesAndLabes(int);
-    void updateSlidersOnRelease();
-    void applyHeightToNormalConversion();
-    void applyNormalToHeightConversion();
-    void applyBaseConversionConversion();
-    void applyHeightNormalToOcclusionConversion();
-    void showHeightCalculatorDialog();
-    void pickColorFromImage(QtnPropertyABColor *property);
-    void pasteNormalFromClipBoard();
-    void toggleGrungeImageSettingsGroup(bool toggle);
-    void loadPredefinedGrunge(QString);
+    static bool bLoading;
+    bool bOpenNormalMapMixer;
 
 signals:
     void reloadSettingsFromConfigFile(TextureTypes type);
     void imageChanged();
-    void imageLoaded(int width,int height);
+    void imageLoaded(int width, int height);
     void conversionHeightToNormalApplied();
     void conversionNormalToHeightApplied();
     void conversionBaseConversionApplied();
@@ -66,16 +45,37 @@ signals:
     void pickImageColor( QtnPropertyABColor* property);
     void toggleGrungeSettings(bool toggle);
 
+public slots:
+    void reloadImageSettings();
+    void copyToClipboard();
+    void pasteFromClipboard();
+    void pasteNormalFromClipBoard();
+    void pasteNormalFromClipBoard(const QtnPropertyButton*);
+    void updateComboBoxes(int);
+    void updateGuiSpinBoxesAndLabes(int);
+    void updateSlidersOnRelease();
+    void propertyChanged(const QtnPropertyBase* changedProperty,
+                         const QtnPropertyBase*,
+                         QtnPropertyChangeReason reason);
+    void propertyFinishedEditing();
+
+    // Convert basemap to other textures.
+    void applyBaseConversion(const QtnPropertyButton*);
+    void applyHeightToNormalConversion();
+    void applyNormalToHeightConversion();
+    void applyBaseConversionConversion();
+    void applyHeightNormalToOcclusionConversion();
+    void showHeightCalculatorDialog();
+    void pickColorFromImage(QtnPropertyABColor *property);
+    void toggleGrungeImageSettingsGroup(bool toggle);
+    void loadPredefinedGrunge(QString);
+
 private:
     void pasteImageFromClipboard(QImage& _image);
 
     Ui::ImageWidget *ui;
     // Height calculator tool.
     DialogHeightCalculator *heightCalculator;
-
-public:
-    static bool bLoading;
-    bool bOpenNormalMapMixer;
 };
 
 #endif // IMAGEWIDGET_H

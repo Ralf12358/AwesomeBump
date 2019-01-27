@@ -12,7 +12,7 @@
 
 bool ImageWidget::bLoading = false;
 
-ImageWidget::ImageWidget(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
+ImageWidget::ImageWidget(QWidget *parent, QOpenGLWidget* openGLWidget) :
     ImageBaseWidget(parent),
     ui(new Ui::ImageWidget)
 {
@@ -52,7 +52,7 @@ ImageWidget::ImageWidget(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     ui->groupBoxConvertToHeightSettings->hide();
     bOpenNormalMapMixer = false;
 
-    imageProp.glWidget_ptr = qlW_ptr;
+    imageProp.glWidget_ptr = openGLWidget;
     
     connect(ui->pushButtonOpenImage,          SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonSaveImage,          SIGNAL (released()), this, SLOT (save()));
@@ -91,7 +91,29 @@ ImageWidget::ImageWidget(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
     setFocusPolicy(Qt::ClickFocus);
 }
 
-void ImageWidget::setupPopertiesGUI()
+ImageWidget::~ImageWidget()
+{
+    qDebug() << "calling" << Q_FUNC_INFO;
+    delete heightCalculator;
+    //delete imageProp.properties;
+    delete ui;
+}
+
+void ImageWidget::setImage(QImage _image)
+{
+    image    = _image;
+    if (imageProp.glWidget_ptr->isValid())
+        imageProp.init(image);
+    else
+        qDebug() << Q_FUNC_INFO << "Invalid context.";
+}
+
+void ImageWidget::setOpenGLWidget(QOpenGLWidget *openGLWidget)
+{
+    imageProp.glWidget_ptr = openGLWidget;
+}
+
+void ImageWidget::setupPropertiesGUI()
 {
     imageProp.properties->ImageType.setValue((imageProp.imageType));
 
@@ -180,8 +202,394 @@ void ImageWidget::setupPopertiesGUI()
     }
 }
 
+void ImageWidget::reloadSettings()
+{
+    bLoading = true;
+
+    if(imageProp.imageType == HEIGHT_TEXTURE)
+    {
+        ui->horizontalSliderNormalToHeightNoiseLevel    ->setValue(imageProp.properties->NormalHeightConv.NoiseLevel);
+        ui->horizontalSliderNormalToHeightItersHuge     ->setValue(imageProp.properties->NormalHeightConv.Huge);
+        ui->horizontalSliderNormalToHeightItersVeryLarge->setValue(imageProp.properties->NormalHeightConv.VeryLarge);
+        ui->horizontalSliderNormalToHeightItersLarge    ->setValue(imageProp.properties->NormalHeightConv.Large);
+        ui->horizontalSliderNormalToHeightItersMedium   ->setValue(imageProp.properties->NormalHeightConv.Medium);
+        ui->horizontalSliderNormalToHeightItersVerySmall->setValue(imageProp.properties->NormalHeightConv.Small);
+        ui->horizontalSliderNormalToHeightItersSmall    ->setValue(imageProp.properties->NormalHeightConv.VerySmall);
+    }
+    // Input image case study
+    switch(imageProp.imageType)
+    {
+    case(NORMAL_TEXTURE):
+        // Select propper input image for normals.
+        ui->pushButtonConverToNormal->setEnabled(false);
+        switch(imageProp.inputImageType)
+        {
+        case(INPUT_FROM_NORMAL_INPUT):
+            ui->comboBoxNormalInputImage->setCurrentIndex(0);
+            ui->pushButtonConverToNormal->setEnabled(true);
+            break;
+        case(INPUT_FROM_HEIGHT_INPUT):
+            ui->comboBoxNormalInputImage->setCurrentIndex(1);
+            break;
+        case(INPUT_FROM_HEIGHT_OUTPUT):
+            ui->comboBoxNormalInputImage->setCurrentIndex(2);
+            break;
+        default:
+            break;
+        }
+        break;
+        // End case NORMAL_TEXTURE.
+
+    case(SPECULAR_TEXTURE):
+        // Select propper input image for specular.
+        switch(imageProp.inputImageType)
+        {
+        case(INPUT_FROM_SPECULAR_INPUT):
+            ui->comboBoxSpecularInputImage->setCurrentIndex(0);
+            break;
+        case(INPUT_FROM_DIFFUSE_INPUT):
+            ui->comboBoxSpecularInputImage->setCurrentIndex(0);
+            break;
+        case(INPUT_FROM_DIFFUSE_OUTPUT):
+            ui->comboBoxSpecularInputImage->setCurrentIndex(1);
+            break;
+        case(INPUT_FROM_HEIGHT_INPUT):
+            ui->comboBoxSpecularInputImage->setCurrentIndex(2);
+            break;
+        case(INPUT_FROM_HEIGHT_OUTPUT):
+            ui->comboBoxSpecularInputImage->setCurrentIndex(3);
+            break;
+        default:
+            break;
+        }
+        break;
+        // End case SPECULAR_TEXTURE.
+
+    case(OCCLUSION_TEXTURE):
+        // Select propper input image for occlusion.
+        ui->pushButtonConvertOcclusionFromHN->setEnabled(false);
+        switch(imageProp.inputImageType)
+        {
+        case(INPUT_FROM_OCCLUSION_INPUT):
+            ui->comboBoxOcclusionInputImage->setCurrentIndex(0);
+            ui->pushButtonConvertOcclusionFromHN->setEnabled(true);
+            break;
+        case(INPUT_FROM_HI_NI):
+            ui->comboBoxOcclusionInputImage->setCurrentIndex(1);
+            break;
+        case(INPUT_FROM_HO_NO):
+            ui->comboBoxOcclusionInputImage->setCurrentIndex(2);
+            break;
+        default:
+            break;
+        }
+        break;
+        // End case OCCLUSION_TEXTURE.
+
+    case(ROUGHNESS_TEXTURE):
+        // Select propper input image for roughness.
+        switch(imageProp.inputImageType)
+        {
+        case(INPUT_FROM_ROUGHNESS_INPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
+            break;
+        case(INPUT_FROM_DIFFUSE_INPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(1);
+            break;
+        case(INPUT_FROM_DIFFUSE_OUTPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(2);
+            break;
+        default:
+            break;
+        }
+        break;
+        // End case ROUGHNESS_TEXTURE.
+
+    case(METALLIC_TEXTURE):
+        // Select propper input image for roughness
+        switch(imageProp.inputImageType)
+        {
+        case(INPUT_FROM_METALLIC_INPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
+            break;
+        case(INPUT_FROM_DIFFUSE_INPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(1);
+            break;
+        case(INPUT_FROM_DIFFUSE_OUTPUT):
+            ui->comboBoxRoughnessInputImage->setCurrentIndex(2);
+            break;
+        default:
+            break;
+        }
+        break;
+        // End case METALLIC_TEXTURE.
+
+    case(HEIGHT_TEXTURE):
+        break;
+        // End case HEIGHT_TEXTURE.
+
+    default:
+        break;
+    };
+
+    bLoading = false;
+}
+
+bool ImageWidget::loadFile(const QString &fileName)
+{
+    QFileInfo fileInfo(fileName);
+    QImage _image;
+    //    qDebug() << "Opening file: " << fileName;
+    // Targa support added
+    if(fileInfo.completeSuffix().compare("tga") == 0)
+    {
+        TargaImage tgaImage;
+        _image = tgaImage.read(fileName);
+    }
+    else
+    {
+        QImageReader loadedImage(fileName);
+        _image = loadedImage.read();
+    }
+
+    if (_image.isNull())
+    {
+        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                                 tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
+        return false;
+    }
+    if(imageProp.properties->NormalsMixer.EnableMixer)
+    {
+        qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
+
+        imageProp.glWidget_ptr->makeCurrent();
+        //if(glIsTexture(imageProp.normalMixerInputTexId))
+        //    imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
+        //    imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+        if(imageProp.normalMixerInputTexId)
+            delete imageProp.normalMixerInputTexId;
+        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
+        imageProp.normalMixerInputTexId->bind();
+
+        emit imageChanged();
+
+    }
+    else
+    {
+        qDebug() << "<FormImageProp> Open image:" << fileName;
+
+        imageName = fileInfo.baseName();
+        (*recentDir).setPath(fileName);
+        image    = _image;
+        imageProp.init(image);
+
+        //emit imageChanged();
+        emit imageLoaded(image.width(),image.height());
+        if(imageProp.imageType == GRUNGE_TEXTURE)emit imageChanged();
+    }
+    return true;
+}
+
+void ImageWidget::reloadImageSettings()
+{
+    emit reloadSettingsFromConfigFile(imageProp.imageType);
+}
+
+void ImageWidget::copyToClipboard()
+{
+    qDebug() << "<FormImageProp> Image :" +
+                PostfixNames::getTextureName(imageProp.imageType) +
+                " copied to clipboard.";
+
+    QApplication::processEvents();
+    image = imageProp.getImage();
+    QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
+}
+
+void ImageWidget::pasteFromClipboard()
+{
+    const QClipboard *clipboard = QApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+
+    if (mimeData->hasImage())
+    {
+        qDebug() << "<FormImageProp> Image :" +
+                    PostfixNames::getTextureName(imageProp.imageType)+
+                    " loaded from clipboard.";
+        QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
+        QImage image = pixmap.toImage();
+        pasteImageFromClipboard(image);
+    }
+}
+
+void ImageWidget::pasteNormalFromClipBoard()
+{
+    const QClipboard *clipboard = QApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+
+    if (mimeData->hasImage())
+    {
+        qDebug() << "<FormImageProp> Normal image :" +
+                    PostfixNames::getTextureName(imageProp.imageType) +
+                    " loaded from clipboard.";
+        QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
+        QImage _image = pixmap.toImage();
+
+        imageProp.glWidget_ptr->makeCurrent();
+        //        if(glIsTexture(imageProp.normalMixerInputTexId))
+        //            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
+        //        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
+        if(imageProp.normalMixerInputTexId)
+            delete imageProp.normalMixerInputTexId;
+        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
+        imageProp.normalMixerInputTexId->bind();
+
+        emit imageChanged();
+    }
+}
+
+void ImageWidget::pasteNormalFromClipBoard(const QtnPropertyButton*)
+{
+    emit pasteNormalFromClipBoard();
+}
+
+void ImageWidget::updateComboBoxes(int)
+{
+    // Input image case study.
+    switch(imageProp.imageType)
+    {
+    case(NORMAL_TEXTURE):
+        // Select propper input image for normals.
+        ui->pushButtonConverToNormal->setEnabled(false);
+
+        switch(ui->comboBoxNormalInputImage->currentIndex())
+        {
+        case(0):
+            imageProp.inputImageType = INPUT_FROM_NORMAL_INPUT;
+            ui->pushButtonConverToNormal->setEnabled(true);
+            break;
+        case(1):
+            imageProp.inputImageType = INPUT_FROM_HEIGHT_INPUT;
+            break;
+        case(2):
+            imageProp.inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
+            break;
+        }
+        break;
+        // End case NORMAL_TEXTURE.
+
+    case(SPECULAR_TEXTURE):
+        // Select propper input image for specular.
+        switch(ui->comboBoxSpecularInputImage->currentIndex())
+        {
+        case(0):
+            imageProp.inputImageType = INPUT_FROM_SPECULAR_INPUT;
+            break;
+        case(1):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
+            break;
+        case(2):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
+            break;
+        case(3):
+            imageProp.inputImageType = INPUT_FROM_HEIGHT_INPUT;
+            break;
+        case(4):
+            imageProp.inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
+            break;
+        }
+        break;
+        // End case SPECULAR_TEXTURE.
+
+    case(OCCLUSION_TEXTURE):
+        // Select propper input image for occlusion.
+        ui->pushButtonConvertOcclusionFromHN->setEnabled(false);
+        switch(ui->comboBoxOcclusionInputImage->currentIndex())
+        {
+        case(0):
+            imageProp.inputImageType = INPUT_FROM_OCCLUSION_INPUT;
+            ui->pushButtonConvertOcclusionFromHN->setEnabled(true);
+            break;
+        case(1):
+            imageProp.inputImageType = INPUT_FROM_HI_NI;
+            break;
+        case(2):
+            imageProp.inputImageType = INPUT_FROM_HO_NO;
+            break;
+        }
+        break;
+        // End case OCCLUSION_TEXTURE.
+
+    case(ROUGHNESS_TEXTURE):
+        // Select propper input image for roughness.
+        switch(ui->comboBoxRoughnessInputImage->currentIndex())
+        {
+        case(0):
+            imageProp.inputImageType = INPUT_FROM_ROUGHNESS_INPUT;
+            break;
+        case(1):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
+            break;
+        case(2):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
+            break;
+        }
+        break;
+        // End case ROUGHNESS_TEXTURE.
+
+    case(METALLIC_TEXTURE):
+        // Select propper input image for metallic.
+        switch(ui->comboBoxRoughnessInputImage->currentIndex())
+        {
+        case(0):
+            imageProp.inputImageType = INPUT_FROM_METALLIC_INPUT;
+            break;
+        case(1):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
+            break;
+        case(2):
+            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
+            break;
+        }
+        break;
+        // End case METALLIC_TEXTURE.
+
+    case(HEIGHT_TEXTURE):
+        break;
+        // End case HEIGHT_TEXTURE.
+
+    default:
+        break;
+    };
+    emit imageChanged();
+}
+
+void ImageWidget::updateGuiSpinBoxesAndLabes(int)
+{
+    if(bLoading == true) return;
+
+    ui->doubleSpinBoxConversionHNDepth->setValue(ui->horizontalSliderConversionHNDepth->value()/5.0);
+
+    imageProp.conversionHNDepth = ui->doubleSpinBoxConversionHNDepth->value();
+
+    imageProp.properties->NormalHeightConv.NoiseLevel = ui->horizontalSliderNormalToHeightNoiseLevel     ->value();
+    imageProp.properties->NormalHeightConv.Huge       = ui->horizontalSliderNormalToHeightItersHuge      ->value();
+    imageProp.properties->NormalHeightConv.VeryLarge  = ui->horizontalSliderNormalToHeightItersVeryLarge ->value();
+    imageProp.properties->NormalHeightConv.Large      = ui->horizontalSliderNormalToHeightItersLarge     ->value();
+    imageProp.properties->NormalHeightConv.Medium     = ui->horizontalSliderNormalToHeightItersMedium    ->value();
+    imageProp.properties->NormalHeightConv.Small      = ui->horizontalSliderNormalToHeightItersSmall     ->value();
+    imageProp.properties->NormalHeightConv.VerySmall  = ui->horizontalSliderNormalToHeightItersVerySmall ->value();
+}
+
+void ImageWidget::updateSlidersOnRelease()
+{
+    if(bLoading == true) return;
+    updateGuiSpinBoxesAndLabes(0);
+    emit imageChanged();
+}
+
 void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const QtnPropertyBase*,
-                                    QtnPropertyChangeReason reason)
+                                  QtnPropertyChangeReason reason)
 {
     if (bLoading) return;
     if (reason & QtnPropertyChangeReasonValue)
@@ -246,221 +654,6 @@ void ImageWidget::applyBaseConversion(const QtnPropertyButton*)
     emit conversionBaseConversionApplied();
 }
 
-void ImageWidget::pasteNormalFromClipBoard(const QtnPropertyButton*)
-{
-    emit pasteNormalFromClipBoard();
-}
-
-ImageWidget::~ImageWidget()
-{
-    qDebug() << "calling" << Q_FUNC_INFO;
-    delete heightCalculator;
-    //delete imageProp.properties;
-    delete ui;
-}
-
-bool ImageWidget::loadFile(const QString &fileName)
-{
-    QFileInfo fileInfo(fileName);
-    QImage _image;
-    //    qDebug() << "Opening file: " << fileName;
-    // Targa support added
-    if(fileInfo.completeSuffix().compare("tga") == 0)
-    {
-        TargaImage tgaImage;
-        _image = tgaImage.read(fileName);
-    }
-    else
-    {
-        QImageReader loadedImage(fileName);
-        _image = loadedImage.read();
-    }
-
-    if (_image.isNull())
-    {
-        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                 tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
-        return false;
-    }
-    if(imageProp.properties->NormalsMixer.EnableMixer)
-    {
-        qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
-
-        imageProp.glWidget_ptr->makeCurrent();
-//        if(glIsTexture(imageProp.normalMixerInputTexId))
-//            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-//        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
-        if(imageProp.normalMixerInputTexId)
-            delete imageProp.normalMixerInputTexId;
-        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
-        imageProp.normalMixerInputTexId->bind();
-
-        emit imageChanged();
-
-    }
-    else
-    {
-        qDebug() << "<FormImageProp> Open image:" << fileName;
-
-        imageName = fileInfo.baseName();
-        (*recentDir).setPath(fileName);
-        image    = _image;
-        imageProp.init(image);
-
-        //emit imageChanged();
-        emit imageLoaded(image.width(),image.height());
-        if(imageProp.imageType == GRUNGE_TEXTURE)emit imageChanged();
-    }
-    return true;
-}
-
-void ImageWidget::pasteImageFromClipboard(QImage& _image)
-{
-    imageName = "clipboard_image";
-    image     = _image;
-    imageProp.init(image);
-    emit imageLoaded(image.width(),image.height());
-    if(imageProp.imageType == GRUNGE_TEXTURE)emit imageChanged();
-}
-
-void ImageWidget::setImage(QImage _image)
-{
-    image    = _image;
-    if (imageProp.glWidget_ptr->isValid())
-        imageProp.init(image);
-    else
-        qDebug() << Q_FUNC_INFO << "Invalid context.";
-}
-
-void ImageWidget::updateComboBoxes(int)
-{
-    // Input image case study.
-    switch(imageProp.imageType)
-    {
-    case(NORMAL_TEXTURE):
-        // Select propper input image for normals.
-        ui->pushButtonConverToNormal->setEnabled(false);
-
-        switch(ui->comboBoxNormalInputImage->currentIndex())
-        {
-        case(0):
-            imageProp.inputImageType = INPUT_FROM_NORMAL_INPUT;
-            ui->pushButtonConverToNormal->setEnabled(true);
-            break;
-        case(1):
-            imageProp.inputImageType = INPUT_FROM_HEIGHT_INPUT;
-            break;
-        case(2):
-            imageProp.inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
-            break;
-        }
-        break;
-        // End case NORMAL_TEXTURE.
-    case(SPECULAR_TEXTURE):
-        // Select propper input image for specular.
-        switch(ui->comboBoxSpecularInputImage->currentIndex())
-        {
-        case(0):
-            imageProp.inputImageType = INPUT_FROM_SPECULAR_INPUT;
-            break;
-        case(1):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
-            break;
-        case(2):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
-            break;
-        case(3):
-            imageProp.inputImageType = INPUT_FROM_HEIGHT_INPUT;
-            break;
-        case(4):
-            imageProp.inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
-            break;
-        }
-        break;
-        // End case SPECULAR_TEXTURE.
-    case(OCCLUSION_TEXTURE):
-        // Select propper input image for occlusion.
-        ui->pushButtonConvertOcclusionFromHN->setEnabled(false);
-        switch(ui->comboBoxOcclusionInputImage->currentIndex())
-        {
-        case(0):
-            imageProp.inputImageType = INPUT_FROM_OCCLUSION_INPUT;
-            ui->pushButtonConvertOcclusionFromHN->setEnabled(true);
-            break;
-        case(1):
-            imageProp.inputImageType = INPUT_FROM_HI_NI;
-            break;
-        case(2):
-            imageProp.inputImageType = INPUT_FROM_HO_NO;
-            break;
-        }
-        break;
-        // End case OCCLUSION_TEXTURE.
-    case(ROUGHNESS_TEXTURE):
-        // Select propper input image for roughness.
-        switch(ui->comboBoxRoughnessInputImage->currentIndex())
-        {
-        case(0):
-            imageProp.inputImageType = INPUT_FROM_ROUGHNESS_INPUT;
-            break;
-        case(1):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
-            break;
-        case(2):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
-            break;
-        }
-        break;
-        // End case ROUGHNESS_TEXTURE.
-    case(METALLIC_TEXTURE):
-        // Select propper input image for metallic.
-        switch(ui->comboBoxRoughnessInputImage->currentIndex())
-        {
-        case(0):
-            imageProp.inputImageType = INPUT_FROM_METALLIC_INPUT;
-            break;
-        case(1):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_INPUT;
-            break;
-        case(2):
-            imageProp.inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
-            break;
-        }
-        break;
-        // End case METALLIC_TEXTURE.
-    case(HEIGHT_TEXTURE):
-        break;
-        // End case HEIGHT_TEXTURE.
-    default:
-        break;
-    };
-    emit imageChanged();
-}
-
-void ImageWidget::updateGuiSpinBoxesAndLabes(int)
-{
-    if(bLoading == true) return;
-
-    ui->doubleSpinBoxConversionHNDepth->setValue(ui->horizontalSliderConversionHNDepth->value()/5.0);
-
-    imageProp.conversionHNDepth = ui->doubleSpinBoxConversionHNDepth->value();
-
-    imageProp.properties->NormalHeightConv.NoiseLevel = ui->horizontalSliderNormalToHeightNoiseLevel     ->value();
-    imageProp.properties->NormalHeightConv.Huge       = ui->horizontalSliderNormalToHeightItersHuge      ->value();
-    imageProp.properties->NormalHeightConv.VeryLarge  = ui->horizontalSliderNormalToHeightItersVeryLarge ->value();
-    imageProp.properties->NormalHeightConv.Large      = ui->horizontalSliderNormalToHeightItersLarge     ->value();
-    imageProp.properties->NormalHeightConv.Medium     = ui->horizontalSliderNormalToHeightItersMedium    ->value();
-    imageProp.properties->NormalHeightConv.Small      = ui->horizontalSliderNormalToHeightItersSmall     ->value();
-    imageProp.properties->NormalHeightConv.VerySmall  = ui->horizontalSliderNormalToHeightItersVerySmall ->value();
-}
-
-void ImageWidget::updateSlidersOnRelease()
-{
-    if(bLoading == true) return;
-    updateGuiSpinBoxesAndLabes(0);
-    emit imageChanged();
-}
-
 void ImageWidget::applyHeightToNormalConversion()
 {
     emit conversionHeightToNormalApplied();
@@ -500,32 +693,6 @@ void ImageWidget::pickColorFromImage( QtnPropertyABColor* property)
     emit pickImageColor(property);
 }
 
-void ImageWidget::pasteNormalFromClipBoard()
-{
-    const QClipboard *clipboard = QApplication::clipboard();
-    const QMimeData *mimeData = clipboard->mimeData();
-
-    if (mimeData->hasImage())
-    {
-        qDebug() << "<FormImageProp> Normal image :" +
-                    PostfixNames::getTextureName(imageProp.imageType) +
-                    " loaded from clipboard.";
-        QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
-        QImage _image = pixmap.toImage();
-
-        imageProp.glWidget_ptr->makeCurrent();
-//        if(glIsTexture(imageProp.normalMixerInputTexId))
-//            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-//        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
-        if(imageProp.normalMixerInputTexId)
-            delete imageProp.normalMixerInputTexId;
-        imageProp.normalMixerInputTexId = new QOpenGLTexture(_image);
-        imageProp.normalMixerInputTexId->bind();
-
-        emit imageChanged();
-    }
-}
-
 void ImageWidget::toggleGrungeImageSettingsGroup(bool toggle)
 {
     imageProp.properties->GrungeOnImage.switchState(QtnPropertyStateInvisible,!toggle);
@@ -536,162 +703,11 @@ void ImageWidget::loadPredefinedGrunge(QString image)
     loadFile(QString(RESOURCE_BASE) + "Core/2D/grunge/" + image);
 }
 
-
-void ImageWidget::reloadSettings()
+void ImageWidget::pasteImageFromClipboard(QImage& _image)
 {
-    bLoading = true;
-
-    if(imageProp.imageType == HEIGHT_TEXTURE)
-    {
-        ui->horizontalSliderNormalToHeightNoiseLevel    ->setValue(imageProp.properties->NormalHeightConv.NoiseLevel);
-        ui->horizontalSliderNormalToHeightItersHuge     ->setValue(imageProp.properties->NormalHeightConv.Huge);
-        ui->horizontalSliderNormalToHeightItersVeryLarge->setValue(imageProp.properties->NormalHeightConv.VeryLarge);
-        ui->horizontalSliderNormalToHeightItersLarge    ->setValue(imageProp.properties->NormalHeightConv.Large);
-        ui->horizontalSliderNormalToHeightItersMedium   ->setValue(imageProp.properties->NormalHeightConv.Medium);
-        ui->horizontalSliderNormalToHeightItersVerySmall->setValue(imageProp.properties->NormalHeightConv.Small);
-        ui->horizontalSliderNormalToHeightItersSmall    ->setValue(imageProp.properties->NormalHeightConv.VerySmall);
-    }
-    // Input image case study
-    switch(imageProp.imageType)
-    {
-    case(NORMAL_TEXTURE):
-        // Select propper input image for normals.
-        ui->pushButtonConverToNormal->setEnabled(false);
-        switch(imageProp.inputImageType)
-        {
-        case(INPUT_FROM_NORMAL_INPUT):
-            ui->comboBoxNormalInputImage->setCurrentIndex(0);
-            ui->pushButtonConverToNormal->setEnabled(true);
-            break;
-        case(INPUT_FROM_HEIGHT_INPUT):
-            ui->comboBoxNormalInputImage->setCurrentIndex(1);
-            break;
-        case(INPUT_FROM_HEIGHT_OUTPUT):
-            ui->comboBoxNormalInputImage->setCurrentIndex(2);
-            break;
-        default:
-            break;
-        }
-        break;
-        // End case NORMAL_TEXTURE.
-    case(SPECULAR_TEXTURE):
-        // Select propper input image for specular.
-        switch(imageProp.inputImageType)
-        {
-        case(INPUT_FROM_SPECULAR_INPUT):
-            ui->comboBoxSpecularInputImage->setCurrentIndex(0);
-            break;
-        case(INPUT_FROM_DIFFUSE_INPUT):
-            ui->comboBoxSpecularInputImage->setCurrentIndex(0);
-            break;
-        case(INPUT_FROM_DIFFUSE_OUTPUT):
-            ui->comboBoxSpecularInputImage->setCurrentIndex(1);
-            break;
-        case(INPUT_FROM_HEIGHT_INPUT):
-            ui->comboBoxSpecularInputImage->setCurrentIndex(2);
-            break;
-        case(INPUT_FROM_HEIGHT_OUTPUT):
-            ui->comboBoxSpecularInputImage->setCurrentIndex(3);
-            break;
-        default:
-            break;
-        }
-        break;
-        // End case SPECULAR_TEXTURE.
-    case(OCCLUSION_TEXTURE):
-        // Select propper input image for occlusion.
-        ui->pushButtonConvertOcclusionFromHN->setEnabled(false);
-        switch(imageProp.inputImageType)
-        {
-        case(INPUT_FROM_OCCLUSION_INPUT):
-            ui->comboBoxOcclusionInputImage->setCurrentIndex(0);
-            ui->pushButtonConvertOcclusionFromHN->setEnabled(true);
-            break;
-        case(INPUT_FROM_HI_NI):
-            ui->comboBoxOcclusionInputImage->setCurrentIndex(1);
-            break;
-        case(INPUT_FROM_HO_NO):
-            ui->comboBoxOcclusionInputImage->setCurrentIndex(2);
-            break;
-        default:
-            break;
-        }
-        break;
-        // End case OCCLUSION_TEXTURE.
-    case(ROUGHNESS_TEXTURE):
-        // Select propper input image for roughness.
-        switch(imageProp.inputImageType)
-        {
-        case(INPUT_FROM_ROUGHNESS_INPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
-            break;
-        case(INPUT_FROM_DIFFUSE_INPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(1);
-            break;
-        case(INPUT_FROM_DIFFUSE_OUTPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(2);
-            break;
-        default:
-            break;
-        }
-        break;
-        // End case ROUGHNESS_TEXTURE.
-    case(METALLIC_TEXTURE):
-        // Select propper input image for roughness
-        switch(imageProp.inputImageType)
-        {
-        case(INPUT_FROM_METALLIC_INPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
-            break;
-        case(INPUT_FROM_DIFFUSE_INPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(1);
-            break;
-        case(INPUT_FROM_DIFFUSE_OUTPUT):
-            ui->comboBoxRoughnessInputImage->setCurrentIndex(2);
-            break;
-        default:
-            break;
-        }
-        break;
-        // End case METALLIC_TEXTURE.
-    case(HEIGHT_TEXTURE):
-        break;
-        // End case HEIGHT_TEXTURE.
-    default:
-        break;
-    };
-
-    bLoading = false;
-}
-
-void ImageWidget::reloadImageSettings()
-{
-    emit reloadSettingsFromConfigFile(imageProp.imageType);
-}
-
-void ImageWidget::pasteFromClipboard()
-{
-    const QClipboard *clipboard = QApplication::clipboard();
-    const QMimeData *mimeData = clipboard->mimeData();
-
-    if (mimeData->hasImage())
-    {
-        qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(imageProp.imageType)+
-                    " loaded from clipboard.";
-        QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
-        QImage image = pixmap.toImage();
-        pasteImageFromClipboard(image);
-    }
-}
-
-void ImageWidget::copyToClipboard()
-{
-    qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(imageProp.imageType) +
-                " copied to clipboard.";
-
-    QApplication::processEvents();
-    image = imageProp.getImage();
-    QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
+    imageName = "clipboard_image";
+    image     = _image;
+    imageProp.init(image);
+    emit imageLoaded(image.width(),image.height());
+    if(imageProp.imageType == GRUNGE_TEXTURE)emit imageChanged();
 }
