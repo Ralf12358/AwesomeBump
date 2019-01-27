@@ -94,7 +94,7 @@ HEADERS = \
     openglerrorcheck.h \
     imagebasewidget.h \
     imagewidget.h \
-    openglimage.h
+    image.h
 
 SOURCES = \
     main.cpp \
@@ -133,7 +133,7 @@ SOURCES = \
     utils/mesh.cpp \
     imagebasewidget.cpp \
     imagewidget.cpp \
-    openglimage.cpp
+    image.cpp
 
 
 RESOURCES += content.qrc

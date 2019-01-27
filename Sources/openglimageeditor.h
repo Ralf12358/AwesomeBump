@@ -4,7 +4,7 @@
 #include <QOpenGLFunctions_4_5_Core>
 #include "openglwidgetbase.h"
 
-#include "openglimage.h"
+#include "image.h"
 
 #include <QtOpenGL>
 #include <math.h>
@@ -50,23 +50,23 @@ public:
     QSize sizeHint() const;
 
     void cleanup();
-    void setActiveImage(OpenGLImage* ptr);
-    OpenGLImage* getActiveImage(){return activeImage;}
+    void setActiveImage(Image* ptr);
+    Image* getActiveImage(){return activeImage;}
     void enableShadowRender(bool enable);
     void setConversionType(ConversionType conversionType);
     ConversionType getConversionType();
     void updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4);
     void render();
 
-    OpenGLImage* targetImageDiffuse;
-    OpenGLImage* targetImageNormal;
-    OpenGLImage* targetImageHeight;
-    OpenGLImage* targetImageSpecular;
-    OpenGLImage* targetImageOcclusion;
-    OpenGLImage* targetImageRoughness;
-    OpenGLImage* targetImageMetallic;
-    OpenGLImage* targetImageGrunge;
-    OpenGLImage* targetImageMaterial;
+    Image* targetImageDiffuse;
+    Image* targetImageNormal;
+    Image* targetImageHeight;
+    Image* targetImageSpecular;
+    Image* targetImageOcclusion;
+    Image* targetImageRoughness;
+    Image* targetImageMetallic;
+    Image* targetImageGrunge;
+    Image* targetImageMaterial;
 
 signals:
     void rendered();
@@ -112,7 +112,7 @@ public:
     void applyOcclusionFilter(GLuint height_tex,
                               GLuint normal_tex,
                               QOpenGLFramebufferObject *outputFBO);
-    void applyNormalToHeight(OpenGLImage *image,
+    void applyNormalToHeight(Image *image,
                              QOpenGLFramebufferObject *normalFBO,
                              QOpenGLFramebufferObject *heightFBO,
                              QOpenGLFramebufferObject *outputFBO);
@@ -203,7 +203,7 @@ private:
     void makeScreenQuad();
 
     QOpenGLShaderProgram *program;
-    OpenGLImage* activeImage;
+    Image* activeImage;
     // Small FBO used for calculation of average color.
     QOpenGLFramebufferObject *averageColorFBO;
     // FBO with size 1024x1024.

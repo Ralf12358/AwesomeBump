@@ -1,5 +1,5 @@
-#ifndef OPENGLIMAGE
-#define OPENGLIMAGE
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include <QImage>
 #include <QOpenGLWidget>
@@ -48,13 +48,13 @@ enum SeamlessMode
     SEAMLESS_RANDOM
 };
 
-class OpenGLImage
+class Image
 {
 public:
-    OpenGLImage();
-    ~OpenGLImage();
+    Image();
+    ~Image();
 
-    void copySettings(OpenGLImage &src);
+    void copySettings(Image &src);
     void init(QImage& image);
     void updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
@@ -102,4 +102,4 @@ public:
     static int currentMaterialIndeks;
 };
 
-#endif // OPENGLIMAGE
+#endif // IMAGE_H

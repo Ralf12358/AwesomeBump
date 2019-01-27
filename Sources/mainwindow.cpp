@@ -15,7 +15,7 @@
 #include "openglwidget.h"
 #include "openglimageeditor.h"
 #include "openglframebufferobject.h"
-#include "openglimage.h"
+#include "image.h"
 #include "imagewidget.h"
 #include "formmaterialindicesmanager.h"
 #include "formsettingscontainer.h"
@@ -492,7 +492,7 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::replotAllImages()
 {
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
@@ -521,7 +521,7 @@ void MainWindow::materialsToggled(bool toggle)
 {
     static bool bLastValue;
     ui->pushButtonMaterialWarning->setVisible(toggle);
-    ui->pushButtonUVWarning->setVisible(OpenGLImage::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
     if(toggle)
     {
         bLastValue = diffuseImageWidget->imageProp.properties->BaseMapToOthers.EnableConversion;
@@ -539,9 +539,9 @@ void MainWindow::materialsToggled(bool toggle)
 
 void MainWindow::checkWarnings()
 {
-    ui->pushButtonConversionWarning->setVisible(OpenGLImage::bConversionBaseMap);
+    ui->pushButtonConversionWarning->setVisible(Image::bConversionBaseMap);
     ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->imageProp.properties->Grunge.OverallWeight.value() > 0);
-    ui->pushButtonUVWarning->setVisible(OpenGLImage::seamlessMode != SEAMLESS_NONE);
+    ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
     bool bOccTest = (occlusionImageWidget->imageProp.inputImageType == INPUT_FROM_HO_NO) ||
             (occlusionImageWidget->imageProp.inputImageType == INPUT_FROM_HI_NI);
@@ -1064,7 +1064,7 @@ void MainWindow::initializeImages()
 
     replotAllImages();
     // SSAO recalculation
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
 
     updateImage(OCCLUSION_TEXTURE);
     //glImage->update();
@@ -1127,10 +1127,10 @@ void MainWindow::applyResizeImage()
     int height = ui->comboBoxResizeHeight->currentText().toInt();
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
 
-    int materiaIndex = OpenGLImage::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndeks;
     materialManager->disableMaterials();
 
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
@@ -1148,7 +1148,7 @@ void MainWindow::applyResizeImage()
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    OpenGLImage::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1160,9 +1160,9 @@ void MainWindow::applyResizeImage(int width, int height)
     QCoreApplication::processEvents();
 
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = OpenGLImage::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndeks;
     materialManager->disableMaterials();
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
@@ -1179,7 +1179,7 @@ void MainWindow::applyResizeImage(int width, int height)
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    OpenGLImage::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1211,9 +1211,9 @@ void MainWindow::applyScaleImage()
     int height = diffuseImageWidget->getImageProporties()->scr_tex_height*scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = OpenGLImage::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndeks;
     materialManager->disableMaterials();
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
@@ -1227,7 +1227,7 @@ void MainWindow::applyScaleImage()
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    OpenGLImage::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndeks = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1293,16 +1293,16 @@ void MainWindow::selectContrastInputImage(int mode)
     switch(mode)
     {
     case(0):
-        OpenGLImage::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+        Image::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
         break;
     case(1):
-        OpenGLImage::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
+        Image::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
         break;
     case(2):
-        OpenGLImage::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
+        Image::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
         break;
     case(3):
-        OpenGLImage::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
+        Image::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
         break;
     default:
         break;
@@ -1399,16 +1399,16 @@ void MainWindow::runBatch()
 
 void MainWindow::randomizeAngles()
 {
-    OpenGLImage::seamlessRandomTiling.randomize();
+    Image::seamlessRandomTiling.randomize();
     replotAllImages();
 }
 
 void MainWindow::resetRandomPatches()
 {
-    OpenGLImage::seamlessRandomTiling = RandomTilingMode();
-    ui->horizontalSliderRandomPatchesRotate     ->setValue(OpenGLImage::seamlessRandomTiling.common_phase);
-    ui->horizontalSliderRandomPatchesInnerRadius->setValue(OpenGLImage::seamlessRandomTiling.inner_radius*100.0);
-    ui->horizontalSliderRandomPatchesOuterRadius->setValue(OpenGLImage::seamlessRandomTiling.outer_radius*100.0);
+    Image::seamlessRandomTiling = RandomTilingMode();
+    ui->horizontalSliderRandomPatchesRotate     ->setValue(Image::seamlessRandomTiling.common_phase);
+    ui->horizontalSliderRandomPatchesInnerRadius->setValue(Image::seamlessRandomTiling.inner_radius*100.0);
+    ui->horizontalSliderRandomPatchesOuterRadius->setValue(Image::seamlessRandomTiling.outer_radius*100.0);
     updateSpinBoxes(0);
     replotAllImages();
 }
@@ -1467,7 +1467,7 @@ void MainWindow::convertFromNtoH()
 
 void MainWindow::convertFromBase()
 {
-    OpenGLImage* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
     qDebug() << "Conversion from Base to others started";
     normalImageWidget   ->setImageName(diffuseImageWidget->getImageName());
@@ -1510,23 +1510,23 @@ void MainWindow::convertFromHNtoOcc()
 void MainWindow::updateSliders()
 {
     updateSpinBoxes(0);
-    OpenGLImage::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
-    OpenGLImage::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
-    OpenGLImage::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
-    OpenGLImage::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
-    OpenGLImage::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
-    OpenGLImage::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
+    Image::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
+    Image::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
+    Image::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
+    Image::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
+    Image::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
+    Image::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
 
-    OpenGLImage::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
+    Image::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
     // Choose the proper mirror mode.
-    if(ui->radioButtonMirrorModeXY->isChecked()) OpenGLImage::seamlessMirroModeType = 0;
-    if(ui->radioButtonMirrorModeX ->isChecked()) OpenGLImage::seamlessMirroModeType = 1;
-    if(ui->radioButtonMirrorModeY ->isChecked()) OpenGLImage::seamlessMirroModeType = 2;
+    if(ui->radioButtonMirrorModeXY->isChecked()) Image::seamlessMirroModeType = 0;
+    if(ui->radioButtonMirrorModeX ->isChecked()) Image::seamlessMirroModeType = 1;
+    if(ui->radioButtonMirrorModeY ->isChecked()) Image::seamlessMirroModeType = 2;
 
     // Choose the proper simple mode direction.
-    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) OpenGLImage::seamlessSimpleModeDirection = 0;
-    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) OpenGLImage::seamlessSimpleModeDirection = 1;
-    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) OpenGLImage::seamlessSimpleModeDirection = 2;
+    if(ui->radioButtonSeamlessSimpleDirXY->isChecked()) Image::seamlessSimpleModeDirection = 0;
+    if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) Image::seamlessSimpleModeDirection = 1;
+    if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) Image::seamlessSimpleModeDirection = 2;
 
     openGLImageEditor ->repaint();
     openGLWidget->repaint();

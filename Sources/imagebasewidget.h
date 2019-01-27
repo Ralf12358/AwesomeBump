@@ -6,7 +6,7 @@
 #include <QString>
 #include <QDir>
 
-#include "openglimage.h"
+#include "image.h"
 
 // Manages all the input/output operations
 // like : open & save from/to file
@@ -21,13 +21,13 @@ public:
     ImageBaseWidget(QWidget *parent = 0);
     ~ImageBaseWidget();
     void keyPressEvent(QKeyEvent *event);
-    virtual OpenGLImage* getImageProporties(){return &imageProp;}
+    virtual Image* getImageProporties(){return &imageProp;}
     virtual void setImageName(QString name);
     virtual QString getImageName();
     virtual void saveFileToDir(const QString &dir);
     virtual void saveImageToDir(const QString &dir,QImage& image);
     virtual void setImageType(TextureType imageType);
-    OpenGLImage imageProp; // for simplicity I made this public, why not...
+    Image imageProp; // for simplicity I made this public, why not...
     // some properties are visible or hiden for given texture type
 
 protected:

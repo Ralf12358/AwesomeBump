@@ -1,24 +1,24 @@
-#include "openglimage.h"
+#include "image.h"
 
 #include <QDebug>
 
 #include "openglerrorcheck.h"
 #include "openglframebufferobject.h"
 
-SeamlessMode OpenGLImage::seamlessMode                 = SEAMLESS_NONE;
-float OpenGLImage::seamlessSimpleModeRadius            = 0.5;
-float OpenGLImage::seamlessContrastPower               = 0.0;
-float OpenGLImage::seamlessContrastStrenght            = 0.0;
-int OpenGLImage::seamlessSimpleModeDirection           = 0; // xy
-SourceImageType OpenGLImage::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
-bool OpenGLImage::bSeamlessTranslationsFirst           = true;
-int OpenGLImage::seamlessMirroModeType                 = 0;
-bool OpenGLImage::bConversionBaseMap                   = false;
-bool OpenGLImage::bConversionBaseMapShowHeightTexture  = false;
-int OpenGLImage::currentMaterialIndeks                 = MATERIALS_DISABLED;
-RandomTilingMode OpenGLImage::seamlessRandomTiling     = RandomTilingMode();
+SeamlessMode Image::seamlessMode                 = SEAMLESS_NONE;
+float Image::seamlessSimpleModeRadius            = 0.5;
+float Image::seamlessContrastPower               = 0.0;
+float Image::seamlessContrastStrenght            = 0.0;
+int Image::seamlessSimpleModeDirection           = 0; // xy
+SourceImageType Image::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+bool Image::bSeamlessTranslationsFirst           = true;
+int Image::seamlessMirroModeType                 = 0;
+bool Image::bConversionBaseMap                   = false;
+bool Image::bConversionBaseMapShowHeightTexture  = false;
+int Image::currentMaterialIndeks                 = MATERIALS_DISABLED;
+RandomTilingMode Image::seamlessRandomTiling     = RandomTilingMode();
 
-OpenGLImage::OpenGLImage()
+Image::Image()
 {
     bSkipProcessing       = false;
     properties            = NULL;
@@ -34,7 +34,7 @@ OpenGLImage::OpenGLImage()
     properties            = new QtnPropertySetFormImageProp;
 }
 
-OpenGLImage::~OpenGLImage()
+Image::~Image()
 {
     if(glWidget_ptr != NULL)
     {
@@ -56,7 +56,7 @@ OpenGLImage::~OpenGLImage()
     }
 }
 
-void OpenGLImage::copySettings(OpenGLImage &src)
+void Image::copySettings(Image &src)
 {
     bFirstDraw         = src.bFirstDraw;
     conversionHNDepth  = src.conversionHNDepth;
@@ -67,7 +67,7 @@ void OpenGLImage::copySettings(OpenGLImage &src)
         properties->copyValues(src.properties);
 }
 
-void OpenGLImage::init(QImage& image)
+void Image::init(QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -99,7 +99,7 @@ void OpenGLImage::init(QImage& image)
     GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
 }
 
-void OpenGLImage::updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo)
+void Image::updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo)
 {
     glWidget_ptr->makeCurrent();
     if(scr_tex_id)
@@ -109,7 +109,7 @@ void OpenGLImage::updateSrcTexId(QOpenGLFramebufferObject* in_ref_fbo)
     scr_tex_id = new QOpenGLTexture(image);
 }
 
-void OpenGLImage::resizeFBO(int width, int height)
+void Image::resizeFBO(int width, int height)
 {
     GLuint internal_format = TEXTURE_FORMAT;
     if(imageType == HEIGHT_TEXTURE)
@@ -118,7 +118,7 @@ void OpenGLImage::resizeFBO(int width, int height)
     bFirstDraw = true;
 }
 
-QImage OpenGLImage::getImage()
+QImage Image::getImage()
 {
     glWidget_ptr->makeCurrent();
     return fbo->toImage();
