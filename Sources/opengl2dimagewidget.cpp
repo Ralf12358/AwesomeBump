@@ -2755,21 +2755,20 @@ void OpenGL2DImageWidget::makeScreenQuad()
         }
     }
 
-    glGenBuffers(3, &vbos[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float)*3, vertices.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0);
+    GLCHK( glGenVertexArrays(2, vbos) );
+    GLCHK( glBindVertexArray(vbos[0]) );
+    GLCHK( glEnableVertexAttribArray(vbos[0]) );
+    GLCHK( glVertexAttribPointer(vbos[0], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[1]);
-    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float)*2, texCoords.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(float)*2,(void*)0);
+    GLCHK( glBindVertexArray(vbos[1]) );
+    GLCHK( glEnableVertexAttribArray(vbos[1]) );
+    GLCHK( glVertexAttribPointer(vbos[1], 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0) );
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
+    GLCHK( glGenBuffers(1, &vbos[2]) );
+    GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
 
-    int no_triangles = 2*(size - 1)*(size - 1);
-    QVector<GLuint> indices(no_triangles*3);
+    int no_triangles = 2 * (size - 1) * (size - 1);
+    QVector<GLuint> indices(no_triangles * 3);
     iter = 0;
     for(int i = 0 ; i < size -1 ; i++)
     {
