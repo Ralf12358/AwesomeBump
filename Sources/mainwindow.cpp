@@ -99,14 +99,14 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGLWidget->setPointerToTexture(&diffuseImageWidget  ->getImage()->fbo, DIFFUSE_TEXTURE);
-    openGLWidget->setPointerToTexture(&normalImageWidget   ->getImage()->fbo, NORMAL_TEXTURE);
-    openGLWidget->setPointerToTexture(&specularImageWidget ->getImage()->fbo, SPECULAR_TEXTURE);
-    openGLWidget->setPointerToTexture(&heightImageWidget   ->getImage()->fbo, HEIGHT_TEXTURE);
-    openGLWidget->setPointerToTexture(&occlusionImageWidget->getImage()->fbo, OCCLUSION_TEXTURE);
-    openGLWidget->setPointerToTexture(&roughnessImageWidget->getImage()->fbo, ROUGHNESS_TEXTURE);
-    openGLWidget->setPointerToTexture(&metallicImageWidget ->getImage()->fbo, METALLIC_TEXTURE);
-    openGLWidget->setPointerToTexture(&materialManager   ->getImage()->fbo, MATERIAL_TEXTURE);
+    openGLWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->fbo, DIFFUSE_TEXTURE);
+    openGLWidget->setPointerToTexture(normalImageWidget   ->getImage()->fbo, NORMAL_TEXTURE);
+    openGLWidget->setPointerToTexture(specularImageWidget ->getImage()->fbo, SPECULAR_TEXTURE);
+    openGLWidget->setPointerToTexture(heightImageWidget   ->getImage()->fbo, HEIGHT_TEXTURE);
+    openGLWidget->setPointerToTexture(occlusionImageWidget->getImage()->fbo, OCCLUSION_TEXTURE);
+    openGLWidget->setPointerToTexture(roughnessImageWidget->getImage()->fbo, ROUGHNESS_TEXTURE);
+    openGLWidget->setPointerToTexture(metallicImageWidget ->getImage()->fbo, METALLIC_TEXTURE);
+    openGLWidget->setPointerToTexture(materialManager     ->getImage()->fbo, MATERIAL_TEXTURE);
 
     openGLImageEditor->targetImageDiffuse   = diffuseImageWidget  ->getImage();
     openGLImageEditor->targetImageNormal    = normalImageWidget   ->getImage();

@@ -89,7 +89,7 @@ QSize OpenGLWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureType tType)
+void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType tType)
 {
     switch(tType)
     {
@@ -752,7 +752,7 @@ void OpenGLWidget::paintGL()
         objectMatrix.setToIdentity();
         if( fboIdPtrs[0] != NULL)
         {
-            float fboRatio = float((*(fboIdPtrs[0]))->width())/(*(fboIdPtrs[0]))->height();
+            float fboRatio = float((fboIdPtrs[0])->width())/(fboIdPtrs[0])->height();
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
         if(mesh->isLoaded())
@@ -836,7 +836,7 @@ void OpenGLWidget::paintGL()
             for(tindeks = 0 ; tindeks <= MATERIAL_TEXTURE ; tindeks++)
             {
                 GLCHK( glActiveTexture(GL_TEXTURE0+tindeks) );
-                GLCHK( glBindTexture(GL_TEXTURE_2D, (*(fboIdPtrs[tindeks]))->texture()) );
+                GLCHK( glBindTexture(GL_TEXTURE_2D, (fboIdPtrs[tindeks])->texture()) );
             }
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindeks ) );
             GLCHK(m_prefiltered_env_map->bind());

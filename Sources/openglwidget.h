@@ -30,7 +30,7 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void setPointerToTexture(QOpenGLFramebufferObject **pointer, TextureType type);
+    void setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType type);
 
 signals:
     void renderGL();
@@ -98,7 +98,7 @@ private:
     QOpenGLShaderProgram *skybox_program;
     QOpenGLShaderProgram *env_program;
 
-    QOpenGLFramebufferObject **fboIdPtrs[8];
+    QOpenGLFramebufferObject *fboIdPtrs[8];
 
     bool bToggleDiffuseView;
     bool bToggleSpecularView;
