@@ -62,6 +62,8 @@ public:
     // Convert FBO image to QImage
     QImage getFBOImage();
 
+    QtnPropertySetFormImageProp* getProperties();
+
     QtnPropertySetFormImageProp *properties;
     bool bSkipProcessing;
     // Output image

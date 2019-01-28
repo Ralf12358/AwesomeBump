@@ -128,3 +128,8 @@ QImage Image::getFBOImage()
     openGLWidget->makeCurrent();
     return fbo->toImage();
 }
+
+QtnPropertySetFormImageProp* Image::getProperties()
+{
+    return properties;
+}
