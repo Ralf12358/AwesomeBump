@@ -72,7 +72,13 @@ void Image::init(const QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 
-    openGL2DImageWidget->makeCurrent();
+    if (!openGL2DImageWidget->isValid())
+    {
+          qDebug() << Q_FUNC_INFO << "OpenGL2DImageWidget not initialised.";
+          qImage = image;
+          return;
+    }
+
     if(texture)
         delete texture;
     //scr_tex_id = glWidget_ptr->bindTexture(image,GL_TEXTURE_2D);
@@ -97,7 +103,7 @@ void Image::init(const QImage& image)
     GLuint internal_format = TEXTURE_FORMAT;
     if(textureType == HEIGHT_TEXTURE)
         internal_format = TEXTURE_3DRENDER_FORMAT;
-    GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
+    GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(), internal_format));
 }
 
 OpenGL2DImageWidget* Image::getOpenGL2DImageWidget()
@@ -112,6 +118,8 @@ void Image::setOpenGL2DImageWidget(OpenGL2DImageWidget* openGL2DImageWidget)
 
 QOpenGLFramebufferObject* Image::getFBO()
 {
+    if (!fbo)
+        init(qImage);
     return fbo;
 }
 
@@ -147,6 +155,8 @@ QtnPropertySetFormImageProp* Image::getProperties()
 
 QOpenGLTexture* Image::getTexture()
 {
+    if (!texture)
+        init(qImage);
     return texture;
 }
 

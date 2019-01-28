@@ -51,20 +51,15 @@ Image* FormMaterialIndicesManager::getImage()
 
 void FormMaterialIndicesManager::setImage(const QImage& qImage)
 {
-    if (image.getOpenGL2DImageWidget()->isValid())
+    // Remember the last id.
+    int mIndex = Image::currentMaterialIndex;
+    if(updateMaterials(qImage))
     {
-        // Remember the last id.
-        int mIndex = Image::currentMaterialIndex;
-        if(updateMaterials(qImage))
-        {
-            image.init(qImage);
-            emit materialChanged();
-        }
-
-        Image::currentMaterialIndex = mIndex;
+        image.init(qImage);
+        emit materialChanged();
     }
-    else
-        qDebug() << Q_FUNC_INFO << "Invalid context.";
+
+    Image::currentMaterialIndex = mIndex;
 }
 
 bool FormMaterialIndicesManager::updateMaterials(const QImage& qImage)

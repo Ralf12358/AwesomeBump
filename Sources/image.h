@@ -134,6 +134,7 @@ private:
     ImageType inputImageType;
 
     QString imageName;
+    QImage qImage;
 };
 
 #endif // IMAGE_H

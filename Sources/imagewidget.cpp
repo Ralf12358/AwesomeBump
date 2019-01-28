@@ -108,10 +108,7 @@ Image* ImageWidget::getImage()
 
 void ImageWidget::setImage(const QImage& qImage)
 {
-    if (image.getOpenGL2DImageWidget()->isValid())
-        image.init(qImage);
-    else
-        qDebug() << Q_FUNC_INFO << "Invalid context.";
+    image.init(qImage);
 }
 
 QString ImageWidget::getImageName()
