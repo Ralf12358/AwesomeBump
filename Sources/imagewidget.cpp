@@ -431,6 +431,64 @@ void ImageWidget::reloadImageSettings()
     emit reloadSettingsFromConfigFile(image.getTextureType());
 }
 
+void ImageWidget::open()
+{
+    QStringList picturesLocations;
+    if(recentDir == NULL)
+        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    else
+        picturesLocations << recentDir->absolutePath();
+
+    QFileDialog dialog(
+                this,
+                tr("Open File"),
+                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
+                tr("All Images (*.png *.jpg  *.tga *.jpeg *.bmp  *.tif);;"
+                          "Images (*.png);;"
+                          "Images (*.jpg);;"
+                          "Images (*.tga);;"
+                          "Images (*.jpeg);;"
+                          "Images (*.bmp);;"
+                          "Images (*.tif);;"
+                          "All files (*.*)"));
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    while (dialog.exec() == QDialog::Accepted &&
+           !loadFile(dialog.selectedFiles().first()))
+    {}
+}
+
+void ImageWidget::save()
+{
+    QStringList picturesLocations;
+    if(recentDir == NULL)
+    {
+        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    }
+    else
+    {
+        QFileInfo fileInfo(recentDir->absolutePath());
+        QString fullFileName = fileInfo.absolutePath() + "/" +
+                image.getImageName() +
+                PostfixNames::getPostfix(image.getTextureType()) +
+                PostfixNames::outputFormat;
+        picturesLocations << fullFileName;
+        qDebug() << "ImageWidget: Saving image to file:" << fullFileName;
+    }
+
+    QFileDialog dialog(
+                this,
+                tr("Save current image to file"),
+                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
+                tr("All images (*.png *.jpg  *.tga *.jpeg *.bmp *.tif);;All files (*.*)"));
+    dialog.setDirectory(recentDir->absolutePath());
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    while (dialog.exec() == QDialog::Accepted &&
+           !saveFile(dialog.selectedFiles().first()))
+    {}
+}
+
 void ImageWidget::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +

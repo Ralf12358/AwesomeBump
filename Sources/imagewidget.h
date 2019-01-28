@@ -50,6 +50,8 @@ signals:
     void toggleGrungeSettings(bool toggle);
 
 public slots:
+    void open();
+    void save();
     void reloadImageSettings();
     void copyToClipboard();
     void pasteFromClipboard();
