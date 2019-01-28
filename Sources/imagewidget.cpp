@@ -13,7 +13,7 @@
 bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
-ImageWidget::ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType) :
+ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGLWidget, TextureType textureType) :
     QWidget(parent),
     ui(new Ui::ImageWidget)
 {

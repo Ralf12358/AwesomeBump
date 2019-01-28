@@ -38,13 +38,13 @@ enum UVManipulationMethods
     UV_SCALE_XY
 };
 
-class OpenGLImageEditor : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
+class OpenGL2DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
 
 public:
-    OpenGLImageEditor(QWidget *parent = 0);
-    ~OpenGLImageEditor();
+    OpenGL2DImageWidget(QWidget *parent = 0);
+    ~OpenGL2DImageWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;

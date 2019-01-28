@@ -87,12 +87,12 @@ HEADERS = \
     basemapconvlevelproperties.h \
     openglframebufferobject.h \
     opengltexturecube.h \
-    openglimageeditor.h \
-    openglwidget.h \
     utils/mesh.h \
     openglerrorcheck.h \
     imagewidget.h \
-    image.h
+    image.h \
+    opengl2dimagewidget.h \
+    opengl3dimagewidget.h
 
 SOURCES = \
     main.cpp \
@@ -125,11 +125,11 @@ SOURCES = \
     basemapconvlevelproperties.cpp \
     openglframebufferobject.cpp \
     opengltexturecube.cpp \
-    openglimageeditor.cpp \
-    openglwidget.cpp \
     utils/mesh.cpp \
     imagewidget.cpp \
-    image.cpp
+    image.cpp \
+    opengl2dimagewidget.cpp \
+    opengl3dimagewidget.cpp
 
 
 RESOURCES += content.qrc

@@ -4,7 +4,7 @@
 #define DOCKWIDGET3DSETTINGS_H
 
 #include <QDockWidget>
-#include "openglwidget.h"
+#include "opengl3dimagewidget.h"
 #include "properties/ImageProperties.peg.h"
 
 namespace Ui
@@ -17,7 +17,7 @@ class DockWidget3DSettings : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockWidget3DSettings(QWidget *parent, OpenGLWidget *ptr_glWidget);
+    explicit DockWidget3DSettings(QWidget *parent, OpenGL3DImageWidget *ptr_glWidget);
     ~DockWidget3DSettings();
 
     Display3DSettings settings;
@@ -37,7 +37,7 @@ public slots:
     void loadSettings(QtnPropertySetAwesomeBump *settings);
 
 private:
-    OpenGLWidget *ptr_glWidget;
+    OpenGL3DImageWidget *ptr_glWidget;
     Ui::DockWidget3DSettings *ui;
 //    QSize sizeHint() const;
 };

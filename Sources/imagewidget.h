@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QString>
 
-#include "openglimageeditor.h"
+#include "opengl2dimagewidget.h"
 #include "PropertyBase.h"
 #include "dialogheightcalculator.h"
 
@@ -19,7 +19,7 @@ class ImageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType);
+    explicit ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGLWidget, TextureType textureType);
     ~ImageWidget();
 
     Image* getImage();

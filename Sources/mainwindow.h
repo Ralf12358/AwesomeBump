@@ -5,8 +5,8 @@
 #include <QSettings>
 #include <QDir>
 
-#include "openglwidget.h"
-#include "openglimageeditor.h"
+#include "opengl3dimagewidget.h"
+#include "opengl2dimagewidget.h"
 #include "postfixnames.h"
 #include "properties/ImageProperties.peg.h"
 
@@ -144,8 +144,8 @@ private:
     bool checkOpenGL();
 
     Ui::MainWindow *ui;
-    OpenGLWidget *openGLWidget;
-    OpenGLImageEditor *openGLImageEditor;
+    OpenGL3DImageWidget *openGL3DImageWidget;
+    OpenGL2DImageWidget *openGL2DImageWidget;
     
     bool bSaveCheckedImages;
     bool bSaveCompressedFormImages;

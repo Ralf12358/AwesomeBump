@@ -1,9 +1,9 @@
-#include "openglimageeditor.h"
+#include "opengl2dimagewidget.h"
 
 #include "openglframebufferobject.h"
 #include "openglerrorcheck.h"
 
-OpenGLImageEditor::OpenGLImageEditor(QWidget *parent) :
+OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     mouseUpdateIsQueued(false),
     blockMouseMovement(false)
@@ -40,12 +40,12 @@ OpenGLImageEditor::OpenGLImageEditor(QWidget *parent) :
     connect(this,SIGNAL(rendered()),this,SLOT(copyRenderToPaintFBO()));
 }
 
-OpenGLImageEditor::~OpenGLImageEditor()
+OpenGL2DImageWidget::~OpenGL2DImageWidget()
 {
     cleanup();
 }
 
-void OpenGLImageEditor::cleanup()
+void OpenGL2DImageWidget::cleanup()
 {
     makeCurrent();
     averageColorFBO->bindDefault();
@@ -77,17 +77,17 @@ void OpenGLImageEditor::cleanup()
     doneCurrent();
 }
 
-QSize OpenGLImageEditor::minimumSizeHint() const
+QSize OpenGL2DImageWidget::minimumSizeHint() const
 {
     return QSize(100, 100);
 }
 
-QSize OpenGLImageEditor::sizeHint() const
+QSize OpenGL2DImageWidget::sizeHint() const
 {
     return QSize(500, 400);
 }
 
-void OpenGLImageEditor::initializeGL()
+void OpenGL2DImageWidget::initializeGL()
 {
     qDebug() << "calling " << Q_FUNC_INFO;
 
@@ -265,7 +265,7 @@ void OpenGLImageEditor::initializeGL()
     emit readyGL();
 }
 
-void OpenGLImageEditor::paintGL()
+void OpenGL2DImageWidget::paintGL()
 {
     // Perform filters on images and render the final result to renderFBO.
     // Avoid rendering function if there is rendered something already.
@@ -327,7 +327,7 @@ void OpenGLImageEditor::paintGL()
     }
 }
 
-void OpenGLImageEditor::render()
+void OpenGL2DImageWidget::render()
 {
     if (!activeImage)
         return;
@@ -909,20 +909,20 @@ void OpenGLImageEditor::render()
     emit rendered();
 }
 
-void OpenGLImageEditor::showEvent(QShowEvent* event)
+void OpenGL2DImageWidget::showEvent(QShowEvent* event)
 {
     QWidget::showEvent( event );
     resetView();
 }
 
-void OpenGLImageEditor::resizeFBO(int width, int height)
+void OpenGL2DImageWidget::resizeFBO(int width, int height)
 {
     conversionType = CONVERT_RESIZE;
     resize_width   = width;
     resize_height  = height;
 }
 
-void OpenGLImageEditor::resetView()
+void OpenGL2DImageWidget::resetView()
 {
     if (!activeImage) return;
 
@@ -956,7 +956,7 @@ void OpenGLImageEditor::resetView()
     yTranslation = orthographicProjHeight/2;
 }
 
-void OpenGLImageEditor::resizeGL(int width, int height)
+void OpenGL2DImageWidget::resizeGL(int width, int height)
 {
     windowRatio = float(width)/height;
     if (isValid())
@@ -985,28 +985,28 @@ void OpenGLImageEditor::resizeGL(int width, int height)
     resetView();
 }
 
-void OpenGLImageEditor::setActiveImage(Image *ptr)
+void OpenGL2DImageWidget::setActiveImage(Image *ptr)
 {
     activeImage = ptr;
     update();
 }
 
-void OpenGLImageEditor::enableShadowRender(bool enable)
+void OpenGL2DImageWidget::enableShadowRender(bool enable)
 {
     bShadowRender = enable;
 }
 
-void OpenGLImageEditor::setConversionType(ConversionType type)
+void OpenGL2DImageWidget::setConversionType(ConversionType type)
 {
     conversionType = type ;
 }
 
-ConversionType OpenGLImageEditor::getConversionType()
+ConversionType OpenGL2DImageWidget::getConversionType()
 {
     return conversionType;
 }
 
-void OpenGLImageEditor::updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4)
+void OpenGL2DImageWidget::updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4)
 {
     cornerPositions[0] = QVector2D(0,0) + dc1;
     cornerPositions[1] = QVector2D(1,0) + dc2;
@@ -1020,19 +1020,19 @@ void OpenGLImageEditor::updateCornersPosition(QVector2D dc1, QVector2D dc2, QVec
     update();
 }
 
-void OpenGLImageEditor::selectPerspectiveTransformMethod(int method)
+void OpenGL2DImageWidget::selectPerspectiveTransformMethod(int method)
 {
     gui_perspective_mode = method;
     update();
 }
 
-void OpenGLImageEditor::selectUVManipulationMethod(UVManipulationMethods method)
+void OpenGL2DImageWidget::selectUVManipulationMethod(UVManipulationMethods method)
 {
     uvManilupationMethod = method;
     update();
 }
 
-void OpenGLImageEditor::updateCornersWeights(float w1, float w2, float w3, float w4)
+void OpenGL2DImageWidget::updateCornersWeights(float w1, float w2, float w3, float w4)
 {
     cornerWeights.setX(w1);
     cornerWeights.setY(w2);
@@ -1041,19 +1041,19 @@ void OpenGLImageEditor::updateCornersWeights(float w1, float w2, float w3, float
     update();
 }
 
-void OpenGLImageEditor::selectSeamlessMode(SeamlessMode mode)
+void OpenGL2DImageWidget::selectSeamlessMode(SeamlessMode mode)
 {
     Image::seamlessMode = mode;
     update();
 }
 
-void OpenGLImageEditor::imageChanged()
+void OpenGL2DImageWidget::imageChanged()
 {
     // Restore picking state when another property was changed.
     bToggleColorPicking = false;
 }
 
-void OpenGLImageEditor::applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
                                           QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1073,7 +1073,7 @@ void OpenGLImageEditor::applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
                                             QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1094,7 +1094,7 @@ void OpenGLImageEditor::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyColorHueFilter(  QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyColorHueFilter(  QOpenGLFramebufferObject *inputFBO,
                                               QOpenGLFramebufferObject *outputFBO)
 {
     GLCHK( outputFBO->bind() );
@@ -1116,7 +1116,7 @@ void OpenGLImageEditor::applyColorHueFilter(  QOpenGLFramebufferObject *inputFBO
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyPerspectiveTransformFilter(  QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyPerspectiveTransformFilter(  QOpenGLFramebufferObject *inputFBO,
                                                           QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
@@ -1171,7 +1171,7 @@ void OpenGLImageEditor::applyPerspectiveTransformFilter(  QOpenGLFramebufferObje
     inputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyGaussFilter(QOpenGLFramebufferObject *sourceFBO,
+void OpenGL2DImageWidget::applyGaussFilter(QOpenGLFramebufferObject *sourceFBO,
                                          QOpenGLFramebufferObject *auxFBO,
                                          QOpenGLFramebufferObject *outputFBO,int no_iter,float w )
 {
@@ -1209,7 +1209,7 @@ void OpenGLImageEditor::applyGaussFilter(QOpenGLFramebufferObject *sourceFBO,
     GLCHK( program->setUniformValue("gauss_mode",0) );
 }
 
-void OpenGLImageEditor::applyInverseColorFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyInverseColorFilter(QOpenGLFramebufferObject *inputFBO,
                                                 QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1229,7 +1229,7 @@ void OpenGLImageEditor::applyInverseColorFilter(QOpenGLFramebufferObject *inputF
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyRemoveShadingFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyRemoveShadingFilter(QOpenGLFramebufferObject *inputFBO,
                                                  QOpenGLFramebufferObject *aoMaskFBO,
                                                  QOpenGLFramebufferObject *refFBO,
                                                  QOpenGLFramebufferObject *outputFBO)
@@ -1260,7 +1260,7 @@ void OpenGLImageEditor::applyRemoveShadingFilter(QOpenGLFramebufferObject *input
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGLImageEditor::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO,
                                                  QOpenGLFramebufferObject *,
                                                  QOpenGLFramebufferObject *outputFBO)
 {
@@ -1323,7 +1323,7 @@ void OpenGLImageEditor::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *input
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyOverlayFilter(QOpenGLFramebufferObject *layerAFBO,
+void OpenGL2DImageWidget::applyOverlayFilter(QOpenGLFramebufferObject *layerAFBO,
                                            QOpenGLFramebufferObject *layerBFBO,
                                            QOpenGLFramebufferObject *outputFBO)
 {
@@ -1351,7 +1351,7 @@ void OpenGLImageEditor::applyOverlayFilter(QOpenGLFramebufferObject *layerAFBO,
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applySeamlessLinearFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applySeamlessLinearFilter(QOpenGLFramebufferObject *inputFBO,
                                                   QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
@@ -1444,7 +1444,7 @@ void OpenGLImageEditor::applySeamlessLinearFilter(QOpenGLFramebufferObject *inpu
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGLImageEditor::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO,
                                             QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
@@ -1512,7 +1512,7 @@ void OpenGLImageEditor::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGLImageEditor::applyDGaussiansFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyDGaussiansFilter(QOpenGLFramebufferObject *inputFBO,
                                               QOpenGLFramebufferObject *auxFBO,
                                               QOpenGLFramebufferObject *outputFBO)
 {
@@ -1581,7 +1581,7 @@ void OpenGLImageEditor::applyDGaussiansFilter(QOpenGLFramebufferObject *inputFBO
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyContrastFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyContrastFilter(QOpenGLFramebufferObject *inputFBO,
                                             QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1606,7 +1606,7 @@ void OpenGLImageEditor::applyContrastFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( outputFBO->bindDefault());
 }
 
-void OpenGLImageEditor::applySmallDetailsFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applySmallDetailsFilter(QOpenGLFramebufferObject *inputFBO,
                                                 QOpenGLFramebufferObject *auxFBO,
                                                 QOpenGLFramebufferObject *outputFBO)
 {
@@ -1682,7 +1682,7 @@ void OpenGLImageEditor::applySmallDetailsFilter(QOpenGLFramebufferObject *inputF
     GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
 }
 
-void OpenGLImageEditor::applyMediumDetailsFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyMediumDetailsFilter(QOpenGLFramebufferObject *inputFBO,
                                                  QOpenGLFramebufferObject *auxFBO,
                                                  QOpenGLFramebufferObject *outputFBO)
 {
@@ -1743,7 +1743,7 @@ void OpenGLImageEditor::applyMediumDetailsFilter(QOpenGLFramebufferObject *input
     copyFBO(auxFBO,outputFBO);
 }
 
-void OpenGLImageEditor::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFBO,
                                              QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1793,7 +1793,7 @@ void OpenGLImageEditor::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyInvertComponentsFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyInvertComponentsFilter(QOpenGLFramebufferObject *inputFBO,
                                                     QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1818,7 +1818,7 @@ void OpenGLImageEditor::applyInvertComponentsFilter(QOpenGLFramebufferObject *in
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applySharpenBlurFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applySharpenBlurFilter(QOpenGLFramebufferObject *inputFBO,
                                                QOpenGLFramebufferObject *auxFBO,
                                                QOpenGLFramebufferObject *outputFBO)
 {
@@ -1849,7 +1849,7 @@ void OpenGLImageEditor::applySharpenBlurFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( program->setUniformValue("gauss_mode",0) );
 }
 
-void OpenGLImageEditor::applyNormalsStepFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyNormalsStepFilter(QOpenGLFramebufferObject *inputFBO,
                                                QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1871,7 +1871,7 @@ void OpenGLImageEditor::applyNormalsStepFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyNormalMixerFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyNormalMixerFilter(QOpenGLFramebufferObject *inputFBO,
                                                QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -1904,7 +1904,7 @@ void OpenGLImageEditor::applyNormalMixerFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGLImageEditor::applyPreSmoothFilter(  QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyPreSmoothFilter(  QOpenGLFramebufferObject *inputFBO,
                                                QOpenGLFramebufferObject *auxFBO,
                                                QOpenGLFramebufferObject *outputFBO,
                                                BaseMapConvLevelProperties& convProp)
@@ -1937,7 +1937,7 @@ void OpenGLImageEditor::applyPreSmoothFilter(  QOpenGLFramebufferObject *inputFB
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applySobelToNormalFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applySobelToNormalFilter(QOpenGLFramebufferObject *inputFBO,
                                                  QOpenGLFramebufferObject *outputFBO,
                                                  BaseMapConvLevelProperties& convProp)
 {
@@ -1961,7 +1961,7 @@ void OpenGLImageEditor::applySobelToNormalFilter(QOpenGLFramebufferObject *input
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyNormalToHeight(Image *image,
+void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
                                             QOpenGLFramebufferObject *normalFBO,
                                             QOpenGLFramebufferObject *heightFBO,
                                             QOpenGLFramebufferObject *outputFBO)
@@ -2089,7 +2089,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyNormalAngleCorrectionFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyNormalAngleCorrectionFilter(QOpenGLFramebufferObject *inputFBO,
                                                          QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2113,7 +2113,7 @@ void OpenGLImageEditor::applyNormalAngleCorrectionFilter(QOpenGLFramebufferObjec
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyNormalExpansionFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyNormalExpansionFilter(QOpenGLFramebufferObject *inputFBO,
                                                    QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2135,7 +2135,7 @@ void OpenGLImageEditor::applyNormalExpansionFilter(QOpenGLFramebufferObject *inp
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyMixNormalLevels(GLuint level0,
+void OpenGL2DImageWidget::applyMixNormalLevels(GLuint level0,
                                              GLuint level1,
                                              GLuint level2,
                                              GLuint level3,
@@ -2174,7 +2174,7 @@ void OpenGLImageEditor::applyMixNormalLevels(GLuint level0,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyCPUNormalizationFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyCPUNormalizationFilter(QOpenGLFramebufferObject *inputFBO,
                                                     QOpenGLFramebufferObject *outputFBO)
 {
     GLCHK( glActiveTexture(GL_TEXTURE0) );
@@ -2272,7 +2272,7 @@ void OpenGLImageEditor::applyCPUNormalizationFilter(QOpenGLFramebufferObject *in
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO,
                                             QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2295,7 +2295,7 @@ void OpenGLImageEditor::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyBaseMapConversion(QOpenGLFramebufferObject *baseMapFBO,
+void OpenGL2DImageWidget::applyBaseMapConversion(QOpenGLFramebufferObject *baseMapFBO,
                                                QOpenGLFramebufferObject *auxFBO,
                                                QOpenGLFramebufferObject *outputFBO,
                                                BaseMapConvLevelProperties& convProp)
@@ -2344,7 +2344,7 @@ void OpenGLImageEditor::applyBaseMapConversion(QOpenGLFramebufferObject *baseMap
     GLCHK( program->setUniformValue("gui_combine_normals" , 0 ) );
 }
 
-void OpenGLImageEditor::applyOcclusionFilter(GLuint height_tex,GLuint normal_tex,
+void OpenGL2DImageWidget::applyOcclusionFilter(GLuint height_tex,GLuint normal_tex,
                                              QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2375,7 +2375,7 @@ void OpenGLImageEditor::applyOcclusionFilter(GLuint height_tex,GLuint normal_tex
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyHeightProcessingFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyHeightProcessingFilter(QOpenGLFramebufferObject *inputFBO,
                                                     QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2404,7 +2404,7 @@ void OpenGLImageEditor::applyHeightProcessingFilter(QOpenGLFramebufferObject *in
     GLCHK( outputFBO->bindDefault());
 }
 
-void OpenGLImageEditor::applyCombineNormalHeightFilter(QOpenGLFramebufferObject *normalFBO,
+void OpenGL2DImageWidget::applyCombineNormalHeightFilter(QOpenGLFramebufferObject *normalFBO,
                                                        QOpenGLFramebufferObject *heightFBO,
                                                        QOpenGLFramebufferObject *outputFBO)
 {
@@ -2429,7 +2429,7 @@ void OpenGLImageEditor::applyCombineNormalHeightFilter(QOpenGLFramebufferObject 
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyRoughnessFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyRoughnessFilter(QOpenGLFramebufferObject *inputFBO,
                                              QOpenGLFramebufferObject *auxFBO,
                                              QOpenGLFramebufferObject *outputFBO)
 {
@@ -2461,7 +2461,7 @@ void OpenGLImageEditor::applyRoughnessFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGLImageEditor::applyRoughnessColorFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyRoughnessColorFilter(QOpenGLFramebufferObject *inputFBO,
                                                   QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2494,7 +2494,7 @@ void OpenGLImageEditor::applyRoughnessColorFilter(QOpenGLFramebufferObject *inpu
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::copyFBO(QOpenGLFramebufferObject *src,
+void OpenGL2DImageWidget::copyFBO(QOpenGLFramebufferObject *src,
                                 QOpenGLFramebufferObject *dst)
 {
 #ifdef USE_OPENGL_330
@@ -2514,7 +2514,7 @@ void OpenGLImageEditor::copyFBO(QOpenGLFramebufferObject *src,
     src->bindDefault();
 }
 
-void OpenGLImageEditor::copyTex2FBO(GLuint src_tex_id,
+void OpenGL2DImageWidget::copyTex2FBO(GLuint src_tex_id,
                                     QOpenGLFramebufferObject *dst)
 {
 #ifdef USE_OPENGL_330
@@ -2535,7 +2535,7 @@ void OpenGLImageEditor::copyTex2FBO(GLuint src_tex_id,
     dst->bindDefault();
 }
 
-void OpenGLImageEditor::applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO)
+void OpenGL2DImageWidget::applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO)
 {
     if(Image::bSeamlessTranslationsFirst)
     {
@@ -2564,7 +2564,7 @@ void OpenGLImageEditor::applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO
     }
 }
 
-void OpenGLImageEditor::applyGrungeImageFilter (QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyGrungeImageFilter (QOpenGLFramebufferObject *inputFBO,
                                                 QOpenGLFramebufferObject *outputFBO,
                                                 QOpenGLFramebufferObject *grungeFBO)
 {
@@ -2648,7 +2648,7 @@ void OpenGLImageEditor::applyGrungeImageFilter (QOpenGLFramebufferObject *inputF
     }
 }
 
-void OpenGLImageEditor::applyGrungeRandomizationFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyGrungeRandomizationFilter(QOpenGLFramebufferObject *inputFBO,
                                                        QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2684,7 +2684,7 @@ void OpenGLImageEditor::applyGrungeRandomizationFilter(QOpenGLFramebufferObject 
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::applyGrungeWarpNormalFilter(QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyGrungeWarpNormalFilter(QOpenGLFramebufferObject *inputFBO,
                                                     QOpenGLFramebufferObject *outputFBO)
 {
 #ifdef USE_OPENGL_330
@@ -2710,7 +2710,7 @@ void OpenGLImageEditor::applyGrungeWarpNormalFilter(QOpenGLFramebufferObject *in
     outputFBO->bindDefault();
 }
 
-void OpenGLImageEditor::updateProgramUniforms(int step)
+void OpenGL2DImageWidget::updateProgramUniforms(int step)
 {
     switch(step)
     {
@@ -2730,7 +2730,7 @@ void OpenGLImageEditor::updateProgramUniforms(int step)
     };
 }
 
-void OpenGLImageEditor::makeScreenQuad()
+void OpenGL2DImageWidget::makeScreenQuad()
 {
     int size = 2;
     QVector<QVector2D> texCoords = QVector<QVector2D>(size*size);
@@ -2786,7 +2786,7 @@ void OpenGLImageEditor::makeScreenQuad()
 }
 
 
-void OpenGLImageEditor::updateMousePosition()
+void OpenGL2DImageWidget::updateMousePosition()
 {
     QPoint p = mapFromGlobal(QCursor::pos());
     cursorPhysicalXPosition =       double(p.x())/width() * orthographicProjWidth  - xTranslation;
@@ -2794,7 +2794,7 @@ void OpenGLImageEditor::updateMousePosition()
     bSkipProcessing = true;
 }
 
-void OpenGLImageEditor::wheelEvent(QWheelEvent *event)
+void OpenGL2DImageWidget::wheelEvent(QWheelEvent *event)
 {
     if( event->delta() > 0)
         zoom-=0.1;
@@ -2841,7 +2841,7 @@ void OpenGLImageEditor::wheelEvent(QWheelEvent *event)
     update();
 }
 
-void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
+void OpenGL2DImageWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
 {
     if(activeImage->getTextureType() != GRUNGE_TEXTURE)
     {
@@ -3040,7 +3040,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
     update();
 }
 
-void OpenGLImageEditor::mousePressEvent(QMouseEvent *event)
+void OpenGL2DImageWidget::mousePressEvent(QMouseEvent *event)
 {
     //OpenGLWidgetBase::mousePressEvent(event);
     lastCursorPos = event->pos();
@@ -3074,7 +3074,7 @@ void OpenGLImageEditor::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void OpenGLImageEditor::mouseReleaseEvent(QMouseEvent *event)
+void OpenGL2DImageWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     setCursor(Qt::OpenHandCursor);
     draggingCorner = -1;
@@ -3083,7 +3083,7 @@ void OpenGLImageEditor::mouseReleaseEvent(QMouseEvent *event)
     repaint();
 }
 
-void OpenGLImageEditor::toggleColorPicking(bool toggle)
+void OpenGL2DImageWidget::toggleColorPicking(bool toggle)
 {
     bToggleColorPicking = toggle;
     ptr_ABColor = NULL;
@@ -3097,7 +3097,7 @@ void OpenGLImageEditor::toggleColorPicking(bool toggle)
     }
 }
 
-void OpenGLImageEditor::pickImageColor( QtnPropertyABColor* property)
+void OpenGL2DImageWidget::pickImageColor( QtnPropertyABColor* property)
 {
     bool toggle = true;
     bToggleColorPicking = toggle;
@@ -3113,7 +3113,7 @@ void OpenGLImageEditor::pickImageColor( QtnPropertyABColor* property)
     repaint();
 }
 
-void OpenGLImageEditor::copyRenderToPaintFBO()
+void OpenGL2DImageWidget::copyRenderToPaintFBO()
 {
     GLCHK(OpenGLFramebufferObject::resize(paintFBO,renderFBO->width(),renderFBO->height()));
     GLCHK( program->setUniformValue("material_id", int(-1)) );

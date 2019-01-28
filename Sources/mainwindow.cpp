@@ -12,8 +12,8 @@
 
 #include <iostream>
 
-#include "openglwidget.h"
-#include "openglimageeditor.h"
+#include "opengl3dimagewidget.h"
+#include "opengl2dimagewidget.h"
 #include "openglframebufferobject.h"
 #include "image.h"
 #include "imagewidget.h"
@@ -51,16 +51,16 @@ MainWindow::MainWindow(QWidget *parent) :
     statusLabel = new QLabel("GPU memory status: n/a");
 
     ImageWidget::recentDir = &recentDir;
-    OpenGLWidget::recentMeshDir = &recentMeshDir;
+    OpenGL3DImageWidget::recentMeshDir = &recentMeshDir;
 
 #ifdef Q_OS_MAC
     if(!statusLabel->testAttribute(Qt::WA_MacNormalSize))
         statusLabel->setAttribute(Qt::WA_MacSmallSize);
 #endif
 
-    openGLImageEditor = new OpenGLImageEditor(this);
+    openGL2DImageWidget = new OpenGL2DImageWidget(this);
     //glWidget = new OpenGLWidget(this,glImage);
-    openGLWidget = new OpenGLWidget(this);
+    openGL3DImageWidget = new OpenGL3DImageWidget(this);
 }
 
 void MainWindow::initialiseWindow()
@@ -71,20 +71,20 @@ void MainWindow::initialiseWindow()
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
     qDebug() << "Data dir:" << getDataDirectory(RESOURCE_BASE);
 
-    connect(openGLImageEditor, SIGNAL (rendered()), this, SLOT (initializeImages()));
+    connect(openGL2DImageWidget, SIGNAL (rendered()), this, SLOT (initializeImages()));
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
 
-    diffuseImageWidget   = new ImageWidget(this, openGLImageEditor, DIFFUSE_TEXTURE);
-    normalImageWidget    = new ImageWidget(this, openGLImageEditor, NORMAL_TEXTURE);
-    specularImageWidget  = new ImageWidget(this, openGLImageEditor, SPECULAR_TEXTURE);
-    heightImageWidget    = new ImageWidget(this, openGLImageEditor, HEIGHT_TEXTURE);
-    occlusionImageWidget = new ImageWidget(this, openGLImageEditor, OCCLUSION_TEXTURE);
-    roughnessImageWidget = new ImageWidget(this, openGLImageEditor, ROUGHNESS_TEXTURE);
-    metallicImageWidget  = new ImageWidget(this, openGLImageEditor, METALLIC_TEXTURE);
-    grungeImageWidget    = new ImageWidget(this, openGLImageEditor, GRUNGE_TEXTURE);
+    diffuseImageWidget   = new ImageWidget(this, openGL2DImageWidget, DIFFUSE_TEXTURE);
+    normalImageWidget    = new ImageWidget(this, openGL2DImageWidget, NORMAL_TEXTURE);
+    specularImageWidget  = new ImageWidget(this, openGL2DImageWidget, SPECULAR_TEXTURE);
+    heightImageWidget    = new ImageWidget(this, openGL2DImageWidget, HEIGHT_TEXTURE);
+    occlusionImageWidget = new ImageWidget(this, openGL2DImageWidget, OCCLUSION_TEXTURE);
+    roughnessImageWidget = new ImageWidget(this, openGL2DImageWidget, ROUGHNESS_TEXTURE);
+    metallicImageWidget  = new ImageWidget(this, openGL2DImageWidget, METALLIC_TEXTURE);
+    grungeImageWidget    = new ImageWidget(this, openGL2DImageWidget, GRUNGE_TEXTURE);
 
-    materialManager    = new FormMaterialIndicesManager(this, openGLImageEditor);
+    materialManager    = new FormMaterialIndicesManager(this, openGL2DImageWidget);
 
     qDebug() << "Initialization: Setup image properties";
     INIT_PROGRESS(20, "Setup image properties");
@@ -99,24 +99,24 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGLWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getFBO(), DIFFUSE_TEXTURE);
-    openGLWidget->setPointerToTexture(normalImageWidget   ->getImage()->getFBO(), NORMAL_TEXTURE);
-    openGLWidget->setPointerToTexture(specularImageWidget ->getImage()->getFBO(), SPECULAR_TEXTURE);
-    openGLWidget->setPointerToTexture(heightImageWidget   ->getImage()->getFBO(), HEIGHT_TEXTURE);
-    openGLWidget->setPointerToTexture(occlusionImageWidget->getImage()->getFBO(), OCCLUSION_TEXTURE);
-    openGLWidget->setPointerToTexture(roughnessImageWidget->getImage()->getFBO(), ROUGHNESS_TEXTURE);
-    openGLWidget->setPointerToTexture(metallicImageWidget ->getImage()->getFBO(), METALLIC_TEXTURE);
-    openGLWidget->setPointerToTexture(materialManager     ->getImage()->getFBO(), MATERIAL_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getFBO(), DIFFUSE_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(normalImageWidget   ->getImage()->getFBO(), NORMAL_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(specularImageWidget ->getImage()->getFBO(), SPECULAR_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(heightImageWidget   ->getImage()->getFBO(), HEIGHT_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(occlusionImageWidget->getImage()->getFBO(), OCCLUSION_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(roughnessImageWidget->getImage()->getFBO(), ROUGHNESS_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(metallicImageWidget ->getImage()->getFBO(), METALLIC_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(materialManager     ->getImage()->getFBO(), MATERIAL_TEXTURE);
 
-    openGLImageEditor->targetImageDiffuse   = diffuseImageWidget  ->getImage();
-    openGLImageEditor->targetImageNormal    = normalImageWidget   ->getImage();
-    openGLImageEditor->targetImageSpecular  = specularImageWidget ->getImage();
-    openGLImageEditor->targetImageHeight    = heightImageWidget   ->getImage();
-    openGLImageEditor->targetImageOcclusion = occlusionImageWidget->getImage();
-    openGLImageEditor->targetImageRoughness = roughnessImageWidget->getImage();
-    openGLImageEditor->targetImageMetallic  = metallicImageWidget ->getImage();
-    openGLImageEditor->targetImageGrunge    = grungeImageWidget   ->getImage();
-    openGLImageEditor->targetImageMaterial  = materialManager   ->getImage();
+    openGL2DImageWidget->targetImageDiffuse   = diffuseImageWidget  ->getImage();
+    openGL2DImageWidget->targetImageNormal    = normalImageWidget   ->getImage();
+    openGL2DImageWidget->targetImageSpecular  = specularImageWidget ->getImage();
+    openGL2DImageWidget->targetImageHeight    = heightImageWidget   ->getImage();
+    openGL2DImageWidget->targetImageOcclusion = occlusionImageWidget->getImage();
+    openGL2DImageWidget->targetImageRoughness = roughnessImageWidget->getImage();
+    openGL2DImageWidget->targetImageMetallic  = metallicImageWidget ->getImage();
+    openGL2DImageWidget->targetImageGrunge    = grungeImageWidget   ->getImage();
+    openGL2DImageWidget->targetImageMaterial  = materialManager   ->getImage();
 
     // Setup GUI
     qDebug() << "Initialization: GUI setup";
@@ -134,7 +134,7 @@ void MainWindow::initialiseWindow()
     connect(ui->pushButtonProjectManager, SIGNAL (toggled(bool)), settingsContainer, SLOT (setVisible(bool)));
 
     // 3D settings widget
-    dock3Dsettings = new DockWidget3DSettings(this, openGLWidget);
+    dock3Dsettings = new DockWidget3DSettings(this, openGL3DImageWidget);
 
     ui->verticalLayout3DImage->addWidget(dock3Dsettings);
     setDockNestingEnabled(true);
@@ -144,11 +144,11 @@ void MainWindow::initialiseWindow()
 
     dialog3dGeneralSettings = new Dialog3DGeneralSettings(this);
     connect(ui->pushButton3DGeneralSettings, SIGNAL (released()), dialog3dGeneralSettings, SLOT (show()));
-    connect(dialog3dGeneralSettings, SIGNAL (signalPropertyChanged()), openGLWidget, SLOT (repaint()));
-    connect(dialog3dGeneralSettings, SIGNAL (signalRecompileCustomShader()), openGLWidget, SLOT (recompileRenderShader()));
+    connect(dialog3dGeneralSettings, SIGNAL (signalPropertyChanged()), openGL3DImageWidget, SLOT (repaint()));
+    connect(dialog3dGeneralSettings, SIGNAL (signalRecompileCustomShader()), openGL3DImageWidget, SLOT (recompileRenderShader()));
 
-    ui->verticalLayout3DImage->addWidget(openGLWidget);
-    ui->verticalLayout2DImage->addWidget(openGLImageEditor);
+    ui->verticalLayout3DImage->addWidget(openGL3DImageWidget);
+    ui->verticalLayout2DImage->addWidget(openGL2DImageWidget);
 
     qDebug() << "Initialization: Adding widgets.";
     INIT_PROGRESS(40, "Adding widgets.");
@@ -172,9 +172,9 @@ void MainWindow::initialiseWindow()
     connect(occlusionImageWidget, SIGNAL (imageChanged()), this, SLOT (checkWarnings()));
     connect(grungeImageWidget,    SIGNAL (imageChanged()), this, SLOT (checkWarnings()));
 
-    connect(diffuseImageWidget,   SIGNAL(imageChanged()), openGLImageEditor, SLOT (imageChanged()));
-    connect(roughnessImageWidget, SIGNAL(imageChanged()), openGLImageEditor, SLOT (imageChanged()));
-    connect(metallicImageWidget,  SIGNAL(imageChanged()), openGLImageEditor, SLOT (imageChanged()));
+    connect(diffuseImageWidget,   SIGNAL(imageChanged()), openGL2DImageWidget, SLOT (imageChanged()));
+    connect(roughnessImageWidget, SIGNAL(imageChanged()), openGL2DImageWidget, SLOT (imageChanged()));
+    connect(metallicImageWidget,  SIGNAL(imageChanged()), openGL2DImageWidget, SLOT (imageChanged()));
 
     connect(diffuseImageWidget,   SIGNAL (imageChanged()), this, SLOT (updateDiffuseImage()));
     connect(normalImageWidget,    SIGNAL (imageChanged()), this, SLOT (updateNormalImage()));
@@ -202,7 +202,7 @@ void MainWindow::initialiseWindow()
     connect(materialManager, SIGNAL (materialsToggled(bool)), ui->tabTilling, SLOT (setDisabled(bool)));
     // Disable conversion tool
     connect(materialManager, SIGNAL (materialsToggled(bool)), this, SLOT (materialsToggled(bool)));
-    connect(openGLWidget, SIGNAL (materialColorPicked(QColor)), materialManager, SLOT (chooseMaterialByColor(QColor)));
+    connect(openGL3DImageWidget, SIGNAL (materialColorPicked(QColor)), materialManager, SLOT (chooseMaterialByColor(QColor)));
 
     connect(diffuseImageWidget,  SIGNAL (imageLoaded(int,int)), this, SLOT (applyResizeImage(int,int)));
     connect(normalImageWidget,   SIGNAL (imageLoaded(int,int)), this, SLOT (applyResizeImage(int,int)));
@@ -245,18 +245,18 @@ void MainWindow::initialiseWindow()
     connect(ui->pushButtonResizeApply,         SIGNAL(released()), this, SLOT (applyResizeImage()));
     connect(ui->pushButtonRescaleApply,        SIGNAL(released()), this, SLOT (applyScaleImage()));
     connect(ui->pushButtonReplotAll,           SIGNAL(released()), this, SLOT(replotAllImages()));
-    connect(ui->pushButtonResetCameraPosition, SIGNAL(released()), openGLWidget, SLOT (resetCameraPosition()));
-    connect(ui->pushButtonChangeCamPosition,   SIGNAL(toggled(bool)), openGLWidget,SLOT (toggleChangeCamPosition(bool)));
+    connect(ui->pushButtonResetCameraPosition, SIGNAL(released()), openGL3DImageWidget, SLOT (resetCameraPosition()));
+    connect(ui->pushButtonChangeCamPosition,   SIGNAL(toggled(bool)), openGL3DImageWidget,SLOT (toggleChangeCamPosition(bool)));
 
-    connect(openGLWidget, SIGNAL (changeCamPositionApplied(bool)), ui->pushButtonChangeCamPosition, SLOT (setChecked(bool)));
+    connect(openGL3DImageWidget, SIGNAL (changeCamPositionApplied(bool)), ui->pushButtonChangeCamPosition, SLOT (setChecked(bool)));
 
-    connect(ui->pushButtonToggleDiffuse,   SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleDiffuseView(bool)));
-    connect(ui->pushButtonToggleNormal,    SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleNormalView(bool)));
-    connect(ui->pushButtonToggleSpecular,  SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleSpecularView(bool)));
-    connect(ui->pushButtonToggleHeight,    SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleHeightView(bool)));
-    connect(ui->pushButtonToggleOcclusion, SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleOcclusionView(bool)));
-    connect(ui->pushButtonToggleRoughness, SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleRoughnessView(bool)));
-    connect(ui->pushButtonToggleMetallic,  SIGNAL(toggled(bool)), openGLWidget, SLOT (toggleMetallicView(bool)));
+    connect(ui->pushButtonToggleDiffuse,   SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleDiffuseView(bool)));
+    connect(ui->pushButtonToggleNormal,    SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleNormalView(bool)));
+    connect(ui->pushButtonToggleSpecular,  SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleSpecularView(bool)));
+    connect(ui->pushButtonToggleHeight,    SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleHeightView(bool)));
+    connect(ui->pushButtonToggleOcclusion, SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleOcclusionView(bool)));
+    connect(ui->pushButtonToggleRoughness, SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleRoughnessView(bool)));
+    connect(ui->pushButtonToggleMetallic,  SIGNAL(toggled(bool)), openGL3DImageWidget, SLOT (toggleMetallicView(bool)));
 
     connect(ui->pushButtonSaveCurrentSettings, SIGNAL(released()), this, SLOT(saveSettings()));
     connect(ui->comboBoxImageOutputFormat, SIGNAL(activated(int)), this, SLOT(setOutputFormat(int)));
@@ -291,7 +291,7 @@ void MainWindow::initialiseWindow()
 
     // Connect perspective tool signals.
     connect(ui->pushButtonResetTransform, SIGNAL (released()), this, SLOT (resetTransform()));
-    connect(ui->comboBoxPerspectiveTransformMethod, SIGNAL (activated(int)), openGLImageEditor, SLOT (selectPerspectiveTransformMethod(int)));
+    connect(ui->comboBoxPerspectiveTransformMethod, SIGNAL (activated(int)), openGL2DImageWidget, SLOT (selectPerspectiveTransformMethod(int)));
     connect(ui->comboBoxSeamlessMode, SIGNAL (activated(int)), this, SLOT (selectSeamlessMode(int)));
     connect(ui->comboBoxSeamlessContrastInputImage, SIGNAL (activated(int)), this, SLOT (selectContrastInputImage(int)));
 
@@ -340,9 +340,9 @@ void MainWindow::initialiseWindow()
     ui->groupBoxRandomPatchesMode->hide();
 
     // Color picking signals.
-    connect(diffuseImageWidget,   SIGNAL (pickImageColor(QtnPropertyABColor*)), openGLImageEditor, SLOT (pickImageColor( QtnPropertyABColor*)));
-    connect(roughnessImageWidget, SIGNAL (pickImageColor(QtnPropertyABColor*)), openGLImageEditor, SLOT (pickImageColor( QtnPropertyABColor*)));
-    connect(metallicImageWidget,  SIGNAL (pickImageColor(QtnPropertyABColor*)), openGLImageEditor, SLOT (pickImageColor( QtnPropertyABColor*)));
+    connect(diffuseImageWidget,   SIGNAL (pickImageColor(QtnPropertyABColor*)), openGL2DImageWidget, SLOT (pickImageColor( QtnPropertyABColor*)));
+    connect(roughnessImageWidget, SIGNAL (pickImageColor(QtnPropertyABColor*)), openGL2DImageWidget, SLOT (pickImageColor( QtnPropertyABColor*)));
+    connect(metallicImageWidget,  SIGNAL (pickImageColor(QtnPropertyABColor*)), openGL2DImageWidget, SLOT (pickImageColor( QtnPropertyABColor*)));
 
     // 2D imate tool box settings.
     QActionGroup *group = new QActionGroup( this );
@@ -355,10 +355,10 @@ void MainWindow::initialiseWindow()
     connect(ui->actionScaleXY,     SIGNAL (triggered()), this, SLOT (setUVManipulationMethod()));
 
     // Other settings.
-    connect(ui->spinBoxMouseSensitivity, SIGNAL (valueChanged(int)), openGLWidget, SLOT (setCameraMouseSensitivity(int)));
+    connect(ui->spinBoxMouseSensitivity, SIGNAL (valueChanged(int)), openGL3DImageWidget, SLOT (setCameraMouseSensitivity(int)));
     connect(ui->spinBoxFontSize, SIGNAL (valueChanged(int)), this, SLOT (changeGUIFontSize(int)));
-    connect(ui->checkBoxToggleMouseLoop, SIGNAL (toggled(bool)), openGLWidget, SLOT (toggleMouseWrap(bool)));
-    connect(ui->checkBoxToggleMouseLoop, SIGNAL (toggled(bool)), openGLImageEditor, SLOT (toggleMouseWrap(bool)));
+    connect(ui->checkBoxToggleMouseLoop, SIGNAL (toggled(bool)), openGL3DImageWidget, SLOT (toggleMouseWrap(bool)));
+    connect(ui->checkBoxToggleMouseLoop, SIGNAL (toggled(bool)), openGL2DImageWidget, SLOT (toggleMouseWrap(bool)));
 
     // Batch settings
     connect(ui->pushButtonImageBatchSource, SIGNAL (pressed()), this, SLOT (selectSourceImages()));
@@ -396,7 +396,7 @@ void MainWindow::initialiseWindow()
     materialManager    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
 
     // Set the active image
-    openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
+    openGL2DImageWidget->setActiveImage(diffuseImageWidget->getImage());
 
     INIT_PROGRESS(90, "Updating main menu items.");
 
@@ -464,8 +464,8 @@ MainWindow::~MainWindow()
     delete grungeImageWidget;
     delete metallicImageWidget;
     delete statusLabel;
-    delete openGLImageEditor;
-    delete openGLWidget;
+    delete openGL2DImageWidget;
+    delete openGL3DImageWidget;
     delete abSettings;
     delete ui;
 }
@@ -474,8 +474,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QWidget::closeEvent( event );
     settingsContainer->close();
-    openGLWidget->close();
-    openGLImageEditor->close();
+    openGL3DImageWidget->close();
+    openGL2DImageWidget->close();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -492,11 +492,11 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::replotAllImages()
 {
-    Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->enableShadowRender(true);
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
+    openGL2DImageWidget->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
-    if(openGLImageEditor->getConversionType() != CONVERT_FROM_D_TO_O)
+    if(openGL2DImageWidget->getConversionType() != CONVERT_FROM_D_TO_O)
     {
         updateImage(GRUNGE_TEXTURE);
     }
@@ -512,9 +512,9 @@ void MainWindow::replotAllImages()
     updateImage(SPECULAR_TEXTURE);
     updateImage(MATERIAL_TEXTURE);
 
-    openGLImageEditor->enableShadowRender(false);
-    openGLImageEditor->setActiveImage(lastActive);
-    openGLWidget->update();
+    openGL2DImageWidget->enableShadowRender(false);
+    openGL2DImageWidget->setActiveImage(lastActive);
+    openGL3DImageWidget->update();
 }
 
 void MainWindow::materialsToggled(bool toggle)
@@ -614,8 +614,8 @@ void MainWindow::selectUVsTab()
 
 void MainWindow::fitImage()
 {
-    openGLImageEditor->resetView();
-    openGLImageEditor->repaint();
+    openGL2DImageWidget->resetView();
+    openGL2DImageWidget->repaint();
 }
 
 void MainWindow::showHideTextureTypes(bool)
@@ -742,7 +742,7 @@ bool MainWindow::saveAllImages(const QString &dir)
     else // Save as compressed format
     {
         QCoreApplication::processEvents();
-        openGLImageEditor->makeCurrent();
+        openGL2DImageWidget->makeCurrent();
 
         QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageWidget->getImage()->getFBO();
         QOpenGLFramebufferObject *normalFBOImage   = normalImageWidget->getImage()->getFBO();
@@ -847,15 +847,15 @@ void MainWindow::updateDiffuseImage()
 {
     ui->lineEditOutputName->setText(diffuseImageWidget->getImageName());
     updateImageInformation();
-    openGLImageEditor->repaint();
+    openGL2DImageWidget->repaint();
 
     // Replot normal if height was changed in attached mode.
     if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(DIFFUSE_TEXTURE);
     }
@@ -863,10 +863,10 @@ void MainWindow::updateDiffuseImage()
     // Replot normal if height was changed in attached mode.
     if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(DIFFUSE_TEXTURE);
     }
@@ -874,55 +874,55 @@ void MainWindow::updateDiffuseImage()
     // Replot normal if height was changed in attached mode.
     if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(DIFFUSE_TEXTURE);
     }
 
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateNormalImage()
 {
     ui->lineEditOutputName->setText(normalImageWidget->getImageName());
-    openGLImageEditor->repaint();
+    openGL2DImageWidget->repaint();
 
     // Replot normal if was changed in attached mode.
     if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(NORMAL_TEXTURE);
     }
 
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateSpecularImage()
 {
     ui->lineEditOutputName->setText(specularImageWidget->getImageName());
-    openGLImageEditor->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateHeightImage()
 {
     ui->lineEditOutputName->setText(heightImageWidget->getImageName());
-    openGLImageEditor->repaint();
+    openGL2DImageWidget->repaint();
 
     // Replot normal if height was changed in attached mode.
     if(normalImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(NORMAL_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(HEIGHT_TEXTURE);
     }
@@ -930,10 +930,10 @@ void MainWindow::updateHeightImage()
     // Replot normal if was changed in attached mode.
     if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(HEIGHT_TEXTURE);
     }
@@ -942,10 +942,10 @@ void MainWindow::updateHeightImage()
     if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HI_NI||
             occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(HEIGHT_TEXTURE);
     }
@@ -953,10 +953,10 @@ void MainWindow::updateHeightImage()
     // Replot normal if was changed in attached mode.
     if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(HEIGHT_TEXTURE);
     }
@@ -964,35 +964,35 @@ void MainWindow::updateHeightImage()
     // Replot normal if was changed in attached mode
     if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
-        openGLImageEditor->enableShadowRender(true);
+        openGL2DImageWidget->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
         //glImage->updateGL();
-        openGLImageEditor->enableShadowRender(false);
+        openGL2DImageWidget->enableShadowRender(false);
         // set height tab back again
         updateImage(HEIGHT_TEXTURE);
     }
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateOcclusionImage()
 {
     ui->lineEditOutputName->setText(occlusionImageWidget->getImageName());
-    openGLImageEditor->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateRoughnessImage()
 {
     ui->lineEditOutputName->setText(roughnessImageWidget->getImageName());
-    openGLImageEditor->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateMetallicImage()
 {
     ui->lineEditOutputName->setText(metallicImageWidget->getImageName());
-    openGLImageEditor->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::updateGrungeImage()
@@ -1007,8 +1007,8 @@ void MainWindow::updateGrungeImage()
     else
     {
         // Otherwise replot only the grunge map.
-        openGLImageEditor->repaint();
-        openGLWidget->repaint();
+        openGL2DImageWidget->repaint();
+        openGL3DImageWidget->repaint();
     }
 }
 
@@ -1047,7 +1047,7 @@ void MainWindow::initializeGL()
         grungeImageWidget   ->setImageName(ui->lineEditOutputName->text());
 
         // Set the active image.
-        openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(diffuseImageWidget->getImage());
     }
 }
 
@@ -1064,11 +1064,11 @@ void MainWindow::initializeImages()
 
     replotAllImages();
     // SSAO recalculation
-    Image* lastActive = openGLImageEditor->getActiveImage();
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
 
     updateImage(OCCLUSION_TEXTURE);
     //glImage->update();
-    openGLImageEditor->setActiveImage(lastActive);
+    openGL2DImageWidget->setActiveImage(lastActive);
 }
 
 void MainWindow::updateImage(int tType)
@@ -1076,36 +1076,36 @@ void MainWindow::updateImage(int tType)
     switch(tType)
     {
     case DIFFUSE_TEXTURE:
-        openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(diffuseImageWidget->getImage());
         break;
     case NORMAL_TEXTURE:
-        openGLImageEditor->setActiveImage(normalImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(normalImageWidget->getImage());
         break;
     case SPECULAR_TEXTURE:
-        openGLImageEditor->setActiveImage(specularImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(specularImageWidget->getImage());
         break;
     case HEIGHT_TEXTURE:
-        openGLImageEditor->setActiveImage(heightImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(heightImageWidget->getImage());
         break;
     case OCCLUSION_TEXTURE:
-        openGLImageEditor->setActiveImage(occlusionImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(occlusionImageWidget->getImage());
         break;
     case ROUGHNESS_TEXTURE:
-        openGLImageEditor->setActiveImage(roughnessImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(roughnessImageWidget->getImage());
         break;
     case METALLIC_TEXTURE:
-        openGLImageEditor->setActiveImage(metallicImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(metallicImageWidget->getImage());
         break;
     case MATERIAL_TEXTURE:
-        openGLImageEditor->setActiveImage(materialManager->getImage());
+        openGL2DImageWidget->setActiveImage(materialManager->getImage());
         break;
     case GRUNGE_TEXTURE:
-        openGLImageEditor->setActiveImage(grungeImageWidget->getImage());
+        openGL2DImageWidget->setActiveImage(grungeImageWidget->getImage());
         break;
     default:
         return;
     }
-    openGLWidget->update();
+    openGL3DImageWidget->update();
 }
 
 void MainWindow::changeWidth(int)
@@ -1130,22 +1130,22 @@ void MainWindow::applyResizeImage()
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
 
-    Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->enableShadowRender(true);
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
+    openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
         if( i != GRUNGE_TEXTURE)
         {
             // Grunge map does not scale like other images.
-            openGLImageEditor->resizeFBO(width,height);
+            openGL2DImageWidget->resizeFBO(width,height);
             updateImage(i);
         }
     }
-    openGLImageEditor->enableShadowRender(false);
-    openGLImageEditor->setActiveImage(lastActive);
+    openGL2DImageWidget->enableShadowRender(false);
+    openGL2DImageWidget->setActiveImage(lastActive);
     replotAllImages();
     updateImageInformation();
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 
     // Replot all material group after image resize.
     Image::currentMaterialIndex = materiaIndex;
@@ -1162,21 +1162,21 @@ void MainWindow::applyResizeImage(int width, int height)
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
-    Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->enableShadowRender(true);
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
+    openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
         if( i != GRUNGE_TEXTURE)
         {
-            openGLImageEditor->resizeFBO(width,height);
+            openGL2DImageWidget->resizeFBO(width,height);
             updateImage(i);
         }
     }
-    openGLImageEditor->enableShadowRender(false);
-    openGLImageEditor->setActiveImage(lastActive);
+    openGL2DImageWidget->enableShadowRender(false);
+    openGL2DImageWidget->setActiveImage(lastActive);
     replotAllImages();
     updateImageInformation();
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 
     // Replot all material group after image resize.
     Image::currentMaterialIndex = materiaIndex;
@@ -1213,18 +1213,18 @@ void MainWindow::applyScaleImage()
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
-    Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->enableShadowRender(true);
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
+    openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < MAX_TEXTURES_TYPE ; i++)
     {
-        openGLImageEditor->resizeFBO(width,height);
+        openGL2DImageWidget->resizeFBO(width,height);
         updateImage(i);
     }
-    openGLImageEditor->enableShadowRender(false);
-    openGLImageEditor->setActiveImage(lastActive);
+    openGL2DImageWidget->enableShadowRender(false);
+    openGL2DImageWidget->setActiveImage(lastActive);
     replotAllImages();
     updateImageInformation();
-    openGLWidget->repaint();
+    openGL3DImageWidget->repaint();
 
     // Replot all material group after image resize.
     Image::currentMaterialIndex = materiaIndex;
@@ -1283,7 +1283,7 @@ void MainWindow::selectSeamlessMode(int mode)
     default:
         break;
     }
-    openGLImageEditor->selectSeamlessMode((SeamlessMode)mode);
+    openGL2DImageWidget->selectSeamlessMode((SeamlessMode)mode);
     checkWarnings();
     replotAllImages();
 }
@@ -1434,14 +1434,14 @@ void MainWindow::selectShadingModel(int i)
 
 void MainWindow::convertFromHtoN()
 {
-    openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);
-    openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
-    openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);
-    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
-    openGLImageEditor->enableShadowRender(false);
-    openGLImageEditor->setConversionType(CONVERT_NONE);
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);
+    openGL2DImageWidget->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(heightImageWidget->getImage());
+    openGL2DImageWidget->enableShadowRender(true);
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);
+    openGL2DImageWidget->setActiveImage(normalImageWidget->getImage());
+    openGL2DImageWidget->enableShadowRender(false);
+    openGL2DImageWidget->setConversionType(CONVERT_NONE);
 
     replotAllImages();
 
@@ -1450,16 +1450,16 @@ void MainWindow::convertFromHtoN()
 
 void MainWindow::convertFromNtoH()
 {
-    openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);// fake conversion
-    openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
-    openGLImageEditor->setConversionType(CONVERT_FROM_N_TO_H);
-    openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
-    openGLImageEditor->setConversionType(CONVERT_FROM_N_TO_H);
-    openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
-    openGLImageEditor->enableShadowRender(false);
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);// fake conversion
+    openGL2DImageWidget->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(heightImageWidget->getImage());
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_N_TO_H);
+    openGL2DImageWidget->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(normalImageWidget->getImage());
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_N_TO_H);
+    openGL2DImageWidget->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(heightImageWidget->getImage());
+    openGL2DImageWidget->enableShadowRender(false);
     replotAllImages();
 
     qDebug() << "Conversion from normal to height applied";
@@ -1467,8 +1467,8 @@ void MainWindow::convertFromNtoH()
 
 void MainWindow::convertFromBase()
 {
-    Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
+    Image* lastActive = openGL2DImageWidget->getActiveImage();
+    openGL2DImageWidget->setActiveImage(diffuseImageWidget->getImage());
     qDebug() << "Conversion from Base to others started";
     normalImageWidget   ->setImageName(diffuseImageWidget->getImageName());
     heightImageWidget   ->setImageName(diffuseImageWidget->getImageName());
@@ -1476,31 +1476,31 @@ void MainWindow::convertFromBase()
     occlusionImageWidget->setImageName(diffuseImageWidget->getImageName());
     roughnessImageWidget->setImageName(diffuseImageWidget->getImageName());
     metallicImageWidget ->setImageName(diffuseImageWidget->getImageName());
-    openGLImageEditor->setConversionType(CONVERT_FROM_D_TO_O);
-    openGLImageEditor->update();
-    openGLImageEditor->setConversionType(CONVERT_FROM_D_TO_O);
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_D_TO_O);
+    openGL2DImageWidget->update();
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_D_TO_O);
     replotAllImages();
 
-    openGLImageEditor->setActiveImage(lastActive);
-    openGLWidget->update();
+    openGL2DImageWidget->setActiveImage(lastActive);
+    openGL3DImageWidget->update();
     qDebug() << "Conversion from Base to others applied";
 }
 
 void MainWindow::convertFromHNtoOcc()
 {
-    openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
-    openGLImageEditor->enableShadowRender(true);
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
+    openGL2DImageWidget->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
-    openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
-    openGLImageEditor->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(heightImageWidget->getImage());
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
+    openGL2DImageWidget->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
-    openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
-    openGLImageEditor->enableShadowRender(true);
+    openGL2DImageWidget->setActiveImage(normalImageWidget->getImage());
+    openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
+    openGL2DImageWidget->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(occlusionImageWidget->getImage());
-    openGLImageEditor->enableShadowRender(false);
+    openGL2DImageWidget->setActiveImage(occlusionImageWidget->getImage());
+    openGL2DImageWidget->enableShadowRender(false);
 
     replotAllImages();
 
@@ -1528,23 +1528,23 @@ void MainWindow::updateSliders()
     if(ui->radioButtonSeamlessSimpleDirX ->isChecked()) Image::seamlessSimpleModeDirection = 1;
     if(ui->radioButtonSeamlessSimpleDirY ->isChecked()) Image::seamlessSimpleModeDirection = 2;
 
-    openGLImageEditor ->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget ->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::resetTransform()
 {
     QVector2D corner(0,0);
-    openGLImageEditor->updateCornersPosition(corner,corner,corner,corner);
-    openGLImageEditor->updateCornersWeights(0,0,0,0);
+    openGL2DImageWidget->updateCornersPosition(corner,corner,corner,corner);
+    openGL2DImageWidget->updateCornersWeights(0,0,0,0);
     replotAllImages();
 }
 
 void MainWindow::setUVManipulationMethod()
 {
-    if(ui->actionTranslateUV->isChecked()) openGLImageEditor->selectUVManipulationMethod(UV_TRANSLATE);
-    if(ui->actionGrabCorners->isChecked()) openGLImageEditor->selectUVManipulationMethod(UV_GRAB_CORNERS);
-    if(ui->actionScaleXY->isChecked())     openGLImageEditor->selectUVManipulationMethod(UV_SCALE_XY);
+    if(ui->actionTranslateUV->isChecked()) openGL2DImageWidget->selectUVManipulationMethod(UV_TRANSLATE);
+    if(ui->actionGrabCorners->isChecked()) openGL2DImageWidget->selectUVManipulationMethod(UV_GRAB_CORNERS);
+    if(ui->actionScaleXY->isChecked())     openGL2DImageWidget->selectUVManipulationMethod(UV_SCALE_XY);
 }
 
 QSize MainWindow::sizeHint() const
@@ -1583,8 +1583,8 @@ void MainWindow::loadImageSettings(TextureType type)
     default:
         qWarning() << "Trying to load non supported image! Given textureType:" << type;
     }
-    openGLImageEditor ->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget ->repaint();
+    openGL3DImageWidget->repaint();
 }
 
 void MainWindow::showSettingsManager()
@@ -1782,8 +1782,8 @@ void MainWindow::loadSettings()
 
     replotAllImages();
 
-    openGLImageEditor ->repaint();
-    openGLWidget->repaint();
+    openGL2DImageWidget ->repaint();
+    openGL3DImageWidget->repaint();
     bFirstTime = false;
 }
 

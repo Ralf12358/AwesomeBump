@@ -22,13 +22,13 @@
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
-class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
+class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 
 public:
-    OpenGLWidget(QWidget *parent = 0);
-    ~OpenGLWidget();
+    OpenGL3DImageWidget(QWidget *parent = 0);
+    ~OpenGL3DImageWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;

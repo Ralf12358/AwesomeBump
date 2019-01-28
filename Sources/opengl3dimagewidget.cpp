@@ -1,4 +1,4 @@
-#include "openglwidget.h"
+#include "opengl3dimagewidget.h"
 
 #include <QColor>
 #include <QtWidgets>
@@ -7,9 +7,9 @@
 
 #include "image.h"
 
-QDir* OpenGLWidget::recentMeshDir = NULL;
+QDir* OpenGL3DImageWidget::recentMeshDir = NULL;
 
-OpenGLWidget::OpenGLWidget(QWidget *parent) :
+OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     mouseUpdateIsQueued(false),
     blockMouseMovement(false),
@@ -53,7 +53,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
     setSizePolicy(sizePolicy);
 }
 
-OpenGLWidget::~OpenGLWidget()
+OpenGL3DImageWidget::~OpenGL3DImageWidget()
 {
     makeCurrent();
     deleteFBOs();
@@ -82,17 +82,17 @@ OpenGLWidget::~OpenGLWidget()
     doneCurrent();
 }
 
-QSize OpenGLWidget::minimumSizeHint() const
+QSize OpenGL3DImageWidget::minimumSizeHint() const
 {
     return QSize(100, 100);
 }
 
-QSize OpenGLWidget::sizeHint() const
+QSize OpenGL3DImageWidget::sizeHint() const
 {
     return QSize(500, 400);
 }
 
-void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType tType)
+void OpenGL3DImageWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType tType)
 {
     switch(tType)
     {
@@ -125,54 +125,54 @@ void OpenGLWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer, Textur
     }
 }
 
-void OpenGLWidget::toggleDiffuseView(bool enable)
+void OpenGL3DImageWidget::toggleDiffuseView(bool enable)
 {
     bToggleDiffuseView = enable;
     update();
 }
 
-void OpenGLWidget::toggleSpecularView(bool enable)
+void OpenGL3DImageWidget::toggleSpecularView(bool enable)
 {
     bToggleSpecularView = enable;
     update();
 }
 
-void OpenGLWidget::toggleOcclusionView(bool enable)
+void OpenGL3DImageWidget::toggleOcclusionView(bool enable)
 {
     bToggleOcclusionView = enable;
     update();
 }
 
-void OpenGLWidget::toggleNormalView(bool enable)
+void OpenGL3DImageWidget::toggleNormalView(bool enable)
 {
     bToggleNormalView = enable;
     update();
 }
 
-void OpenGLWidget::toggleHeightView(bool enable)
+void OpenGL3DImageWidget::toggleHeightView(bool enable)
 {
     bToggleHeightView = enable;
     update();
 }
 
-void OpenGLWidget::toggleRoughnessView(bool enable)
+void OpenGL3DImageWidget::toggleRoughnessView(bool enable)
 {
     bToggleRoughnessView = enable;
     update();
 
 }
-void OpenGLWidget::toggleMetallicView(bool enable)
+void OpenGL3DImageWidget::toggleMetallicView(bool enable)
 {
     bToggleMetallicView = enable;
     update();
 }
 
-void OpenGLWidget::setCameraMouseSensitivity(int value)
+void OpenGL3DImageWidget::setCameraMouseSensitivity(int value)
 {
     camera.setMouseSensitivity(value);
 }
 
-void OpenGLWidget::resetCameraPosition()
+void OpenGL3DImageWidget::resetCameraPosition()
 {
     camera.reset();
     newCamera.reset();
@@ -181,7 +181,7 @@ void OpenGLWidget::resetCameraPosition()
     update();
 }
 
-void OpenGLWidget::loadMeshFromFile()
+void OpenGL3DImageWidget::loadMeshFromFile()
 {
     QStringList picturesLocations;
     if(recentMeshDir == NULL )
@@ -200,7 +200,7 @@ void OpenGLWidget::loadMeshFromFile()
     {}
 }
 
-bool OpenGLWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
+bool OpenGL3DImageWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
 {
     // Load new mesh.
     Mesh* new_mesh;
@@ -242,12 +242,12 @@ bool OpenGLWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
     return true;
 }
 
-void OpenGLWidget::chooseMeshFile(const QString &fileName)
+void OpenGL3DImageWidget::chooseMeshFile(const QString &fileName)
 {
     loadMeshFile(fileName,true);
 }
 
-void OpenGLWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
+void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
 {
     QStringList list;
     makeCurrent();
@@ -276,13 +276,13 @@ void OpenGLWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
         qDebug() << "Skipping OpenGLWidget repainting during first Env. maps. load.";
 }
 
-void OpenGLWidget::updatePerformanceSettings(Display3DSettings settings)
+void OpenGL3DImageWidget::updatePerformanceSettings(Display3DSettings settings)
 {
     display3Dparameters = settings;
     update();
 }
 
-void OpenGLWidget::recompileRenderShader()
+void OpenGL3DImageWidget::recompileRenderShader()
 {
     makeCurrent();
     currentShader->reparseShader();
@@ -383,7 +383,7 @@ void OpenGLWidget::recompileRenderShader()
     update();
 }
 
-void OpenGLWidget::initializeGL()
+void OpenGL3DImageWidget::initializeGL()
 {
     initializeOpenGLFunctions();
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -678,7 +678,7 @@ void OpenGLWidget::initializeGL()
     emit readyGL();
 }
 
-void OpenGLWidget::paintGL()
+void OpenGL3DImageWidget::paintGL()
 {
     glReadBuffer(GL_BACK);
 
@@ -898,7 +898,7 @@ void OpenGLWidget::paintGL()
     emit renderGL();
 }
 
-void OpenGLWidget::resizeGL(int width, int height)
+void OpenGL3DImageWidget::resizeGL(int width, int height)
 {
     ratio = float(width)/height;
     resizeFBOs();
@@ -906,7 +906,7 @@ void OpenGLWidget::resizeGL(int width, int height)
     GLCHK( glViewport(0, 0, width, height) );
 }
 
-void OpenGLWidget::mousePressEvent(QMouseEvent *event)
+void OpenGL3DImageWidget::mousePressEvent(QMouseEvent *event)
 {
     //OpenGLWidgetBase::mousePressEvent(event);
     lastCursorPos = event->pos();
@@ -970,13 +970,13 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
+void OpenGL3DImageWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     setCursor(Qt::PointingHandCursor);
     event->accept();
 }
 
-void OpenGLWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
+void OpenGL3DImageWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
 {
     if ((buttons & Qt::LeftButton) && (buttons & Qt::RightButton))
     {}
@@ -1007,7 +1007,7 @@ void OpenGLWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::M
     }
 }
 
-void OpenGLWidget::wheelEvent(QWheelEvent *event)
+void OpenGL3DImageWidget::wheelEvent(QWheelEvent *event)
 {
     int numDegrees = -event->delta();
     camera.mouseWheelMove((numDegrees));
@@ -1015,7 +1015,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     update();
 }
 
-void OpenGLWidget::dropEvent(QDropEvent *event)
+void OpenGL3DImageWidget::dropEvent(QDropEvent *event)
 {
 
     QList<QUrl> droppedUrls = event->mimeData()->urls();
@@ -1028,7 +1028,7 @@ void OpenGLWidget::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 }
 
-void OpenGLWidget::dragEnterEvent(QDragEnterEvent *event)
+void OpenGL3DImageWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     if(event->mimeData()->hasText())
     {
@@ -1036,7 +1036,7 @@ void OpenGLWidget::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void OpenGLWidget::resizeFBOs()
+void OpenGL3DImageWidget::resizeFBOs()
 {
     if(colorFBO != NULL) delete colorFBO;
     colorFBO = new OpenGLFramebufferObject(width(),height());
@@ -1072,7 +1072,7 @@ void OpenGLWidget::resizeFBOs()
     }
 }
 
-void OpenGLWidget::deleteFBOs()
+void OpenGL3DImageWidget::deleteFBOs()
 {
     colorFBO->bindDefault();
     delete colorFBO;
@@ -1092,7 +1092,7 @@ void OpenGLWidget::deleteFBOs()
     }
 }
 
-void OpenGLWidget::applyNormalFilter(GLuint input_tex)
+void OpenGL3DImageWidget::applyNormalFilter(GLuint input_tex)
 {
     filter_program = post_processing_programs["NORMAL_FILTER"];
     filter_program->bind();
@@ -1104,7 +1104,7 @@ void OpenGLWidget::applyNormalFilter(GLuint input_tex)
     GLCHK( quad_mesh->drawMesh(true) );
 }
 
-void OpenGLWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject* dst)
+void OpenGL3DImageWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject* dst)
 {
     filter_program = post_processing_programs["NORMAL_FILTER"];
     filter_program->bind();
@@ -1118,7 +1118,7 @@ void OpenGLWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject* dst)
     dst->bindDefault();
 }
 
-void OpenGLWidget::applyGaussFilter(
+void OpenGL3DImageWidget::applyGaussFilter(
         GLuint input_tex,
         QOpenGLFramebufferObject* auxFBO,
         QOpenGLFramebufferObject* outputFBO, float radius)
@@ -1147,7 +1147,7 @@ void OpenGLWidget::applyGaussFilter(
     outputFBO->bindDefault();
 }
 
-void OpenGLWidget::applyDofFilter(
+void OpenGL3DImageWidget::applyDofFilter(
         GLuint input_tex,
         QOpenGLFramebufferObject* outputFBO)
 {
@@ -1186,7 +1186,7 @@ void OpenGLWidget::applyDofFilter(
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGLWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
+void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
     if(!settings3D->Bloom.EnableEffect) return;
@@ -1232,7 +1232,7 @@ void OpenGLWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
     copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
 }
 
-void OpenGLWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
+void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
     if(!settings3D->ToneMapping.EnableEffect) return;
@@ -1293,7 +1293,7 @@ void OpenGLWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObject* ou
     copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
 }
 
-void OpenGLWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
+void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
     if(!settings3D->Flares.EnableEffect) return;
@@ -1401,13 +1401,13 @@ void OpenGLWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObje
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-QPointF OpenGLWidget::pixelPosToViewPos(const QPointF& p)
+QPointF OpenGL3DImageWidget::pixelPosToViewPos(const QPointF& p)
 {
     return QPointF(2.0 * float(p.x()) / width() - 1.0,
                    1.0 - 2.0 * float(p.y()) / height());
 }
 
-int OpenGLWidget::glhUnProjectf(float& winx, float& winy, float& winz,
+int OpenGL3DImageWidget::glhUnProjectf(float& winx, float& winy, float& winz,
                             QMatrix4x4& modelview, QMatrix4x4& projection,
                             QVector4D& objectCoordinate)
 {
@@ -1436,7 +1436,7 @@ int OpenGLWidget::glhUnProjectf(float& winx, float& winy, float& winz,
     return 1;
 }
 
-void OpenGLWidget::bakeEnviromentalMaps()
+void OpenGL3DImageWidget::bakeEnviromentalMaps()
 {
     if(bDiffuseMapBaked) return;
     bDiffuseMapBaked = true;
