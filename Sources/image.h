@@ -56,6 +56,7 @@ public:
 
     void copySettings(const Image& source);
     void init(QImage& image);
+    QOpenGLFramebufferObject* getFBO();
     void updateTextureFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
     // Convert FBO image to QImage

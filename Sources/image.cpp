@@ -99,6 +99,11 @@ void Image::init(QImage& image)
     GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
 }
 
+QOpenGLFramebufferObject* Image::getFBO()
+{
+    return fbo;
+}
+
 void Image::updateTextureFromFBO(QOpenGLFramebufferObject* sourceFBO)
 {
     openGLWidget->makeCurrent();
