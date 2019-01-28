@@ -87,6 +87,9 @@ public:
     float getConversionHNDepth();
     void setConversionHNDepth(float newDepth);
 
+    QString getImageName();
+    void setImageName(const QString& newName);
+
     // Base to others settings
     static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
@@ -128,6 +131,8 @@ private:
     BaseMapConvLevelProperties baseMapConvLevelProperties[4];
     // Input image type
     ImageType inputImageType;
+
+    QString imageName;
 };
 
 #endif // IMAGE_H

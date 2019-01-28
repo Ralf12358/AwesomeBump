@@ -375,7 +375,7 @@ bool ImageWidget::loadFile(const QString &fileName)
     {
         qDebug() << "<FormImageProp> Open image:" << fileName;
 
-        imageName = fileInfo.baseName();
+        imageProp.getImageName() = fileInfo.baseName();
         (*recentDir).setPath(fileName);
         imageProp.init(image);
 
@@ -698,7 +698,7 @@ void ImageWidget::loadPredefinedGrunge(QString image)
 
 void ImageWidget::pasteImageFromClipboard(const QImage& image)
 {
-    imageName = "clipboard_image";
+    imageProp.setImageName("clipboard_image");
     imageProp.init(image);
     emit imageLoaded(image.width(), image.height());
     if(imageProp.getTextureType() == GRUNGE_TEXTURE)

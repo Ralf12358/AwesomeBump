@@ -236,3 +236,14 @@ void Image::setConversionHNDepth(float newDepth)
 {
     conversionHNDepth = newDepth;
 }
+
+QString Image::getImageName()
+{
+    return imageName;
+}
+
+void Image::setImageName(const QString& newName)
+{
+    imageName = newName;
+}
+

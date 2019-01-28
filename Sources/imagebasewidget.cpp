@@ -57,7 +57,7 @@ void ImageBaseWidget::open()
 void ImageBaseWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
-            imageName +
+            imageProp.getImageName() +
             PostfixNames::getPostfix(imageProp.getTextureType()) +
             PostfixNames::outputFormat;
     saveFile(fullFileName);
@@ -66,7 +66,7 @@ void ImageBaseWidget::saveFileToDir(const QString &dir)
 void ImageBaseWidget::saveImageToDir(const QString& dir,const QImage& image)
 {
     QString fullFileName = dir + "/" +
-            imageName +
+            imageProp.getImageName() +
             PostfixNames::getPostfix(imageProp.getTextureType()) +
             PostfixNames::outputFormat;
 
@@ -83,14 +83,14 @@ void ImageBaseWidget::saveImageToDir(const QString& dir,const QImage& image)
         image.save(fullFileName);
 }
 
-void ImageBaseWidget::setImageName(QString name)
+void ImageBaseWidget::setImageName(const QString& name)
 {
-    imageName = name;
+    imageProp.setImageName(name);
 }
 
 QString ImageBaseWidget::getImageName()
 {
-    return imageName;
+    return imageProp.getImageName();
 }
 
 void  ImageBaseWidget::setImageType(TextureType imageType)
@@ -109,7 +109,7 @@ void ImageBaseWidget::save()
     {
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
-                imageName +
+                imageProp.getImageName() +
                 PostfixNames::getPostfix(imageProp.getTextureType()) +
                 PostfixNames::outputFormat;
         picturesLocations << fullFileName;

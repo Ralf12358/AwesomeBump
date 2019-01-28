@@ -22,7 +22,7 @@ public:
     ~ImageBaseWidget();
     void keyPressEvent(QKeyEvent *event);
     virtual Image* getImage(){return &imageProp;}
-    virtual void setImageName(QString name);
+    virtual void setImageName(const QString &name);
     virtual QString getImageName();
     virtual void saveFileToDir(const QString& dir);
     virtual void saveImageToDir(const QString& dir, const QImage& image);
@@ -36,7 +36,6 @@ protected:
     virtual void pasteImageFromClipboard(const QImage& image) = 0;
     virtual bool loadFile(const QString& file) = 0;
     virtual bool saveFile(const QString &fileName);
-    QString imageName;
 
 public slots:
     virtual void open();//open dialog
