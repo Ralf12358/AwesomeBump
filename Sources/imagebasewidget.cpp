@@ -58,7 +58,7 @@ void ImageBaseWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            PostfixNames::getPostfix(imageProp.imageType) +
+            PostfixNames::getPostfix(imageProp.textureType) +
             PostfixNames::outputFormat;
     saveFile(fullFileName);
 }
@@ -67,7 +67,7 @@ void ImageBaseWidget::saveImageToDir(const QString &dir,QImage& image)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            PostfixNames::getPostfix(imageProp.imageType) +
+            PostfixNames::getPostfix(imageProp.textureType) +
             PostfixNames::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
@@ -95,7 +95,7 @@ QString ImageBaseWidget::getImageName()
 
 void  ImageBaseWidget::setImageType(TextureType imageType)
 {
-    imageProp.imageType = imageType;
+    imageProp.textureType = imageType;
 }
 
 void ImageBaseWidget::save()
@@ -110,7 +110,7 @@ void ImageBaseWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 imageName +
-                PostfixNames::getPostfix(imageProp.imageType) +
+                PostfixNames::getPostfix(imageProp.textureType) +
                 PostfixNames::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "<FormImageProp>:: Saving to file:" << fullFileName;
@@ -134,7 +134,7 @@ bool ImageBaseWidget::saveFile(const QString &fileName)
 
     QFileInfo fileInfo(fileName);
     (*recentDir).setPath(fileInfo.absolutePath());
-    image = imageProp.getImage();
+    image = imageProp.getFBOImage();
 
     if( PostfixNames::outputFormat.compare(".tga") == 0
             || fileInfo.completeSuffix().compare("tga") == 0 )
@@ -203,7 +203,7 @@ void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
             if (mimeData->hasImage())
             {
                 qDebug() << "<FormImageProp> Image :" +
-                            PostfixNames::getTextureName(imageProp.imageType) +
+                            PostfixNames::getTextureName(imageProp.textureType) +
                             " loaded from clipboard.";
                 QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
                 QImage image = pixmap.toImage();
@@ -215,11 +215,11 @@ void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
         if(keySequenceName.compare("Ctrl+C",Qt::CaseInsensitive) == 0)
         {
             qDebug() << "<FormImageProp> Image :" +
-                        PostfixNames::getTextureName(imageProp.imageType) +
+                        PostfixNames::getTextureName(imageProp.textureType) +
                         " copied to clipboard.";
 
             QApplication::processEvents();
-            image = imageProp.getImage();
+            image = imageProp.getFBOImage();
             QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
         } // End of Ctrl + C (copy To clipboard)
     }

@@ -99,24 +99,24 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGLWidget->setPointerToTexture(&diffuseImageWidget  ->getImageProporties()->fbo, DIFFUSE_TEXTURE);
-    openGLWidget->setPointerToTexture(&normalImageWidget   ->getImageProporties()->fbo, NORMAL_TEXTURE);
-    openGLWidget->setPointerToTexture(&specularImageWidget ->getImageProporties()->fbo, SPECULAR_TEXTURE);
-    openGLWidget->setPointerToTexture(&heightImageWidget   ->getImageProporties()->fbo, HEIGHT_TEXTURE);
-    openGLWidget->setPointerToTexture(&occlusionImageWidget->getImageProporties()->fbo, OCCLUSION_TEXTURE);
-    openGLWidget->setPointerToTexture(&roughnessImageWidget->getImageProporties()->fbo, ROUGHNESS_TEXTURE);
-    openGLWidget->setPointerToTexture(&metallicImageWidget ->getImageProporties()->fbo, METALLIC_TEXTURE);
-    openGLWidget->setPointerToTexture(&materialManager   ->getImageProporties()->fbo, MATERIAL_TEXTURE);
+    openGLWidget->setPointerToTexture(&diffuseImageWidget  ->getImage()->fbo, DIFFUSE_TEXTURE);
+    openGLWidget->setPointerToTexture(&normalImageWidget   ->getImage()->fbo, NORMAL_TEXTURE);
+    openGLWidget->setPointerToTexture(&specularImageWidget ->getImage()->fbo, SPECULAR_TEXTURE);
+    openGLWidget->setPointerToTexture(&heightImageWidget   ->getImage()->fbo, HEIGHT_TEXTURE);
+    openGLWidget->setPointerToTexture(&occlusionImageWidget->getImage()->fbo, OCCLUSION_TEXTURE);
+    openGLWidget->setPointerToTexture(&roughnessImageWidget->getImage()->fbo, ROUGHNESS_TEXTURE);
+    openGLWidget->setPointerToTexture(&metallicImageWidget ->getImage()->fbo, METALLIC_TEXTURE);
+    openGLWidget->setPointerToTexture(&materialManager   ->getImage()->fbo, MATERIAL_TEXTURE);
 
-    openGLImageEditor->targetImageDiffuse   = diffuseImageWidget  ->getImageProporties();
-    openGLImageEditor->targetImageNormal    = normalImageWidget   ->getImageProporties();
-    openGLImageEditor->targetImageSpecular  = specularImageWidget ->getImageProporties();
-    openGLImageEditor->targetImageHeight    = heightImageWidget   ->getImageProporties();
-    openGLImageEditor->targetImageOcclusion = occlusionImageWidget->getImageProporties();
-    openGLImageEditor->targetImageRoughness = roughnessImageWidget->getImageProporties();
-    openGLImageEditor->targetImageMetallic  = metallicImageWidget ->getImageProporties();
-    openGLImageEditor->targetImageGrunge    = grungeImageWidget   ->getImageProporties();
-    openGLImageEditor->targetImageMaterial  = materialManager   ->getImageProporties();
+    openGLImageEditor->targetImageDiffuse   = diffuseImageWidget  ->getImage();
+    openGLImageEditor->targetImageNormal    = normalImageWidget   ->getImage();
+    openGLImageEditor->targetImageSpecular  = specularImageWidget ->getImage();
+    openGLImageEditor->targetImageHeight    = heightImageWidget   ->getImage();
+    openGLImageEditor->targetImageOcclusion = occlusionImageWidget->getImage();
+    openGLImageEditor->targetImageRoughness = roughnessImageWidget->getImage();
+    openGLImageEditor->targetImageMetallic  = metallicImageWidget ->getImage();
+    openGLImageEditor->targetImageGrunge    = grungeImageWidget   ->getImage();
+    openGLImageEditor->targetImageMaterial  = materialManager   ->getImage();
 
     // Setup GUI
     qDebug() << "Initialization: GUI setup";
@@ -396,7 +396,7 @@ void MainWindow::initialiseWindow()
     materialManager    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
 
     // Set the active image
-    openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
 
     INIT_PROGRESS(90, "Updating main menu items.");
 
@@ -623,49 +623,49 @@ void MainWindow::showHideTextureTypes(bool)
     //qDebug() << "Toggle processing images";
 
     bool value = ui->checkBoxSaveDiffuse->isChecked();
-    diffuseImageWidget->getImageProporties()->bSkipProcessing = !value;
+    diffuseImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(DIFFUSE_TEXTURE, value);
     ui->pushButtonToggleDiffuse->setVisible(value);
     ui->pushButtonToggleDiffuse->setChecked(value);
     ui->actionShowDiffuseImage->setVisible(value);
 
     value = ui->checkBoxSaveNormal->isChecked();
-    normalImageWidget->getImageProporties()->bSkipProcessing = !value;
+    normalImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(NORMAL_TEXTURE, value);
     ui->pushButtonToggleNormal->setVisible(value);
     ui->pushButtonToggleNormal->setChecked(value);
     ui->actionShowNormalImage->setVisible(value);
 
     value = ui->checkBoxSaveHeight->isChecked();
-    occlusionImageWidget->getImageProporties()->bSkipProcessing = !value;
+    occlusionImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(OCCLUSION_TEXTURE, value);
     ui->pushButtonToggleOcclusion->setVisible(value);
     ui->pushButtonToggleOcclusion->setChecked(value);
     ui->actionShowOcclusiontImage->setVisible(value);
 
     value = ui->checkBoxSaveOcclusion->isChecked();
-    heightImageWidget->getImageProporties()->bSkipProcessing = !value;
+    heightImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(HEIGHT_TEXTURE, value);
     ui->pushButtonToggleHeight->setVisible(value);
     ui->pushButtonToggleHeight->setChecked(value);
     ui->actionShowHeightImage->setVisible(value);
 
     value = ui->checkBoxSaveSpecular->isChecked();
-    specularImageWidget->getImageProporties()->bSkipProcessing = !value;
+    specularImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(SPECULAR_TEXTURE, value);
     ui->pushButtonToggleSpecular->setVisible(value);
     ui->pushButtonToggleSpecular->setChecked(value);
     ui->actionShowSpecularImage->setVisible(value);
 
     value = ui->checkBoxSaveRoughness->isChecked();
-    roughnessImageWidget->getImageProporties()->bSkipProcessing = !value;
+    roughnessImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(ROUGHNESS_TEXTURE, value);
     ui->pushButtonToggleRoughness->setVisible(value);
     ui->pushButtonToggleRoughness->setChecked(value);
     ui->actionShowRoughnessImage->setVisible(value);
 
     value = ui->checkBoxSaveMetallic->isChecked();
-    metallicImageWidget->getImageProporties()->bSkipProcessing = !value;
+    metallicImageWidget->getImage()->bSkipProcessing = !value;
     ui->tabWidget->setTabEnabled(METALLIC_TEXTURE, value);
     ui->pushButtonToggleMetallic->setVisible(value);
     ui->pushButtonToggleMetallic->setChecked(value);
@@ -744,10 +744,10 @@ bool MainWindow::saveAllImages(const QString &dir)
         QCoreApplication::processEvents();
         openGLImageEditor->makeCurrent();
 
-        QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageWidget->getImageProporties()->fbo;
-        QOpenGLFramebufferObject *normalFBOImage   = normalImageWidget->getImageProporties()->fbo;
-        QOpenGLFramebufferObject *specularFBOImage = specularImageWidget->getImageProporties()->fbo;
-        QOpenGLFramebufferObject *heightFBOImage   = heightImageWidget->getImageProporties()->fbo;
+        QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageWidget->getImage()->fbo;
+        QOpenGLFramebufferObject *normalFBOImage   = normalImageWidget->getImage()->fbo;
+        QOpenGLFramebufferObject *specularFBOImage = specularImageWidget->getImage()->fbo;
+        QOpenGLFramebufferObject *heightFBOImage   = heightImageWidget->getImage()->fbo;
 
         QImage diffuseImage = diffuseFBOImage->toImage() ;
         QImage normalImage  = normalFBOImage->toImage();
@@ -850,7 +850,7 @@ void MainWindow::updateDiffuseImage()
     openGLImageEditor->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(specularImageWidget->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(specularImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -861,7 +861,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(roughnessImageWidget->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(roughnessImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -872,7 +872,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(metallicImageWidget->getImageProporties()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(metallicImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
@@ -891,7 +891,7 @@ void MainWindow::updateNormalImage()
     openGLImageEditor->repaint();
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HO_NO)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -917,7 +917,7 @@ void MainWindow::updateHeightImage()
     openGLImageEditor->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(normalImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(normalImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(NORMAL_TEXTURE);
@@ -928,7 +928,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(specularImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(specularImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -939,8 +939,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HI_NI||
-            occlusionImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HI_NI||
+            occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HO_NO)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -951,7 +951,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(roughnessImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(roughnessImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -962,7 +962,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode
-    if(metallicImageWidget->getImageProporties()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(metallicImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
@@ -997,7 +997,7 @@ void MainWindow::updateMetallicImage()
 
 void MainWindow::updateGrungeImage()
 {
-    bool test = (grungeImageWidget->getImageProporties()->properties->Grunge.ReplotAll == true);
+    bool test = (grungeImageWidget->getImage()->properties->Grunge.ReplotAll == true);
 
     // If replot enabled and grunge weight > 0 then replot all textures.
     if(test)
@@ -1014,8 +1014,8 @@ void MainWindow::updateGrungeImage()
 
 void MainWindow::updateImageInformation()
 {
-    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImageProporties()->fbo->width());
-    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImageProporties()->fbo->height());
+    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->fbo->width());
+    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->fbo->height());
 }
 
 void MainWindow::initializeGL()
@@ -1047,7 +1047,7 @@ void MainWindow::initializeGL()
         grungeImageWidget   ->setImageName(ui->lineEditOutputName->text());
 
         // Set the active image.
-        openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
     }
 }
 
@@ -1076,31 +1076,31 @@ void MainWindow::updateImage(int tType)
     switch(tType)
     {
     case DIFFUSE_TEXTURE:
-        openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
         break;
     case NORMAL_TEXTURE:
-        openGLImageEditor->setActiveImage(normalImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(normalImageWidget->getImage());
         break;
     case SPECULAR_TEXTURE:
-        openGLImageEditor->setActiveImage(specularImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(specularImageWidget->getImage());
         break;
     case HEIGHT_TEXTURE:
-        openGLImageEditor->setActiveImage(heightImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(heightImageWidget->getImage());
         break;
     case OCCLUSION_TEXTURE:
-        openGLImageEditor->setActiveImage(occlusionImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(occlusionImageWidget->getImage());
         break;
     case ROUGHNESS_TEXTURE:
-        openGLImageEditor->setActiveImage(roughnessImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(roughnessImageWidget->getImage());
         break;
     case METALLIC_TEXTURE:
-        openGLImageEditor->setActiveImage(metallicImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(metallicImageWidget->getImage());
         break;
     case MATERIAL_TEXTURE:
-        openGLImageEditor->setActiveImage(materialManager->getImageProporties());
+        openGLImageEditor->setActiveImage(materialManager->getImage());
         break;
     case GRUNGE_TEXTURE:
-        openGLImageEditor->setActiveImage(grungeImageWidget->getImageProporties());
+        openGLImageEditor->setActiveImage(grungeImageWidget->getImage());
         break;
     default:
         return;
@@ -1127,7 +1127,7 @@ void MainWindow::applyResizeImage()
     int height = ui->comboBoxResizeHeight->currentText().toInt();
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
 
-    int materiaIndex = Image::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
 
     Image* lastActive = openGLImageEditor->getActiveImage();
@@ -1148,7 +1148,7 @@ void MainWindow::applyResizeImage()
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    Image::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndex = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1160,7 +1160,7 @@ void MainWindow::applyResizeImage(int width, int height)
     QCoreApplication::processEvents();
 
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = Image::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
     Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
@@ -1179,7 +1179,7 @@ void MainWindow::applyResizeImage(int width, int height)
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    Image::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndex = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1207,11 +1207,11 @@ void MainWindow::applyScaleImage()
     QCoreApplication::processEvents();
     float scale_width   = ui->doubleSpinBoxRescaleWidth ->value();
     float scale_height  = ui->doubleSpinBoxRescaleHeight->value();
-    int width  = diffuseImageWidget->getImageProporties()->scr_tex_width *scale_width;
-    int height = diffuseImageWidget->getImageProporties()->scr_tex_height*scale_height;
+    int width  = diffuseImageWidget->getImage()->textureWidth *scale_width;
+    int height = diffuseImageWidget->getImage()->textureHeight*scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
-    int materiaIndex = Image::currentMaterialIndeks;
+    int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
     Image* lastActive = openGLImageEditor->getActiveImage();
     openGLImageEditor->enableShadowRender(true);
@@ -1227,7 +1227,7 @@ void MainWindow::applyScaleImage()
     openGLWidget->repaint();
 
     // Replot all material group after image resize.
-    Image::currentMaterialIndeks = materiaIndex;
+    Image::currentMaterialIndex = materiaIndex;
     if(materialManager->isEnabled())
     {
         materialManager->toggleMaterials(true);
@@ -1237,7 +1237,7 @@ void MainWindow::applyScaleImage()
 void MainWindow::applyCurrentUVsTransformations()
 {
     // Get current diffuse image (with applied UVs transformations).
-    QImage diffuseImage = diffuseImageWidget->getImageProporties()->getImage();
+    QImage diffuseImage = diffuseImageWidget->getImage()->getFBOImage();
     // Reset all the transformations
     ui->comboBoxSeamlessMode->setCurrentIndex(0);
     selectSeamlessMode(0);
@@ -1245,10 +1245,10 @@ void MainWindow::applyCurrentUVsTransformations()
     // Set as default.
     diffuseImageWidget->setImage(diffuseImage);
     // Generate all textures based on new image.
-    bool bConvValue = diffuseImageWidget->getImageProporties()->bConversionBaseMap;
-    diffuseImageWidget->getImageProporties()->bConversionBaseMap = true;
+    bool bConvValue = diffuseImageWidget->getImage()->bConversionBaseMap;
+    diffuseImageWidget->getImage()->bConversionBaseMap = true;
     convertFromBase();
-    diffuseImageWidget->getImageProporties()->bConversionBaseMap = bConvValue;
+    diffuseImageWidget->getImage()->bConversionBaseMap = bConvValue;
 }
 
 void MainWindow::selectSeamlessMode(int mode)
@@ -1293,16 +1293,16 @@ void MainWindow::selectContrastInputImage(int mode)
     switch(mode)
     {
     case(0):
-        Image::seamlessContrastInputType = INPUT_FROM_HEIGHT_INPUT;
+        Image::seamlessContrastImageType = INPUT_FROM_HEIGHT_INPUT;
         break;
     case(1):
-        Image::seamlessContrastInputType = INPUT_FROM_DIFFUSE_INPUT;
+        Image::seamlessContrastImageType = INPUT_FROM_DIFFUSE_INPUT;
         break;
     case(2):
-        Image::seamlessContrastInputType = INPUT_FROM_NORMAL_INPUT;
+        Image::seamlessContrastImageType = INPUT_FROM_NORMAL_INPUT;
         break;
     case(3):
-        Image::seamlessContrastInputType = INPUT_FROM_OCCLUSION_INPUT;
+        Image::seamlessContrastImageType = INPUT_FROM_OCCLUSION_INPUT;
         break;
     default:
         break;
@@ -1399,16 +1399,16 @@ void MainWindow::runBatch()
 
 void MainWindow::randomizeAngles()
 {
-    Image::seamlessRandomTiling.randomize();
+    Image::randomTilingMode.randomize();
     replotAllImages();
 }
 
 void MainWindow::resetRandomPatches()
 {
-    Image::seamlessRandomTiling = RandomTilingMode();
-    ui->horizontalSliderRandomPatchesRotate     ->setValue(Image::seamlessRandomTiling.common_phase);
-    ui->horizontalSliderRandomPatchesInnerRadius->setValue(Image::seamlessRandomTiling.inner_radius*100.0);
-    ui->horizontalSliderRandomPatchesOuterRadius->setValue(Image::seamlessRandomTiling.outer_radius*100.0);
+    Image::randomTilingMode = RandomTilingMode();
+    ui->horizontalSliderRandomPatchesRotate     ->setValue(Image::randomTilingMode.common_phase);
+    ui->horizontalSliderRandomPatchesInnerRadius->setValue(Image::randomTilingMode.inner_radius*100.0);
+    ui->horizontalSliderRandomPatchesOuterRadius->setValue(Image::randomTilingMode.outer_radius*100.0);
     updateSpinBoxes(0);
     replotAllImages();
 }
@@ -1436,10 +1436,10 @@ void MainWindow::convertFromHtoN()
 {
     openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);
     openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
     openGLImageEditor->enableShadowRender(true);
     openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);
-    openGLImageEditor->setActiveImage(normalImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
     openGLImageEditor->enableShadowRender(false);
     openGLImageEditor->setConversionType(CONVERT_NONE);
 
@@ -1452,13 +1452,13 @@ void MainWindow::convertFromNtoH()
 {
     openGLImageEditor->setConversionType(CONVERT_FROM_H_TO_N);// fake conversion
     openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
     openGLImageEditor->setConversionType(CONVERT_FROM_N_TO_H);
     openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(normalImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
     openGLImageEditor->setConversionType(CONVERT_FROM_N_TO_H);
     openGLImageEditor->enableShadowRender(true);
-    openGLImageEditor->setActiveImage(heightImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
     openGLImageEditor->enableShadowRender(false);
     replotAllImages();
 
@@ -1468,7 +1468,7 @@ void MainWindow::convertFromNtoH()
 void MainWindow::convertFromBase()
 {
     Image* lastActive = openGLImageEditor->getActiveImage();
-    openGLImageEditor->setActiveImage(diffuseImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(diffuseImageWidget->getImage());
     qDebug() << "Conversion from Base to others started";
     normalImageWidget   ->setImageName(diffuseImageWidget->getImageName());
     heightImageWidget   ->setImageName(diffuseImageWidget->getImageName());
@@ -1491,15 +1491,15 @@ void MainWindow::convertFromHNtoOcc()
     openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGLImageEditor->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(heightImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(heightImageWidget->getImage());
     openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGLImageEditor->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(normalImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(normalImageWidget->getImage());
     openGLImageEditor->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGLImageEditor->enableShadowRender(true);
 
-    openGLImageEditor->setActiveImage(occlusionImageWidget->getImageProporties());
+    openGLImageEditor->setActiveImage(occlusionImageWidget->getImage());
     openGLImageEditor->enableShadowRender(false);
 
     replotAllImages();
@@ -1511,11 +1511,11 @@ void MainWindow::updateSliders()
 {
     updateSpinBoxes(0);
     Image::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
-    Image::seamlessContrastStrenght          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
+    Image::seamlessContrastStrength          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
     Image::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
-    Image::seamlessRandomTiling.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
-    Image::seamlessRandomTiling.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
-    Image::seamlessRandomTiling.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
+    Image::randomTilingMode.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
+    Image::randomTilingMode.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
+    Image::randomTilingMode.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
 
     Image::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
     // Choose the proper mirror mode.

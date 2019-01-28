@@ -16,7 +16,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpe
     ui(new Ui::FormMaterialIndicesManager)
 {
     ui->setupUi(this);
-    imageProp.glWidget_ptr = qlW_ptr;
+    imageProp.openGLWidget = qlW_ptr;
 
     connect(ui->pushButtonOpenMaterialImage, SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonCopyToClipboard, SIGNAL (released()), this, SLOT (copyToClipboard()));
@@ -26,7 +26,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpe
 
     ui->groupBox->setDisabled(true);
     setAcceptDrops(true);
-    getImageProporties()->imageType = MATERIAL_TEXTURE;
+    getImage()->textureType = MATERIAL_TEXTURE;
 }
 
 FormMaterialIndicesManager::~FormMaterialIndicesManager()
@@ -37,20 +37,20 @@ FormMaterialIndicesManager::~FormMaterialIndicesManager()
 
 bool FormMaterialIndicesManager::isEnabled()
 {
-    return (Image::currentMaterialIndeks != MATERIALS_DISABLED);
+    return (Image::currentMaterialIndex != MATERIALS_DISABLED);
 }
 
 void FormMaterialIndicesManager::disableMaterials()
 {
-    Image::currentMaterialIndeks = MATERIALS_DISABLED;
+    Image::currentMaterialIndex = MATERIALS_DISABLED;
 }
 
 void FormMaterialIndicesManager::setImage(QImage _image)
 {
-    if (imageProp.glWidget_ptr->isValid())
+    if (imageProp.openGLWidget->isValid())
     {
         // Remember the last id.
-        int mIndex = Image::currentMaterialIndeks;
+        int mIndex = Image::currentMaterialIndex;
         if(updateMaterials(_image))
         {
             image = _image;
@@ -58,7 +58,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
             emit materialChanged();
         }
 
-        Image::currentMaterialIndeks = mIndex;
+        Image::currentMaterialIndex = mIndex;
     }
     else
         qDebug() << Q_FUNC_INFO << "Invalid context.";
@@ -130,7 +130,7 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
     ui->listWidgetMaterialIndices->item(lastMaterialIndex)->setText(cText+" (selected material)");
 
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    Image::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    Image::currentMaterialIndex = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     bSkipUpdating = false;
 
@@ -154,7 +154,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
 
     // Update current mask color.
     QColor bgColor = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->backgroundColor();
-    Image::currentMaterialIndeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+    Image::currentMaterialIndex = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
 
     // Load different material.
     m_name = ui->listWidgetMaterialIndices->item(index)->text();
@@ -199,16 +199,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
     (*ImageWidget::recentDir).setPath(fileName);
 
-    int mIndex = Image::currentMaterialIndeks;
+    int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(_image))
     {
         image = _image;
         imageProp.init(image);
         emit materialChanged();
-        Image::currentMaterialIndeks = mIndex;
+        Image::currentMaterialIndex = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(Image::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -218,16 +218,16 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 
 void FormMaterialIndicesManager::pasteImageFromClipboard(QImage& _image)
 {
-    int mIndex = Image::currentMaterialIndeks;
+    int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(_image))
     {
         image    = _image;
         imageProp.init(image);
         emit materialChanged();
-        Image::currentMaterialIndeks = mIndex;
+        Image::currentMaterialIndex = mIndex;
         emit imageLoaded(image.width(),image.height());
         // Repaint all materials.
-        if(Image::currentMaterialIndeks != MATERIALS_DISABLED)
+        if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
             toggleMaterials(true);
         }
@@ -239,7 +239,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
     if(toggle == false)
     {
         // Render normally.
-        Image::currentMaterialIndeks = MATERIALS_DISABLED;
+        Image::currentMaterialIndex = MATERIALS_DISABLED;
         emit materialChanged();
     }
     else
@@ -261,7 +261,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
 void FormMaterialIndicesManager::chooseMaterialByColor(QColor color)
 {
     // Check if materials are enabled.
-    if(Image::currentMaterialIndeks == MATERIALS_DISABLED) return;
+    if(Image::currentMaterialIndex == MATERIALS_DISABLED) return;
 
     bool bColorFound = false;
     // Look for the color in materials.
@@ -303,7 +303,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(imageProp.imageType) +
+                    PostfixNames::getTextureName(imageProp.textureType) +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage image = pixmap.toImage();
@@ -314,10 +314,10 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(imageProp.imageType) +
+                PostfixNames::getTextureName(imageProp.textureType) +
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    image = imageProp.getImage();
+    image = imageProp.getFBOImage();
     QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
 }

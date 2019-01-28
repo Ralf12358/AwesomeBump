@@ -21,7 +21,7 @@ public:
     ImageBaseWidget(QWidget *parent = 0);
     ~ImageBaseWidget();
     void keyPressEvent(QKeyEvent *event);
-    virtual Image* getImageProporties(){return &imageProp;}
+    virtual Image* getImage(){return &imageProp;}
     virtual void setImageName(QString name);
     virtual QString getImageName();
     virtual void saveFileToDir(const QString &dir);
