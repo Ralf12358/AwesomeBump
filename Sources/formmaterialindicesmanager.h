@@ -35,7 +35,13 @@ public:
     // just pointers to images
     ImageWidget* imagesPointers[7];
 
+signals:
+    void materialChanged();
+    void imageLoaded(int width,int height);
+    void materialsToggled(bool);
+
 public slots:
+    void open();
     void changeMaterial(int index);
     void pasteFromClipboard();
     void copyToClipboard();
@@ -43,11 +49,6 @@ public slots:
     void toggleMaterials(bool toggle);
     // Takes a color then searches for similar in materials table.
     void chooseMaterialByColor(QColor color);
-
-signals:
-    void materialChanged();
-    void imageLoaded(int width,int height);
-    void materialsToggled(bool);
 
 protected:
     bool loadFile(const QString &fileName);

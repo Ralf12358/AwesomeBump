@@ -135,6 +135,33 @@ bool FormMaterialIndicesManager::updateMaterials(const QImage& qImage)
     return true;
 }
 
+void FormMaterialIndicesManager::open()
+{
+    QStringList picturesLocations;
+    //if(recentDir == NULL)
+        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    //else
+    //    picturesLocations << recentDir->absolutePath();
+
+    QFileDialog dialog(
+                this,
+                tr("Open File"),
+                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
+                tr("All Images (*.png *.jpg  *.tga *.jpeg *.bmp  *.tif);;"
+                          "Images (*.png);;"
+                          "Images (*.jpg);;"
+                          "Images (*.tga);;"
+                          "Images (*.jpeg);;"
+                          "Images (*.bmp);;"
+                          "Images (*.tif);;"
+                          "All files (*.*)"));
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    while (dialog.exec() == QDialog::Accepted &&
+           !loadFile(dialog.selectedFiles().first()))
+    {}
+}
+
 void FormMaterialIndicesManager::changeMaterial(int index)
 {
     if(bSkipUpdating) return;
