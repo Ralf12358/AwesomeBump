@@ -4,7 +4,9 @@
 #include "openglerrorcheck.h"
 
 OpenGLImageEditor::OpenGLImageEditor(QWidget *parent) :
-    OpenGLWidgetBase(parent)
+    QOpenGLWidget(parent),
+    mouseUpdateIsQueued(false),
+    blockMouseMovement(false)
 {
     bShadowRender         = false;
     bSkipProcessing       = false;
@@ -3040,7 +3042,12 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
 
 void OpenGLImageEditor::mousePressEvent(QMouseEvent *event)
 {
-    OpenGLWidgetBase::mousePressEvent(event);
+    //OpenGLWidgetBase::mousePressEvent(event);
+    lastCursorPos = event->pos();
+
+    // Reset the mouse handling state with, to avoid a bad state
+    blockMouseMovement = false;
+    mouseUpdateIsQueued = false;
 
     bSkipProcessing = true;
     draggingCorner = -1;

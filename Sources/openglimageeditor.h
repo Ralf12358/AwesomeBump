@@ -1,8 +1,8 @@
 #ifndef OPENGLIMAGEEDITOR_H
 #define OPENGLIMAGEEDITOR_H
 
+#include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_5_Core>
-#include "openglwidgetbase.h"
 
 #include "image.h"
 
@@ -38,7 +38,7 @@ enum UVManipulationMethods
     UV_SCALE_XY
 };
 
-class OpenGLImageEditor : public OpenGLWidgetBase, protected QOpenGLFunctions_4_5_Core
+class OpenGLImageEditor : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
 
@@ -284,6 +284,10 @@ private:
     // Rendering variables
     // Define if OpenGL is currently rendering some textures.
     bool bRendering;
+
+    QPoint lastCursorPos;
+    bool mouseUpdateIsQueued;
+    bool blockMouseMovement;
 };
 
 #endif // OPENGLIMAGEEDITOR_H

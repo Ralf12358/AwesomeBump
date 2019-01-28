@@ -10,7 +10,10 @@
 QDir* OpenGLWidget::recentMeshDir = NULL;
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
-    OpenGLWidgetBase(parent)
+    QOpenGLWidget(parent),
+    mouseUpdateIsQueued(false),
+    blockMouseMovement(false),
+    keyPressed((Qt::Key)0)
 {
     setAcceptDrops(true);
     zoom                    = 60;
@@ -905,7 +908,12 @@ void OpenGLWidget::resizeGL(int width, int height)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    OpenGLWidgetBase::mousePressEvent(event);
+    //OpenGLWidgetBase::mousePressEvent(event);
+    lastCursorPos = event->pos();
+
+    // Reset the mouse handling state with, to avoid a bad state
+    blockMouseMovement = false;
+    mouseUpdateIsQueued = false;
 
     setCursor(Qt::ClosedHandCursor);
     if (event->buttons() & Qt::RightButton)

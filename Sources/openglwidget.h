@@ -1,12 +1,12 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
+#include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 #include <QtMath>
 
-#include "openglwidgetbase.h"
 #include "opengltexturecube.h"
 #include "openglframebufferobject.h"
 #include "postfixnames.h"
@@ -20,7 +20,9 @@
 #define currentShader   Dialog3DGeneralSettings::currentRenderShader
 #define glslShadersList Dialog3DGeneralSettings::glslParsedShaders
 
-class OpenGLWidget : public OpenGLWidgetBase, protected QOpenGLExtraFunctions
+#define KEY_SHOW_MATERIALS Qt::Key_S
+
+class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 
@@ -37,6 +39,7 @@ signals:
     void readyGL();
     // Emit material index color.
     void materialColorPicked(QColor);
+    void changeCamPositionApplied(bool);
 
 public slots:
     void toggleDiffuseView(bool);
@@ -170,6 +173,11 @@ private:
     QOpenGLTexture *lensFlareColorsTexture;
     QOpenGLTexture *lensDirtTexture;
     QOpenGLTexture *lensStarTexture;
+
+    QPoint lastCursorPos;
+    bool mouseUpdateIsQueued;
+    bool blockMouseMovement;
+    Qt::Key keyPressed;
 
 public:
     static QDir* recentMeshDir;

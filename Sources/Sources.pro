@@ -85,7 +85,6 @@ HEADERS = \
     randomtilingmode.h \
     display3dsettings.h \
     basemapconvlevelproperties.h \
-    openglwidgetbase.h \
     openglframebufferobject.h \
     opengltexturecube.h \
     openglimageeditor.h \
@@ -124,7 +123,6 @@ SOURCES = \
     randomtilingmode.cpp \
     display3dsettings.cpp \
     basemapconvlevelproperties.cpp \
-    openglwidgetbase.cpp \
     openglframebufferobject.cpp \
     opengltexturecube.cpp \
     openglimageeditor.cpp \
