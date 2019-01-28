@@ -985,10 +985,15 @@ void OpenGL2DImageWidget::resizeGL(int width, int height)
     resetView();
 }
 
-void OpenGL2DImageWidget::setActiveImage(Image *ptr)
+void OpenGL2DImageWidget::setActiveImage(Image *image)
 {
-    activeImage = ptr;
+    activeImage = image;
     update();
+}
+
+Image* OpenGL2DImageWidget::getActiveImage()
+{
+    return activeImage;
 }
 
 void OpenGL2DImageWidget::enableShadowRender(bool enable)

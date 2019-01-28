@@ -1,5 +1,5 @@
-#ifndef OPENGLWIDGET_H
-#define OPENGLWIDGET_H
+#ifndef OPENGL3DIMAGEWIDGET_H
+#define OPENGL3DIMAGEWIDGET_H
 
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
@@ -183,4 +183,4 @@ public:
     static QDir* recentMeshDir;
 };
 
-#endif // OPENGLWIDGET_H
+#endif // OPENGL3DIMAGEWIDGET_H

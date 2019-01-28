@@ -2,6 +2,7 @@
 
 #include <QDebug>
 
+#include "opengl2dimagewidget.h"
 #include "openglerrorcheck.h"
 #include "openglframebufferobject.h"
 
@@ -10,13 +11,13 @@ float Image::seamlessSimpleModeRadius            = 0.5;
 float Image::seamlessContrastPower               = 0.0;
 float Image::seamlessContrastStrength            = 0.0;
 int Image::seamlessSimpleModeDirection           = 0; // xy
-ImageType Image::seamlessContrastImageType = INPUT_FROM_HEIGHT_INPUT;
+ImageType Image::seamlessContrastImageType       = INPUT_FROM_HEIGHT_INPUT;
 bool Image::bSeamlessTranslationsFirst           = true;
 int Image::seamlessMirroModeType                 = 0;
 bool Image::bConversionBaseMap                   = false;
 bool Image::bConversionBaseMapShowHeightTexture  = false;
-int Image::currentMaterialIndex                 = MATERIALS_DISABLED;
-RandomTilingMode Image::randomTilingMode     = RandomTilingMode();
+int Image::currentMaterialIndex                  = MATERIALS_DISABLED;
+RandomTilingMode Image::randomTilingMode         = RandomTilingMode();
 
 Image::Image()
 {
@@ -24,7 +25,7 @@ Image::Image()
     properties            = NULL;
     fbo                   = NULL;
     normalMixerInputTexture = 0;
-    openGLWidget          = NULL;
+    openGL2DImageWidget          = NULL;
     bFirstDraw            = true;
     texture            = 0;
     conversionHNDepth     = 2.0;
@@ -36,10 +37,10 @@ Image::Image()
 
 Image::~Image()
 {
-    if(openGLWidget != NULL)
+    if(openGL2DImageWidget != NULL)
     {
         qDebug() << Q_FUNC_INFO;
-        openGLWidget->makeCurrent();
+        openGL2DImageWidget->makeCurrent();
 
         if(normalMixerInputTexture)
             delete normalMixerInputTexture;
@@ -47,7 +48,7 @@ Image::~Image()
             delete texture;
         normalMixerInputTexture = 0;
         texture = 0;
-        openGLWidget = NULL;
+        openGL2DImageWidget = NULL;
         //qDebug() << "p=" << properties;
         if(properties != NULL ) delete properties;
         if(fbo        != NULL ) delete fbo;
@@ -71,7 +72,7 @@ void Image::init(const QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 
-    openGLWidget->makeCurrent();
+    openGL2DImageWidget->makeCurrent();
     if(texture)
         delete texture;
     //scr_tex_id = glWidget_ptr->bindTexture(image,GL_TEXTURE_2D);
@@ -99,14 +100,14 @@ void Image::init(const QImage& image)
     GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
 }
 
-QOpenGLWidget* Image::getOpenGLWidget()
+OpenGL2DImageWidget* Image::getOpenGL2DImageWidget()
 {
-    return openGLWidget;
+    return openGL2DImageWidget;
 }
 
-void Image::setOpenGLWidget(QOpenGLWidget* newWidget)
+void Image::setOpenGL2DImageWidget(OpenGL2DImageWidget* openGL2DImageWidget)
 {
-    openGLWidget = newWidget;
+    this->openGL2DImageWidget = openGL2DImageWidget;
 }
 
 QOpenGLFramebufferObject* Image::getFBO()
@@ -116,7 +117,7 @@ QOpenGLFramebufferObject* Image::getFBO()
 
 void Image::updateTextureFromFBO(QOpenGLFramebufferObject* sourceFBO)
 {
-    openGLWidget->makeCurrent();
+    openGL2DImageWidget->makeCurrent();
     if(texture)
         delete texture;
     QImage image = sourceFBO->toImage();
@@ -135,7 +136,7 @@ void Image::resizeFBO(int width, int height)
 
 QImage Image::getFBOImage()
 {
-    openGLWidget->makeCurrent();
+    openGL2DImageWidget->makeCurrent();
     return fbo->toImage();
 }
 
@@ -154,7 +155,7 @@ void Image::setTexture(const QImage& image)
     if(texture)
         delete texture;
     texture = new QOpenGLTexture(image);
-    openGLWidget->makeCurrent();
+    openGL2DImageWidget->makeCurrent();
     texture->bind();
 }
 
@@ -198,7 +199,7 @@ void Image::setNormalMixerInputTexture(const QImage& image)
     if(normalMixerInputTexture)
         delete normalMixerInputTexture;
     normalMixerInputTexture = new QOpenGLTexture(image);
-    openGLWidget->makeCurrent();
+    openGL2DImageWidget->makeCurrent();
     normalMixerInputTexture->bind();
 }
 

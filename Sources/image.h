@@ -2,7 +2,6 @@
 #define IMAGE_H
 
 #include <QImage>
-#include <QOpenGLWidget>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 
@@ -48,6 +47,8 @@ enum SeamlessMode
     SEAMLESS_RANDOM
 };
 
+class OpenGL2DImageWidget;
+
 class Image
 {
 public:
@@ -57,8 +58,8 @@ public:
     void copySettings(const Image *source);
     void init(const QImage &image);
 
-    QOpenGLWidget* getOpenGLWidget();
-    void setOpenGLWidget(QOpenGLWidget* newWidget);
+    OpenGL2DImageWidget* getOpenGL2DImageWidget();
+    void setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget);
 
     QOpenGLFramebufferObject* getFBO();
     void updateTextureFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
@@ -109,8 +110,8 @@ public:
 private:
     QtnPropertySetFormImageProp *properties;
     bool bSkipProcessing;
-    // Pointer to the GL context.
-    QOpenGLWidget *openGLWidget;
+    // Pointer to the OpenGL 2D Image.
+    OpenGL2DImageWidget *openGL2DImageWidget;
     // Output image
     QOpenGLFramebufferObject *fbo;
     // Id of texture loaded from image, from loaded file.

@@ -2,7 +2,6 @@
 #define FORMMATERIALINDICESMANAGER_H
 
 #include <QWidget>
-#include <QOpenGLWidget>
 #include <QImage>
 #include <QString>
 #include <QRgb>
@@ -22,14 +21,14 @@ class FormMaterialIndicesManager : public QWidget
     Q_OBJECT
 
 public:
-    FormMaterialIndicesManager(QWidget *parent = 0, QOpenGLWidget *qlW_ptr = 0);
+    FormMaterialIndicesManager(QWidget *parent = 0, OpenGL2DImageWidget *openGL2DImageWidget = 0);
     ~FormMaterialIndicesManager();
 
-    Image* getImage(){return &imageProp;}
-    void setImage(const QImage &image);
+    Image* getImage();
+    void setImage(const QImage &qImage);
 
     // Counts colors and manages material masking
-    bool updateMaterials(const QImage &image);
+    bool updateMaterials(const QImage &qImage);
     bool isEnabled();
     void disableMaterials();
 
@@ -52,7 +51,7 @@ signals:
 
 protected:
     bool loadFile(const QString &fileName);
-    void pasteImageFromClipboard(const QImage& image);
+    void pasteImageFromClipboard(const QImage& qImage);
 
     // Settings
     std::map<QString, Image> materialIndices[7];
@@ -62,7 +61,7 @@ protected:
     bool bSkipUpdating;
 
 private:
-    Image imageProp;
+    Image image;
 };
 
 #endif // FORMMATERIALINDICESMANAGER_H

@@ -19,14 +19,14 @@ class ImageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGLWidget, TextureType textureType);
+    explicit ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget, TextureType textureType);
     ~ImageWidget();
 
     Image* getImage();
     void setImage(const QImage& qImage);
     QString getImageName();
     void setImageName(const QString& name);
-    void setOpenGLWidget(QOpenGLWidget *openGLWidget);
+    void setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget);
     void setupPropertiesGUI();
     void reloadSettings();
     bool loadFile(const QString &fileName);

@@ -10,12 +10,12 @@
 #include "targaimage.h"
 #include "image.h"
 
-FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, QOpenGLWidget *qlW_ptr) :
+FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget) :
     QWidget(parent),
     ui(new Ui::FormMaterialIndicesManager)
 {
     ui->setupUi(this);
-    getImage()->setOpenGLWidget(qlW_ptr);
+    image.setOpenGL2DImageWidget(openGL2DImageWidget);
 
     connect(ui->pushButtonOpenMaterialImage, SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonCopyToClipboard, SIGNAL (released()), this, SLOT (copyToClipboard()));
@@ -25,7 +25,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, QOpenGLW
 
     ui->groupBox->setDisabled(true);
     setAcceptDrops(true);
-    getImage()->setTextureType(MATERIAL_TEXTURE);
+    image.setTextureType(MATERIAL_TEXTURE);
 }
 
 FormMaterialIndicesManager::~FormMaterialIndicesManager()
@@ -44,15 +44,20 @@ void FormMaterialIndicesManager::disableMaterials()
     Image::currentMaterialIndex = MATERIALS_DISABLED;
 }
 
-void FormMaterialIndicesManager::setImage(const QImage& image)
+Image* FormMaterialIndicesManager::getImage()
 {
-    if (getImage()->getOpenGLWidget()->isValid())
+    return &image;
+}
+
+void FormMaterialIndicesManager::setImage(const QImage& qImage)
+{
+    if (image.getOpenGL2DImageWidget()->isValid())
     {
         // Remember the last id.
         int mIndex = Image::currentMaterialIndex;
-        if(updateMaterials(image))
+        if(updateMaterials(qImage))
         {
-            getImage()->init(image);
+            image.init(qImage);
             emit materialChanged();
         }
 
@@ -62,17 +67,17 @@ void FormMaterialIndicesManager::setImage(const QImage& image)
         qDebug() << Q_FUNC_INFO << "Invalid context.";
 }
 
-bool FormMaterialIndicesManager::updateMaterials(const QImage& image)
+bool FormMaterialIndicesManager::updateMaterials(const QImage& qImage)
 {
     bSkipUpdating = true;
 
     // Calculate image color map.
     colorIndices.clear();
-    for(int w = 0 ; w < image.width() ; w++)
+    for(int w = 0 ; w < qImage.width() ; w++)
     {
-        for(int h = 0 ; h < image.height() ; h++)
+        for(int h = 0 ; h < qImage.height() ; h++)
         {
-            QRgb pixel = image.pixel(w,h);
+            QRgb pixel = qImage.pixel(w,h);
             QColor bgColor = QColor(pixel);
             int index = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
             colorIndices[index] = pixel;
@@ -171,21 +176,21 @@ void FormMaterialIndicesManager::changeMaterial(int index)
 bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
-    QImage image;
+    QImage qImage;
 
     // Targa support added.
     if(fileInfo.completeSuffix().compare("tga") == 0)
     {
         TargaImage tgaImage;
-        image = tgaImage.read(fileName);
+        qImage = tgaImage.read(fileName);
     }
     else
     {
         QImageReader loadedImage(fileName);
-        image = loadedImage.read();
+        qImage = loadedImage.read();
     }
 
-    if (image.isNull())
+    if (qImage.isNull())
     {
         QMessageBox::information(
                     this, QGuiApplication::applicationDisplayName(),
@@ -198,13 +203,13 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     (*ImageWidget::recentDir).setPath(fileName);
 
     int mIndex = Image::currentMaterialIndex;
-    if(updateMaterials(image))
+    if(updateMaterials(qImage))
     {
         //image = _image;
-        getImage()->init(image);
+        image.init(qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
-        emit imageLoaded(image.width(), image.height());
+        emit imageLoaded(qImage.width(), qImage.height());
         // Repaint all materials.
         if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
@@ -214,15 +219,15 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     return true;
 }
 
-void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& image)
+void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& qImage)
 {
     int mIndex = Image::currentMaterialIndex;
-    if(updateMaterials(image))
+    if(updateMaterials(qImage))
     {
-        getImage()->init(image);
+        image.init(qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
-        emit imageLoaded(image.width(), image.height());
+        emit imageLoaded(qImage.width(), qImage.height());
         // Repaint all materials.
         if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
@@ -300,21 +305,21 @@ void FormMaterialIndicesManager::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(getImage()->getTextureType()) +
+                    PostfixNames::getTextureName(image.getTextureType()) +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
-        QImage image = pixmap.toImage();
-        pasteImageFromClipboard(image);
+        QImage qImage = pixmap.toImage();
+        pasteImageFromClipboard(qImage);
     }
 }
 
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(getImage()->getTextureType()) +
+                PostfixNames::getTextureName(image.getTextureType()) +
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    QImage image = getImage()->getFBOImage();
-    QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
+    QImage qImage = image.getFBOImage();
+    QApplication::clipboard()->setImage(qImage,QClipboard::Clipboard);
 }

@@ -1,12 +1,10 @@
-#ifndef OPENGLIMAGEEDITOR_H
-#define OPENGLIMAGEEDITOR_H
+#ifndef OPENGL2DIMAGEWIDGET_H
+#define OPENGL2DIMAGEWIDGET_H
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_5_Core>
-
-#include "image.h"
-
 #include <QtOpenGL>
+#include "image.h"
 #include <math.h>
 #include <map>
 
@@ -50,8 +48,8 @@ public:
     QSize sizeHint() const;
 
     void cleanup();
-    void setActiveImage(Image* ptr);
-    Image* getActiveImage(){return activeImage;}
+    void setActiveImage(Image *image);
+    Image* getActiveImage();
     void enableShadowRender(bool enable);
     void setConversionType(ConversionType conversionType);
     ConversionType getConversionType();
@@ -290,4 +288,4 @@ private:
     bool blockMouseMovement;
 };
 
-#endif // OPENGLIMAGEEDITOR_H
+#endif // OPENGL2DIMAGEWIDGET_H

@@ -13,7 +13,7 @@
 bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
-ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGLWidget, TextureType textureType) :
+ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget, TextureType textureType) :
     QWidget(parent),
     ui(new Ui::ImageWidget)
 {
@@ -51,7 +51,7 @@ ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGLWidget, Tex
 
     ui->groupBoxConvertToHeightSettings->hide();
 
-    image.setOpenGLWidget(openGLWidget);
+    image.setOpenGL2DImageWidget(openGL2DImageWidget);
     
     connect(ui->pushButtonOpenImage,          SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonSaveImage,          SIGNAL (released()), this, SLOT (save()));
@@ -108,7 +108,7 @@ Image* ImageWidget::getImage()
 
 void ImageWidget::setImage(const QImage& qImage)
 {
-    if (image.getOpenGLWidget()->isValid())
+    if (image.getOpenGL2DImageWidget()->isValid())
         image.init(qImage);
     else
         qDebug() << Q_FUNC_INFO << "Invalid context.";
@@ -124,9 +124,9 @@ void ImageWidget::setImageName(const QString& name)
     image.setImageName(name);
 }
 
-void ImageWidget::setOpenGLWidget(QOpenGLWidget *openGLWidget)
+void ImageWidget::setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget)
 {
-    image.setOpenGLWidget(openGLWidget);
+    image.setOpenGL2DImageWidget(openGL2DImageWidget);
 }
 
 void ImageWidget::setupPropertiesGUI()
