@@ -10,16 +10,16 @@
 #include <math.h>
 #include <map>
 
-#define BasicProp activeImage->properties->Basic
-#define RemoveShadingProp activeImage->properties->RemoveShading
-#define ColorLevelsProp activeImage->properties->ColorLevels
-#define SurfaceDetailsProp activeImage->properties->SurfaceDetails
-#define AOProp activeImage->properties->AO
-#define GrungeProp targetImageGrunge->properties->Grunge
-#define GrungeOnImageProp activeImage->properties->GrungeOnImage
-#define NormalMixerProp activeImage->properties->NormalsMixer
-#define BaseMapToOthersProp activeImage->properties->BaseMapToOthers
-#define RMFilterProp activeImage->properties->RMFilter
+#define BasicProp activeImage->getProperties()->Basic
+#define RemoveShadingProp activeImage->getProperties()->RemoveShading
+#define ColorLevelsProp activeImage->getProperties()->ColorLevels
+#define SurfaceDetailsProp activeImage->getProperties()->SurfaceDetails
+#define AOProp activeImage->getProperties()->AO
+#define GrungeProp targetImageGrunge->getProperties()->Grunge
+#define GrungeOnImageProp activeImage->getProperties()->GrungeOnImage
+#define NormalMixerProp activeImage->getProperties()->NormalsMixer
+#define BaseMapToOthersProp activeImage->getProperties()->BaseMapToOthers
+#define RMFilterProp activeImage->getProperties()->RMFilter
 
 enum ConversionType
 {

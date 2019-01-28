@@ -56,6 +56,10 @@ public:
 
     void copySettings(const Image& source);
     void init(QImage& image);
+
+    QOpenGLWidget* getOpenGLWidget();
+    void setOpenGLWidget(QOpenGLWidget* newWidget);
+
     QOpenGLFramebufferObject* getFBO();
     void updateTextureFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
@@ -63,34 +67,29 @@ public:
     QImage getFBOImage();
 
     QtnPropertySetFormImageProp* getProperties();
+    QOpenGLTexture* getTexture();
+    void setTexture(const QImage& image);
+    TextureType getTextureType();
+    void setTextureType(TextureType textureType);
+    int getTextureWidth();
+    int getTextureHeight();
+    ImageType getInputImageType();
+    void setInputImageType(ImageType inputImageType);
+    QOpenGLTexture* getNormalMixerInputTexture();
+    void setNormalMixerInputTexture(const QImage& image);
 
-    QtnPropertySetFormImageProp *properties;
-    bool bSkipProcessing;
-    // Output image
-    QOpenGLFramebufferObject *fbo;
-    // Id of texture loaded from image, from loaded file.
-    //GLuint scr_tex_id;
-    QOpenGLTexture *texture;
-    // Used only by normal texture.
-    //GLuint normalMixerInputTexId;
-    QOpenGLTexture *normalMixerInputTexture;
-    // Width and height of the image loaded from file.
-    int textureWidth;
-    int textureHeight;
-    // Pointer to the GL context.
-    QOpenGLWidget *openGLWidget;
-    // This will define what kind of preprocessing will be applied to the image.
-    TextureType textureType;
+    bool isSkippingProcessing();
+    void setSkipProcessing(bool skipProcessing);
+    bool isFirstDraw();
+    void setFirstDraw(bool isFirstDraw);
 
-    bool bFirstDraw;
-    // Conversion settings
-    float conversionHNDepth;
+    BaseMapConvLevelProperties* getBaseMapConvLevelProperties();
+    float getConversionHNDepth();
+    void setConversionHNDepth(float newDepth);
+
     // Base to others settings
     static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
-    BaseMapConvLevelProperties baseMapConvLevels[4];
-    // Input image type
-    ImageType inputImageType;
 
     static SeamlessMode seamlessMode;
     static float seamlessSimpleModeRadius;
@@ -103,6 +102,32 @@ public:
     static ImageType seamlessContrastImageType;
     static bool bSeamlessTranslationsFirst;
     static int currentMaterialIndex;
+
+private:
+    QtnPropertySetFormImageProp *properties;
+    bool bSkipProcessing;
+    // Pointer to the GL context.
+    QOpenGLWidget *openGLWidget;
+    // Output image
+    QOpenGLFramebufferObject *fbo;
+    // Id of texture loaded from image, from loaded file.
+    //GLuint scr_tex_id;
+    QOpenGLTexture *texture;
+    // Used only by normal texture.
+    //GLuint normalMixerInputTexId;
+    QOpenGLTexture *normalMixerInputTexture;
+    // Width and height of the image loaded from file.
+    int textureWidth;
+    int textureHeight;
+    // This will define what kind of preprocessing will be applied to the image.
+    TextureType textureType;
+
+    bool bFirstDraw;
+    // Conversion settings
+    float conversionHNDepth;
+    BaseMapConvLevelProperties baseMapConvLevelProperties[4];
+    // Input image type
+    ImageType inputImageType;
 };
 
 #endif // IMAGE_H

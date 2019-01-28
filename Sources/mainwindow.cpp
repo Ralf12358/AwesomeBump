@@ -99,14 +99,14 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGLWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->fbo, DIFFUSE_TEXTURE);
-    openGLWidget->setPointerToTexture(normalImageWidget   ->getImage()->fbo, NORMAL_TEXTURE);
-    openGLWidget->setPointerToTexture(specularImageWidget ->getImage()->fbo, SPECULAR_TEXTURE);
-    openGLWidget->setPointerToTexture(heightImageWidget   ->getImage()->fbo, HEIGHT_TEXTURE);
-    openGLWidget->setPointerToTexture(occlusionImageWidget->getImage()->fbo, OCCLUSION_TEXTURE);
-    openGLWidget->setPointerToTexture(roughnessImageWidget->getImage()->fbo, ROUGHNESS_TEXTURE);
-    openGLWidget->setPointerToTexture(metallicImageWidget ->getImage()->fbo, METALLIC_TEXTURE);
-    openGLWidget->setPointerToTexture(materialManager     ->getImage()->fbo, MATERIAL_TEXTURE);
+    openGLWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getFBO(), DIFFUSE_TEXTURE);
+    openGLWidget->setPointerToTexture(normalImageWidget   ->getImage()->getFBO(), NORMAL_TEXTURE);
+    openGLWidget->setPointerToTexture(specularImageWidget ->getImage()->getFBO(), SPECULAR_TEXTURE);
+    openGLWidget->setPointerToTexture(heightImageWidget   ->getImage()->getFBO(), HEIGHT_TEXTURE);
+    openGLWidget->setPointerToTexture(occlusionImageWidget->getImage()->getFBO(), OCCLUSION_TEXTURE);
+    openGLWidget->setPointerToTexture(roughnessImageWidget->getImage()->getFBO(), ROUGHNESS_TEXTURE);
+    openGLWidget->setPointerToTexture(metallicImageWidget ->getImage()->getFBO(), METALLIC_TEXTURE);
+    openGLWidget->setPointerToTexture(materialManager     ->getImage()->getFBO(), MATERIAL_TEXTURE);
 
     openGLImageEditor->targetImageDiffuse   = diffuseImageWidget  ->getImage();
     openGLImageEditor->targetImageNormal    = normalImageWidget   ->getImage();
@@ -524,27 +524,27 @@ void MainWindow::materialsToggled(bool toggle)
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
     if(toggle)
     {
-        bLastValue = diffuseImageWidget->imageProp.properties->BaseMapToOthers.EnableConversion;
-        diffuseImageWidget->imageProp.properties->BaseMapToOthers.EnableConversion = false;
+        bLastValue = diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion;
+        diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion = false;
         ui->pushButtonUVWarning->setVisible(false);
         if(bLastValue)
             replotAllImages();
     }
     else
     {
-        diffuseImageWidget->imageProp.properties->BaseMapToOthers.EnableConversion = bLastValue;
+        diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion = bLastValue;
     }
-    diffuseImageWidget->imageProp.properties->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
+    diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
 }
 
 void MainWindow::checkWarnings()
 {
     ui->pushButtonConversionWarning->setVisible(Image::bConversionBaseMap);
-    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->imageProp.properties->Grunge.OverallWeight.value() > 0);
+    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->imageProp.getProperties()->Grunge.OverallWeight.value() > 0);
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
-    bool bOccTest = (occlusionImageWidget->imageProp.inputImageType == INPUT_FROM_HO_NO) ||
-            (occlusionImageWidget->imageProp.inputImageType == INPUT_FROM_HI_NI);
+    bool bOccTest = (occlusionImageWidget->imageProp.getInputImageType() == INPUT_FROM_HO_NO) ||
+            (occlusionImageWidget->imageProp.getInputImageType() == INPUT_FROM_HI_NI);
     ui->pushButtonOccWarning->setVisible(bOccTest);
 }
 
@@ -623,49 +623,49 @@ void MainWindow::showHideTextureTypes(bool)
     //qDebug() << "Toggle processing images";
 
     bool value = ui->checkBoxSaveDiffuse->isChecked();
-    diffuseImageWidget->getImage()->bSkipProcessing = !value;
+    diffuseImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(DIFFUSE_TEXTURE, value);
     ui->pushButtonToggleDiffuse->setVisible(value);
     ui->pushButtonToggleDiffuse->setChecked(value);
     ui->actionShowDiffuseImage->setVisible(value);
 
     value = ui->checkBoxSaveNormal->isChecked();
-    normalImageWidget->getImage()->bSkipProcessing = !value;
+    normalImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(NORMAL_TEXTURE, value);
     ui->pushButtonToggleNormal->setVisible(value);
     ui->pushButtonToggleNormal->setChecked(value);
     ui->actionShowNormalImage->setVisible(value);
 
     value = ui->checkBoxSaveHeight->isChecked();
-    occlusionImageWidget->getImage()->bSkipProcessing = !value;
+    occlusionImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(OCCLUSION_TEXTURE, value);
     ui->pushButtonToggleOcclusion->setVisible(value);
     ui->pushButtonToggleOcclusion->setChecked(value);
     ui->actionShowOcclusiontImage->setVisible(value);
 
     value = ui->checkBoxSaveOcclusion->isChecked();
-    heightImageWidget->getImage()->bSkipProcessing = !value;
+    heightImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(HEIGHT_TEXTURE, value);
     ui->pushButtonToggleHeight->setVisible(value);
     ui->pushButtonToggleHeight->setChecked(value);
     ui->actionShowHeightImage->setVisible(value);
 
     value = ui->checkBoxSaveSpecular->isChecked();
-    specularImageWidget->getImage()->bSkipProcessing = !value;
+    specularImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(SPECULAR_TEXTURE, value);
     ui->pushButtonToggleSpecular->setVisible(value);
     ui->pushButtonToggleSpecular->setChecked(value);
     ui->actionShowSpecularImage->setVisible(value);
 
     value = ui->checkBoxSaveRoughness->isChecked();
-    roughnessImageWidget->getImage()->bSkipProcessing = !value;
+    roughnessImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(ROUGHNESS_TEXTURE, value);
     ui->pushButtonToggleRoughness->setVisible(value);
     ui->pushButtonToggleRoughness->setChecked(value);
     ui->actionShowRoughnessImage->setVisible(value);
 
     value = ui->checkBoxSaveMetallic->isChecked();
-    metallicImageWidget->getImage()->bSkipProcessing = !value;
+    metallicImageWidget->getImage()->setSkipProcessing(!value);
     ui->tabWidget->setTabEnabled(METALLIC_TEXTURE, value);
     ui->pushButtonToggleMetallic->setVisible(value);
     ui->pushButtonToggleMetallic->setChecked(value);
@@ -744,10 +744,10 @@ bool MainWindow::saveAllImages(const QString &dir)
         QCoreApplication::processEvents();
         openGLImageEditor->makeCurrent();
 
-        QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageWidget->getImage()->fbo;
-        QOpenGLFramebufferObject *normalFBOImage   = normalImageWidget->getImage()->fbo;
-        QOpenGLFramebufferObject *specularFBOImage = specularImageWidget->getImage()->fbo;
-        QOpenGLFramebufferObject *heightFBOImage   = heightImageWidget->getImage()->fbo;
+        QOpenGLFramebufferObject *diffuseFBOImage  = diffuseImageWidget->getImage()->getFBO();
+        QOpenGLFramebufferObject *normalFBOImage   = normalImageWidget->getImage()->getFBO();
+        QOpenGLFramebufferObject *specularFBOImage = specularImageWidget->getImage()->getFBO();
+        QOpenGLFramebufferObject *heightFBOImage   = heightImageWidget->getImage()->getFBO();
 
         QImage diffuseImage = diffuseFBOImage->toImage() ;
         QImage normalImage  = normalFBOImage->toImage();
@@ -850,7 +850,7 @@ void MainWindow::updateDiffuseImage()
     openGLImageEditor->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(specularImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -861,7 +861,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(roughnessImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -872,7 +872,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(metallicImageWidget->getImage()->inputImageType == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
@@ -891,7 +891,7 @@ void MainWindow::updateNormalImage()
     openGLImageEditor->repaint();
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -917,7 +917,7 @@ void MainWindow::updateHeightImage()
     openGLImageEditor->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(normalImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(normalImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(NORMAL_TEXTURE);
@@ -928,7 +928,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(specularImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -939,8 +939,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HI_NI||
-            occlusionImageWidget->getImage()->inputImageType == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HI_NI||
+            occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -951,7 +951,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(roughnessImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -962,7 +962,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode
-    if(metallicImageWidget->getImage()->inputImageType == INPUT_FROM_HEIGHT_OUTPUT)
+    if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGLImageEditor->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
@@ -997,7 +997,7 @@ void MainWindow::updateMetallicImage()
 
 void MainWindow::updateGrungeImage()
 {
-    bool test = (grungeImageWidget->getImage()->properties->Grunge.ReplotAll == true);
+    bool test = (grungeImageWidget->getImage()->getProperties()->Grunge.ReplotAll == true);
 
     // If replot enabled and grunge weight > 0 then replot all textures.
     if(test)
@@ -1014,8 +1014,8 @@ void MainWindow::updateGrungeImage()
 
 void MainWindow::updateImageInformation()
 {
-    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->fbo->width());
-    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->fbo->height());
+    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->getFBO()->width());
+    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->getFBO()->height());
 }
 
 void MainWindow::initializeGL()
@@ -1207,8 +1207,8 @@ void MainWindow::applyScaleImage()
     QCoreApplication::processEvents();
     float scale_width   = ui->doubleSpinBoxRescaleWidth ->value();
     float scale_height  = ui->doubleSpinBoxRescaleHeight->value();
-    int width  = diffuseImageWidget->getImage()->textureWidth *scale_width;
-    int height = diffuseImageWidget->getImage()->textureHeight*scale_height;
+    int width  = diffuseImageWidget->getImage()->getTextureWidth() * scale_width;
+    int height = diffuseImageWidget->getImage()->getTextureHeight() * scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;
@@ -1557,28 +1557,28 @@ void MainWindow::loadImageSettings(TextureType type)
     switch(type)
     {
     case DIFFUSE_TEXTURE:
-        diffuseImageWidget    ->imageProp.properties->copyValues(&abSettings->Diffuse);
+        diffuseImageWidget    ->imageProp.getProperties()->copyValues(&abSettings->Diffuse);
         break;
     case NORMAL_TEXTURE:
-        normalImageWidget     ->imageProp.properties->copyValues(&abSettings->Normal);
+        normalImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Normal);
         break;
     case SPECULAR_TEXTURE:
-        specularImageWidget   ->imageProp.properties->copyValues(&abSettings->Specular);
+        specularImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Specular);
         break;
     case HEIGHT_TEXTURE:
-        heightImageWidget     ->imageProp.properties->copyValues(&abSettings->Height);
+        heightImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Height);
         break;
     case OCCLUSION_TEXTURE:
-        occlusionImageWidget  ->imageProp.properties->copyValues(&abSettings->Occlusion);
+        occlusionImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Occlusion);
         break;
     case ROUGHNESS_TEXTURE:
-        roughnessImageWidget  ->imageProp.properties->copyValues(&abSettings->Roughness);
+        roughnessImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Roughness);
         break;
     case METALLIC_TEXTURE:
-        metallicImageWidget   ->imageProp.properties->copyValues(&abSettings->Metallic);
+        metallicImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Metallic);
         break;
     case GRUNGE_TEXTURE:
-        grungeImageWidget     ->imageProp.properties->copyValues(&abSettings->Grunge);
+        grungeImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Grunge);
         break;
     default:
         qWarning() << "Trying to load non supported image! Given textureType:" << type;
@@ -1649,14 +1649,14 @@ void MainWindow::saveSettings()
 
     dock3Dsettings->saveSettings(abSettings);
 
-    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->imageProp.properties);
-    abSettings->Specular .copyValues(specularImageWidget  ->imageProp.properties);
-    abSettings->Normal   .copyValues(normalImageWidget    ->imageProp.properties);
-    abSettings->Occlusion.copyValues(occlusionImageWidget ->imageProp.properties);
-    abSettings->Height   .copyValues(heightImageWidget    ->imageProp.properties);
-    abSettings->Metallic .copyValues(metallicImageWidget  ->imageProp.properties);
-    abSettings->Roughness.copyValues(roughnessImageWidget ->imageProp.properties);
-    abSettings->Grunge   .copyValues(grungeImageWidget    ->imageProp.properties);
+    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->imageProp.getProperties());
+    abSettings->Specular .copyValues(specularImageWidget  ->imageProp.getProperties());
+    abSettings->Normal   .copyValues(normalImageWidget    ->imageProp.getProperties());
+    abSettings->Occlusion.copyValues(occlusionImageWidget ->imageProp.getProperties());
+    abSettings->Height   .copyValues(heightImageWidget    ->imageProp.getProperties());
+    abSettings->Metallic .copyValues(metallicImageWidget  ->imageProp.getProperties());
+    abSettings->Roughness.copyValues(roughnessImageWidget ->imageProp.getProperties());
+    abSettings->Grunge   .copyValues(grungeImageWidget    ->imageProp.getProperties());
 
     // Disable possibility to save conversion status
     //    abSettings->Diffuse.BaseMapToOthers.EnableConversion.setValue(false);
@@ -1706,14 +1706,14 @@ void MainWindow::loadSettings()
     QString name = abSettings->settings_name.value();
     ui->pushButtonProjectManager->setText("Project manager (" + name + ")");
 
-    diffuseImageWidget    ->imageProp.properties->copyValues(&abSettings->Diffuse);
-    specularImageWidget   ->imageProp.properties->copyValues(&abSettings->Specular);
-    normalImageWidget     ->imageProp.properties->copyValues(&abSettings->Normal);
-    occlusionImageWidget  ->imageProp.properties->copyValues(&abSettings->Occlusion);
-    heightImageWidget     ->imageProp.properties->copyValues(&abSettings->Height);
-    metallicImageWidget   ->imageProp.properties->copyValues(&abSettings->Metallic);
-    roughnessImageWidget  ->imageProp.properties->copyValues(&abSettings->Roughness);
-    grungeImageWidget     ->imageProp.properties->copyValues(&abSettings->Grunge);
+    diffuseImageWidget    ->imageProp.getProperties()->copyValues(&abSettings->Diffuse);
+    specularImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Specular);
+    normalImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Normal);
+    occlusionImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Occlusion);
+    heightImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Height);
+    metallicImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Metallic);
+    roughnessImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Roughness);
+    grungeImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Grunge);
 
     // Update general settings.
     if(bFirstTime)

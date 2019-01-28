@@ -99,6 +99,16 @@ void Image::init(QImage& image)
     GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(),internal_format));
 }
 
+QOpenGLWidget* Image::getOpenGLWidget()
+{
+    return openGLWidget;
+}
+
+void Image::setOpenGLWidget(QOpenGLWidget* newWidget)
+{
+    openGLWidget = newWidget;
+}
+
 QOpenGLFramebufferObject* Image::getFBO()
 {
     return fbo;
@@ -132,4 +142,97 @@ QImage Image::getFBOImage()
 QtnPropertySetFormImageProp* Image::getProperties()
 {
     return properties;
+}
+
+QOpenGLTexture* Image::getTexture()
+{
+    return texture;
+}
+
+void Image::setTexture(const QImage& image)
+{
+    if(texture)
+        delete texture;
+    texture = new QOpenGLTexture(image);
+    openGLWidget->makeCurrent();
+    texture->bind();
+}
+
+TextureType Image::getTextureType()
+{
+    return textureType;
+}
+
+void Image::setTextureType(TextureType textureType)
+{
+    this->textureType = textureType;
+}
+
+int Image::getTextureWidth()
+{
+    return textureWidth;
+}
+
+int Image::getTextureHeight()
+{
+    return textureHeight;
+}
+
+ImageType Image::getInputImageType()
+{
+    return inputImageType;
+}
+
+void Image::setInputImageType(ImageType inputImageType)
+{
+    this->inputImageType = inputImageType;
+}
+
+QOpenGLTexture* Image::getNormalMixerInputTexture()
+{
+    return normalMixerInputTexture;
+}
+
+void Image::setNormalMixerInputTexture(const QImage& image)
+{
+    if(normalMixerInputTexture)
+        delete normalMixerInputTexture;
+    normalMixerInputTexture = new QOpenGLTexture(image);
+    openGLWidget->makeCurrent();
+    normalMixerInputTexture->bind();
+}
+
+bool Image::isSkippingProcessing()
+{
+    return bSkipProcessing;
+}
+
+void Image::setSkipProcessing(bool skipProcessing)
+{
+    bSkipProcessing = skipProcessing;
+}
+
+bool Image::isFirstDraw()
+{
+    return bFirstDraw;
+}
+
+void Image::setFirstDraw(bool isFirstDraw)
+{
+    bFirstDraw = isFirstDraw;
+}
+
+BaseMapConvLevelProperties* Image::getBaseMapConvLevelProperties()
+{
+    return baseMapConvLevelProperties;
+}
+
+float Image::getConversionHNDepth()
+{
+    return conversionHNDepth;
+}
+
+void Image::setConversionHNDepth(float newDepth)
+{
+    conversionHNDepth = newDepth;
 }

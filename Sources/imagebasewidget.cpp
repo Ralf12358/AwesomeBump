@@ -58,7 +58,7 @@ void ImageBaseWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            PostfixNames::getPostfix(imageProp.textureType) +
+            PostfixNames::getPostfix(imageProp.getTextureType()) +
             PostfixNames::outputFormat;
     saveFile(fullFileName);
 }
@@ -67,7 +67,7 @@ void ImageBaseWidget::saveImageToDir(const QString &dir,QImage& image)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            PostfixNames::getPostfix(imageProp.textureType) +
+            PostfixNames::getPostfix(imageProp.getTextureType()) +
             PostfixNames::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
@@ -95,7 +95,7 @@ QString ImageBaseWidget::getImageName()
 
 void  ImageBaseWidget::setImageType(TextureType imageType)
 {
-    imageProp.textureType = imageType;
+    imageProp.setTextureType(imageType);
 }
 
 void ImageBaseWidget::save()
@@ -110,7 +110,7 @@ void ImageBaseWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 imageName +
-                PostfixNames::getPostfix(imageProp.textureType) +
+                PostfixNames::getPostfix(imageProp.getTextureType()) +
                 PostfixNames::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "<FormImageProp>:: Saving to file:" << fullFileName;
@@ -203,7 +203,7 @@ void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
             if (mimeData->hasImage())
             {
                 qDebug() << "<FormImageProp> Image :" +
-                            PostfixNames::getTextureName(imageProp.textureType) +
+                            PostfixNames::getTextureName(imageProp.getTextureType()) +
                             " loaded from clipboard.";
                 QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
                 QImage image = pixmap.toImage();
@@ -215,7 +215,7 @@ void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
         if(keySequenceName.compare("Ctrl+C",Qt::CaseInsensitive) == 0)
         {
             qDebug() << "<FormImageProp> Image :" +
-                        PostfixNames::getTextureName(imageProp.textureType) +
+                        PostfixNames::getTextureName(imageProp.getTextureType()) +
                         " copied to clipboard.";
 
             QApplication::processEvents();

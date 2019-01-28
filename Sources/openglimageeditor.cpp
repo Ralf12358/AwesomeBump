@@ -331,9 +331,9 @@ void OpenGLImageEditor::render()
         return;
 
     // Since grunge map can be different we need to calculate ratio each time.
-    if ( activeImage->fbo)
+    if (activeImage->getFBO())
     {
-        fboRatio = float(activeImage->fbo->width())/activeImage->fbo->height();
+        fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
         orthographicProjHeight = (1+zoom)/windowRatio;
         orthographicProjWidth  = (1+zoom)/fboRatio;
     }
@@ -352,14 +352,14 @@ void OpenGLImageEditor::render()
     // Indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
 
-    QOpenGLFramebufferObject *activeFBO = activeImage->fbo;
+    QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
 
     // Images which depend on others will not be affected by UV changes again.
     bool bTransformUVs = true;
     bool bSkipStandardProcessing = false;
 
     // Do not process images when disabled.
-    if((activeImage->bSkipProcessing) && (activeImage->textureType != MATERIAL_TEXTURE))
+    if((activeImage->isSkippingProcessing()) && (activeImage->getTextureType() != MATERIAL_TEXTURE))
         bSkipProcessing = true;
     if(bToggleColorPicking)
         bSkipStandardProcessing = true;
@@ -379,7 +379,7 @@ void OpenGLImageEditor::render()
             // Apply resize textures.
             activeImage->resizeFBO(resize_width,resize_height);
             // Pointers were changed in resize function.
-            activeFBO = activeImage->fbo;
+            activeFBO = activeImage->getFBO();
             bSkipStandardProcessing = true;
             break;
         default:
@@ -392,7 +392,7 @@ void OpenGLImageEditor::render()
         OpenGLFramebufferObject::resize(auxFBO3,activeFBO->width(),activeFBO->height());
         OpenGLFramebufferObject::resize(auxFBO4,activeFBO->width(),activeFBO->height());
         // Allocate aditional FBOs when conversion from BaseMap is enabled.
-        if(activeImage->textureType == DIFFUSE_TEXTURE && activeImage->bConversionBaseMap)
+        if(activeImage->getTextureType() == DIFFUSE_TEXTURE && activeImage->bConversionBaseMap)
         {
             for(int i = 0; i < 3 ; i++)
             {
@@ -414,52 +414,52 @@ void OpenGLImageEditor::render()
         }
 
         GLCHK( program->bind() );
-        GLCHK( program->setUniformValue("gui_image_type", activeImage->textureType) );
-        openGL330ForceTexType = activeImage->textureType;
+        GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
+        openGL330ForceTexType = activeImage->getTextureType();
         GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
         GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
         GLCHK( program->setUniformValue("material_id", int(activeImage->currentMaterialIndex) ) );
 
-        if(activeImage->bFirstDraw)
+        if(activeImage->isFirstDraw())
         {
             resetView();
-            qDebug() << "Doing first draw of" << PostfixNames::getTextureName(activeImage->textureType) << " texture.";
-            activeImage->bFirstDraw = false;
+            qDebug() << "Doing first draw of" << PostfixNames::getTextureName(activeImage->getTextureType()) << " texture.";
+            activeImage->setFirstDraw(false);
         }
 
         // Skip all precessing when material tab is selected.
-        if(activeImage->textureType == MATERIAL_TEXTURE)
+        if(activeImage->getTextureType() == MATERIAL_TEXTURE)
         {
             bSkipStandardProcessing = true;
             GLCHK( program->setUniformValue("material_id", int(-1) ) );
         }
-        if(activeImage->textureType == GRUNGE_TEXTURE)
+        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
         {
             bTransformUVs = false;
             GLCHK( program->setUniformValue("material_id", int(MATERIALS_DISABLED) ) );
         }
 
         GLCHK( glActiveTexture(GL_TEXTURE10) );
-        GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageMaterial->texture->textureId()) );
+        GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageMaterial->getTexture()->textureId()) );
         GLCHK( glActiveTexture(GL_TEXTURE0) );
 
         //if(int(activeImage->currentMaterialIndeks) < 0)
         //{
-        copyTex2FBO(activeImage->texture->textureId(),activeImage->fbo);
+        copyTex2FBO(activeImage->getTexture()->textureId(),activeImage->getFBO());
         //}
 
         // In some cases the output image will be taken from other sources.
-        switch(activeImage->textureType)
+        switch(activeImage->getTextureType())
         {
         case(NORMAL_TEXTURE):
         {
             // Choose proper action.
-            switch(activeImage->inputImageType)
+            switch(activeImage->getInputImageType())
             {
             case(INPUT_FROM_NORMAL_INPUT):
                 if(conversionType == CONVERT_FROM_H_TO_N)
                 {
-                    applyHeightToNormal(targetImageHeight->fbo,activeFBO);
+                    applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
                     bTransformUVs = false;
                 }
                 break;
@@ -473,23 +473,23 @@ void OpenGLImageEditor::render()
                     openGL330ForceTexType = HEIGHT_TEXTURE;
                     GLCHK( program->setUniformValue("gui_image_type", HEIGHT_TEXTURE) );
 
-                    copyTex2FBO(targetImageHeight->texture->textureId(),activeFBO);
+                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
                     applyAllUVsTransforms(activeFBO);
                     copyFBO(activeFBO,auxFBO1);
                     applyHeightToNormal(auxFBO1,activeFBO);
-                    GLCHK( program->setUniformValue("gui_image_type", activeImage->textureType) );
-                    openGL330ForceTexType = activeImage->textureType;
+                    GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
+                    openGL330ForceTexType = activeImage->getTextureType();
                     bTransformUVs = false;
                 }
                 else
                 {
-                    copyTex2FBO(targetImageHeight->texture->textureId(),activeFBO);
+                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
                 }
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                applyHeightToNormal(targetImageHeight->fbo,activeFBO);
+                applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
 
-                if(!targetImageHeight->bSkipProcessing)
+                if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             default:
@@ -501,24 +501,24 @@ void OpenGLImageEditor::render()
         case(SPECULAR_TEXTURE):
         {
             // Choose proper action.
-            switch(activeImage->inputImageType)
+            switch(activeImage->getInputImageType())
             {
             case(INPUT_FROM_SPECULAR_INPUT):
                 break;
             case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->texture->textureId(),activeFBO);
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->fbo,activeFBO);
-                if(!targetImageHeight->bSkipProcessing)
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->texture->textureId(), activeFBO);
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->fbo,activeFBO);
-                if(!targetImageDiffuse->bSkipProcessing)
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             default:
@@ -530,16 +530,16 @@ void OpenGLImageEditor::render()
         case(OCCLUSION_TEXTURE):
         {
             // Choose proper action.
-            switch(activeImage->inputImageType)
+            switch(activeImage->getInputImageType())
             {
             case(INPUT_FROM_OCCLUSION_INPUT):
                 if(conversionType == CONVERT_FROM_HN_TO_OC)
                 {
                     // Ambient occlusion is calculated from normal and height map.
                     // Skip some parts of the processing.
-                    applyOcclusionFilter(targetImageHeight->fbo->texture(),targetImageNormal->fbo->texture(),activeFBO);
+                    applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
                     bSkipStandardProcessing =  true;
-                    if(!targetImageHeight->bSkipProcessing && !targetImageNormal->bSkipProcessing)
+                    if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
                         bTransformUVs = false;
                     qDebug() << "Calculation AO from Normal and Height";
                 }
@@ -547,11 +547,11 @@ void OpenGLImageEditor::render()
             case(INPUT_FROM_HI_NI):
                 // Ambient occlusion is calculated from normal and height map.
                 // Skip some parts of the processing.
-                applyOcclusionFilter(targetImageHeight->texture->textureId(), targetImageNormal->texture->textureId(), activeFBO);
+                applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HO_NO):
-                applyOcclusionFilter(targetImageHeight->fbo->texture(),targetImageNormal->fbo->texture(),activeFBO);
-                if(!targetImageHeight->bSkipProcessing && !targetImageNormal->bSkipProcessing)
+                applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             default:
@@ -564,13 +564,13 @@ void OpenGLImageEditor::render()
         {
             if(conversionType == CONVERT_FROM_N_TO_H)
             {
-                applyNormalToHeight(activeImage,targetImageNormal->fbo,activeFBO,auxFBO1);
+                applyNormalToHeight(activeImage,targetImageNormal->getFBO(),activeFBO,auxFBO1);
                 applyCPUNormalizationFilter(auxFBO1,activeFBO);
                 applyAddNoiseFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
 
                 targetImageHeight->updateTextureFromFBO(activeFBO);
-                if(!targetImageNormal->bSkipProcessing)
+                if(!targetImageNormal->isSkippingProcessing())
                     bTransformUVs = false;
             }
             break;
@@ -579,24 +579,24 @@ void OpenGLImageEditor::render()
         case(ROUGHNESS_TEXTURE):
         {
             // Choose proper action.
-            switch(activeImage->inputImageType)
+            switch(activeImage->getInputImageType())
             {
             case(INPUT_FROM_ROUGHNESS_INPUT):
                 break;
             case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->texture->textureId(), activeFBO);
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->fbo,activeFBO);
-                if(!targetImageHeight->bSkipProcessing)
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->texture->textureId(), activeFBO);
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->fbo,activeFBO);
-                if(!targetImageDiffuse->bSkipProcessing)
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             default:
@@ -608,24 +608,24 @@ void OpenGLImageEditor::render()
         case(METALLIC_TEXTURE):
         {
             // Choose proper action.
-            switch(activeImage->inputImageType)
+            switch(activeImage->getInputImageType())
             {
             case(INPUT_FROM_METALLIC_INPUT):
                 break;
             case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->texture->textureId(), activeFBO);
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->fbo,activeFBO);
-                if(!targetImageHeight->bSkipProcessing)
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->texture->textureId(), activeFBO);
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->fbo,activeFBO);
-                if(!targetImageDiffuse->bSkipProcessing)
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
             default:
@@ -652,9 +652,9 @@ void OpenGLImageEditor::render()
         // Apply grunge filter when enabled.
         if(conversionType == CONVERT_NONE && GrungeProp.OverallWeight != 0.0f )
         {
-            if(activeImage->textureType < MATERIAL_TEXTURE)
+            if(activeImage->getTextureType() < MATERIAL_TEXTURE)
             {
-                copyTex2FBO(targetImageGrunge->fbo->texture(),auxFBO2);
+                copyTex2FBO(targetImageGrunge->getFBO()->texture(),auxFBO2);
                 // If "output" type selected, transform grunge map.
                 if(bTransformUVs == false)
                 {
@@ -680,10 +680,10 @@ void OpenGLImageEditor::render()
             applyInvertComponentsFilter(activeFBO,auxFBO1);
             copyFBO(auxFBO1,activeFBO);
 
-            if(activeImage->textureType != HEIGHT_TEXTURE &&
-                    activeImage->textureType != NORMAL_TEXTURE &&
-                    activeImage->textureType != OCCLUSION_TEXTURE &&
-                    activeImage->textureType != ROUGHNESS_TEXTURE)
+            if(activeImage->getTextureType() != HEIGHT_TEXTURE &&
+                    activeImage->getTextureType() != NORMAL_TEXTURE &&
+                    activeImage->getTextureType() != OCCLUSION_TEXTURE &&
+                    activeImage->getTextureType() != ROUGHNESS_TEXTURE)
             {
                 // Hue manipulation.
                 applyColorHueFilter(activeFBO,auxFBO1);
@@ -691,9 +691,9 @@ void OpenGLImageEditor::render()
             }
 
             if(BasicProp.GrayScale.EnableGrayScale ||
-                    activeImage->textureType == ROUGHNESS_TEXTURE ||
-                    activeImage->textureType == OCCLUSION_TEXTURE ||
-                    activeImage->textureType == HEIGHT_TEXTURE )
+                    activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                    activeImage->getTextureType() == OCCLUSION_TEXTURE ||
+                    activeImage->getTextureType() == HEIGHT_TEXTURE )
             {
                 applyGrayScaleFilter(auxFBO1,activeFBO);
             }
@@ -704,7 +704,7 @@ void OpenGLImageEditor::render()
 
             // Specular manipulation.
             if(SurfaceDetailsProp.EnableSurfaceDetails &&
-                    activeImage->textureType != HEIGHT_TEXTURE)
+                    activeImage->getTextureType() != HEIGHT_TEXTURE)
             {
                 applyDGaussiansFilter(activeFBO,auxFBO2,auxFBO1);
                 //copyFBO(auxFBO1,activeFBO);
@@ -712,7 +712,7 @@ void OpenGLImageEditor::render()
             }
 
             // Removing shading.
-            if(activeImage->properties->EnableRemoveShading)
+            if(activeImage->getProperties()->EnableRemoveShading)
             {
                 applyRemoveLowFreqFilter(activeFBO,auxFBO1,auxFBO2);
                 copyFBO(auxFBO2,activeFBO);
@@ -722,7 +722,7 @@ void OpenGLImageEditor::render()
                 copyFBO(auxFBO2,auxFBO1);
                 applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
 
-                applyRemoveShadingFilter(auxFBO2, targetImageOcclusion->fbo, activeFBO, auxFBO1);
+                applyRemoveShadingFilter(auxFBO2, targetImageOcclusion->getFBO(), activeFBO, auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
             }
 
@@ -754,7 +754,7 @@ void OpenGLImageEditor::render()
                 copyFBO(auxFBO1,activeFBO);
             }
 
-            if(activeImage->textureType != NORMAL_TEXTURE)
+            if(activeImage->getTextureType() != NORMAL_TEXTURE)
             {
                 applyHeightProcessingFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
@@ -762,8 +762,8 @@ void OpenGLImageEditor::render()
 
             // Roughness color mapping.
             // Use the same filters for both metallic and roughness, because they are almost the same.
-            if( (activeImage->textureType == ROUGHNESS_TEXTURE ||
-                 activeImage->textureType == METALLIC_TEXTURE )
+            if( (activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                 activeImage->getTextureType() == METALLIC_TEXTURE )
                     && RMFilterProp.Filter == COLOR_FILTER::Noise )
             {
                 // Processing surface.
@@ -771,8 +771,8 @@ void OpenGLImageEditor::render()
                 copyFBO(auxFBO1,activeFBO);
             }
 
-            if(activeImage->textureType == ROUGHNESS_TEXTURE ||
-                    activeImage->textureType == METALLIC_TEXTURE)
+            if(activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                    activeImage->getTextureType() == METALLIC_TEXTURE)
             {
                 if(RMFilterProp.Filter == COLOR_FILTER::Color)
                 {
@@ -784,11 +784,11 @@ void OpenGLImageEditor::render()
             // Height processing pipeline.
 
             // Normal processing pipeline.
-            if(activeImage->textureType == NORMAL_TEXTURE)
+            if(activeImage->getTextureType() == NORMAL_TEXTURE)
             {
                 applyNormalsStepFilter(activeFBO,auxFBO1);
                 // Apply normal mixer filter.
-                if(NormalMixerProp.EnableMixer && activeImage->normalMixerInputTexture != 0)
+                if(NormalMixerProp.EnableMixer && activeImage->getNormalMixerInputTexture() != 0)
                 {
                     applyNormalMixerFilter(auxFBO1,activeFBO);
                 }
@@ -803,7 +803,7 @@ void OpenGLImageEditor::render()
             if(!bToggleColorPicking)
             {
                 // Skip this step if the Color picking is enabled
-                if(activeImage->textureType == DIFFUSE_TEXTURE &&
+                if(activeImage->getTextureType() == DIFFUSE_TEXTURE &&
                         (activeImage->bConversionBaseMap || conversionType == CONVERT_FROM_D_TO_O ))
                 {
                     // Create mipmaps.
@@ -811,16 +811,16 @@ void OpenGLImageEditor::render()
                     copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[1]);
                     copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[2]);
                     // Calculate normal for orginal image.
-                    activeImage->baseMapConvLevels[0].fromProperty(BaseMapToOthersProp.LevelSmall);
-                    activeImage->baseMapConvLevels[1].fromProperty(BaseMapToOthersProp.LevelMedium);
-                    activeImage->baseMapConvLevels[2].fromProperty(BaseMapToOthersProp.LevelBig);
-                    activeImage->baseMapConvLevels[3].fromProperty(BaseMapToOthersProp.LevelHuge);
-                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1,activeImage->baseMapConvLevels[0]);
+                    activeImage->getBaseMapConvLevelProperties()[0].fromProperty(BaseMapToOthersProp.LevelSmall);
+                    activeImage->getBaseMapConvLevelProperties()[1].fromProperty(BaseMapToOthersProp.LevelMedium);
+                    activeImage->getBaseMapConvLevelProperties()[2].fromProperty(BaseMapToOthersProp.LevelBig);
+                    activeImage->getBaseMapConvLevelProperties()[3].fromProperty(BaseMapToOthersProp.LevelHuge);
+                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1,activeImage->getBaseMapConvLevelProperties()[0]);
 
                     // Calulcate normal for mipmaps.
                     for(int i = 0 ; i < 3 ; i++)
                     {
-                        applyBaseMapConversion(auxFBO0BMLevels[i],auxFBO1BMLevels[i],auxFBO2BMLevels[i],activeImage->baseMapConvLevels[i+1]);
+                        applyBaseMapConversion(auxFBO0BMLevels[i],auxFBO1BMLevels[i],auxFBO2BMLevels[i],activeImage->getBaseMapConvLevelProperties()[i+1]);
                     }
 
                     // Mix normals together.
@@ -856,42 +856,42 @@ void OpenGLImageEditor::render()
         switch(conversionType)
         {
         case(CONVERT_FROM_H_TO_N):
-            if(activeImage->textureType == NORMAL_TEXTURE)
+            if(activeImage->getTextureType() == NORMAL_TEXTURE)
             {
-                copyFBO(activeFBO,targetImageNormal->fbo);
-                targetImageNormal->updateTextureFromFBO(targetImageNormal->fbo);
+                copyFBO(activeFBO,targetImageNormal->getFBO());
+                targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
             }
             break;
         case(CONVERT_FROM_N_TO_H):
-            if(activeImage->textureType == HEIGHT_TEXTURE)
+            if(activeImage->getTextureType() == HEIGHT_TEXTURE)
             {
                 qDebug() << "Changing reference image of height";
             }
             break;
         case(CONVERT_FROM_D_TO_O):
-            copyFBO(activeFBO,targetImageNormal->fbo);
-            targetImageNormal->updateTextureFromFBO(targetImageNormal->fbo);
-            copyFBO(auxFBO1,targetImageHeight->fbo);
-            targetImageHeight->updateTextureFromFBO(targetImageHeight->fbo);
-            applyOcclusionFilter(targetImageHeight->texture->textureId(), targetImageNormal->texture->textureId(), targetImageOcclusion->fbo);
-            targetImageOcclusion->updateTextureFromFBO(targetImageOcclusion->fbo);
-            copyTex2FBO(activeImage->texture->textureId(), targetImageSpecular->fbo);
-            targetImageSpecular->updateTextureFromFBO(targetImageSpecular->fbo);
-            copyTex2FBO(activeImage->texture->textureId(), targetImageRoughness->fbo);
-            targetImageRoughness->updateTextureFromFBO(targetImageRoughness->fbo);
-            copyTex2FBO(activeImage->texture->textureId(), targetImageMetallic->fbo);
-            targetImageMetallic->updateTextureFromFBO(targetImageMetallic->fbo);
+            copyFBO(activeFBO,targetImageNormal->getFBO());
+            targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
+            copyFBO(auxFBO1,targetImageHeight->getFBO());
+            targetImageHeight->updateTextureFromFBO(targetImageHeight->getFBO());
+            applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), targetImageOcclusion->getFBO());
+            targetImageOcclusion->updateTextureFromFBO(targetImageOcclusion->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageSpecular->getFBO());
+            targetImageSpecular->updateTextureFromFBO(targetImageSpecular->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageRoughness->getFBO());
+            targetImageRoughness->updateTextureFromFBO(targetImageRoughness->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageMetallic->getFBO());
+            targetImageMetallic->updateTextureFromFBO(targetImageMetallic->getFBO());
             break;
         case(CONVERT_FROM_HN_TO_OC):
             //copyFBO(activeFBO,targetImageOcclusion->ref_fbo);
-            copyFBO(activeFBO,targetImageOcclusion->fbo);
+            copyFBO(activeFBO,targetImageOcclusion->getFBO());
             targetImageOcclusion->updateTextureFromFBO(activeFBO);
             break;
         default:
             break;
         }
 
-        activeFBO = activeImage->fbo;
+        activeFBO = activeImage->getFBO();
 
     } // End of skip processing
 
@@ -928,7 +928,7 @@ void OpenGLImageEditor::resetView()
 
     zoom = 0;
     windowRatio = float(width())/height();
-    fboRatio    = float(activeImage->fbo->width())/activeImage->fbo->height();
+    fboRatio    = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
     // OpenGL window dimensions.
     orthographicProjHeight = (1+zoom)/windowRatio;
     orthographicProjWidth = (1+zoom)/fboRatio;
@@ -960,9 +960,9 @@ void OpenGLImageEditor::resizeGL(int width, int height)
     if (isValid())
     {
         GLCHK( glViewport(0, 0, width, height) );
-        if (activeImage && activeImage->fbo)
+        if (activeImage && activeImage->getFBO())
         {
-            fboRatio = float(activeImage->fbo->width())/activeImage->fbo->height();
+            fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
             orthographicProjHeight = (1+zoom)/windowRatio;
             orthographicProjWidth = (1+zoom)/fboRatio;
         }
@@ -971,8 +971,8 @@ void OpenGLImageEditor::resizeGL(int width, int height)
             qWarning() << Q_FUNC_INFO;
             if (!activeImage)
                 qWarning() << "  activeImage is null";
-            else if (!activeImage->fbo)
-                qWarning() << "  activeImage->fbo is null";
+            else if (!activeImage->getFBO())
+                qWarning() << "  activeImage->getFBO() is null";
         }
     }
     else
@@ -1084,7 +1084,7 @@ void OpenGLImageEditor::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("gui_hn_conversion_depth", activeImage->conversionHNDepth) );
+    GLCHK( program->setUniformValue("gui_hn_conversion_depth", activeImage->getConversionHNDepth()) );
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
@@ -1107,7 +1107,7 @@ void OpenGLImageEditor::applyColorHueFilter(  QOpenGLFramebufferObject *inputFBO
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("gui_hue"   , float(activeImage->properties->Basic.ColorHue)) );
+    GLCHK( program->setUniformValue("gui_hue"   , float(activeImage->getProperties()->Basic.ColorHue)) );
 
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
@@ -1137,7 +1137,7 @@ void OpenGLImageEditor::applyPerspectiveTransformFilter(  QOpenGLFramebufferObje
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    if(activeImage->textureType == GRUNGE_TEXTURE)
+    if(activeImage->getTextureType() == GRUNGE_TEXTURE)
     {
         GLCHK( program->setUniformValue("corner1"  , grungeCornerPositions[0]) );
         GLCHK( program->setUniformValue("corner2"  , grungeCornerPositions[1]) );
@@ -1363,11 +1363,11 @@ void OpenGLImageEditor::applySeamlessLinearFilter(QOpenGLFramebufferObject *inpu
     default:
     case(INPUT_FROM_HEIGHT_INPUT):
         //copyFBO(targetImageHeight->ref_fbo,activeImage->aux2_fbo);
-        copyTex2FBO(targetImageHeight->texture->textureId(), auxFBO2);
+        copyTex2FBO(targetImageHeight->getTexture()->textureId(), auxFBO2);
         break;
     case(INPUT_FROM_DIFFUSE_INPUT):
         //copyFBO(targetImageDiffuse->ref_fbo,activeImage->aux2_fbo);
-        copyTex2FBO(targetImageDiffuse->texture->textureId(), auxFBO2);
+        copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), auxFBO2);
         break;
     };
 
@@ -1455,10 +1455,10 @@ void OpenGLImageEditor::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO,
     {
     default:
     case(INPUT_FROM_HEIGHT_INPUT):
-        copyTex2FBO(targetImageHeight->texture->textureId(), auxFBO1);
+        copyTex2FBO(targetImageHeight->getTexture()->textureId(), auxFBO1);
         break;
     case(INPUT_FROM_DIFFUSE_INPUT):
-        copyTex2FBO(targetImageDiffuse->texture->textureId(), auxFBO1);
+        copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), auxFBO1);
         break;
     };
 
@@ -1895,7 +1895,7 @@ void OpenGLImageEditor::applyNormalMixerFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, activeImage->normalMixerInputTexture->textureId()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, activeImage->getNormalMixerInputTexture()->textureId()) );
 
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( outputFBO->bindDefault() );
@@ -1999,7 +1999,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
 
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
 
-    for(int i = 0; i < image->properties->NormalHeightConv.Huge ; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.Huge ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,5))) );
         GLCHK( heightFBO->bind() );
@@ -2013,7 +2013,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->properties->NormalHeightConv.VeryLarge ; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.VeryLarge ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,4))) );
         GLCHK( heightFBO->bind() );
@@ -2027,7 +2027,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->properties->NormalHeightConv.Large ; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.Large ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,3))) );
         GLCHK( heightFBO->bind() );
@@ -2041,7 +2041,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->properties->NormalHeightConv.Medium; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.Medium; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,2))) );
         GLCHK( heightFBO->bind() );
@@ -2055,7 +2055,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->properties->NormalHeightConv.Small; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.Small; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,1))) );
         GLCHK( heightFBO->bind() );
@@ -2069,7 +2069,7 @@ void OpenGLImageEditor::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->properties->NormalHeightConv.VerySmall; i++)
+    for(int i = 0; i < image->getProperties()->NormalHeightConv.VerySmall; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,0))) );
         GLCHK( heightFBO->bind() );
@@ -2150,10 +2150,10 @@ void OpenGLImageEditor::applyMixNormalLevels(GLuint level0,
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
 
-    GLCHK( program->setUniformValue("gui_base_map_w0"  , activeImage->properties->BaseMapToOthers.WeightSmall ) );
-    GLCHK( program->setUniformValue("gui_base_map_w1"  , activeImage->properties->BaseMapToOthers.WeightMedium ) );
-    GLCHK( program->setUniformValue("gui_base_map_w2"  , activeImage->properties->BaseMapToOthers.WeightBig) );
-    GLCHK( program->setUniformValue("gui_base_map_w3"  , activeImage->properties->BaseMapToOthers.WeightHuge ) );
+    GLCHK( program->setUniformValue("gui_base_map_w0"  , activeImage->getProperties()->BaseMapToOthers.WeightSmall ) );
+    GLCHK( program->setUniformValue("gui_base_map_w1"  , activeImage->getProperties()->BaseMapToOthers.WeightMedium ) );
+    GLCHK( program->setUniformValue("gui_base_map_w2"  , activeImage->getProperties()->BaseMapToOthers.WeightBig) );
+    GLCHK( program->setUniformValue("gui_base_map_w3"  , activeImage->getProperties()->BaseMapToOthers.WeightHuge ) );
 
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -2283,7 +2283,7 @@ void OpenGLImageEditor::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO,
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("gui_add_noise_amp"  , float(targetImageHeight->properties->NormalHeightConv.NoiseLevel/100.0) ));
+    GLCHK( program->setUniformValue("gui_add_noise_amp"  , float(targetImageHeight->getProperties()->NormalHeightConv.NoiseLevel/100.0) ));
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -2567,7 +2567,7 @@ void OpenGLImageEditor::applyGrungeImageFilter (QOpenGLFramebufferObject *inputF
                                                 QOpenGLFramebufferObject *grungeFBO)
 {
     // Grunge is treated differently in normal texture.
-    if(activeImage->textureType == NORMAL_TEXTURE)
+    if(activeImage->getTextureType() == NORMAL_TEXTURE)
     {
 #ifdef USE_OPENGL_330
         program = filter_programs["mode_height_to_normal"];
@@ -2676,7 +2676,7 @@ void OpenGLImageEditor::applyGrungeRandomizationFilter(QOpenGLFramebufferObject 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageGrunge->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageGrunge->getFBO()->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
@@ -2702,7 +2702,7 @@ void OpenGLImageEditor::applyGrungeWarpNormalFilter(QOpenGLFramebufferObject *in
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageNormal->texture->textureId()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageNormal->getTexture()->textureId()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
@@ -2718,7 +2718,7 @@ void OpenGLImageEditor::updateProgramUniforms(int step)
         GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
         GLCHK( program->setUniformValue("material_id", int(activeImage->currentMaterialIndex) ) );
 
-        if(activeImage->textureType == MATERIAL_TEXTURE)
+        if(activeImage->getTextureType() == MATERIAL_TEXTURE)
         {
             GLCHK( program->setUniformValue("material_id", int(-1) ) );
         }
@@ -2809,9 +2809,9 @@ void OpenGLImageEditor::wheelEvent(QWheelEvent *event)
     {
         GLCHK( glViewport(0, 0, width(), height()) );
 
-        if (activeImage && activeImage->fbo)
+        if (activeImage && activeImage->getFBO())
         {
-            fboRatio = float(activeImage->fbo->width())/activeImage->fbo->height();
+            fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
             orthographicProjHeight = (1+zoom)/windowRatio;
             orthographicProjWidth = (1+zoom)/fboRatio;
         }
@@ -2820,8 +2820,8 @@ void OpenGLImageEditor::wheelEvent(QWheelEvent *event)
             qWarning() << Q_FUNC_INFO;
             if (!activeImage)
                 qWarning() << "  activeImage is null";
-            else if (!activeImage->fbo)
-                qWarning() << "  activeImage->fbo is null";
+            else if (!activeImage->getFBO())
+                qWarning() << "  activeImage->getFBO() is null";
         }
     }
     else
@@ -2841,7 +2841,7 @@ void OpenGLImageEditor::wheelEvent(QWheelEvent *event)
 
 void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
 {
-    if(activeImage->textureType != GRUNGE_TEXTURE)
+    if(activeImage->getTextureType() != GRUNGE_TEXTURE)
     {
         if(Image::currentMaterialIndex != MATERIALS_DISABLED &&
                 buttons & Qt::LeftButton)
@@ -2855,7 +2855,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         }
     }
 
-    if(activeImage->textureType == MATERIAL_TEXTURE &&
+    if(activeImage->getTextureType() == MATERIAL_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2866,7 +2866,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == GRUNGE_TEXTURE &&
+    if(activeImage->getTextureType() == GRUNGE_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2877,7 +2877,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == OCCLUSION_TEXTURE &&
+    if(activeImage->getTextureType() == OCCLUSION_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2888,7 +2888,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == NORMAL_TEXTURE &&
+    if(activeImage->getTextureType() == NORMAL_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2899,7 +2899,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == METALLIC_TEXTURE &&
+    if(activeImage->getTextureType() == METALLIC_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2910,7 +2910,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == ROUGHNESS_TEXTURE &&
+    if(activeImage->getTextureType() == ROUGHNESS_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2921,7 +2921,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         return;
     }
 
-    if(activeImage->textureType == SPECULAR_TEXTURE &&
+    if(activeImage->getTextureType() == SPECULAR_TEXTURE &&
             buttons & Qt::LeftButton)
     {
         QMessageBox msgBox;
@@ -2954,7 +2954,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
             for(int i = 0; i < 4 ; i++)
             {
                 averagePos += cornerPositions[i]*0.25;
-                if(activeImage->textureType == GRUNGE_TEXTURE)
+                if(activeImage->getTextureType() == GRUNGE_TEXTURE)
                     grungeCornerPositions[i] += dmouse;
                 else
                     cornerPositions[i] += dmouse;
@@ -2964,7 +2964,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         break;
         // Grab corners in perspective correction tool.
     case(UV_GRAB_CORNERS):
-        if(activeImage->textureType == GRUNGE_TEXTURE)
+        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
             break;
         if(draggingCorner == -1)
         {
@@ -3002,7 +3002,7 @@ void OpenGLImageEditor::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, 
         }
         break;
     case(UV_SCALE_XY):
-        if(activeImage->textureType == GRUNGE_TEXTURE)
+        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
             break;
         setCursor(Qt::OpenHandCursor);
 

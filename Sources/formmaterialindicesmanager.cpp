@@ -16,7 +16,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpe
     ui(new Ui::FormMaterialIndicesManager)
 {
     ui->setupUi(this);
-    imageProp.openGLWidget = qlW_ptr;
+    imageProp.setOpenGLWidget(qlW_ptr);
 
     connect(ui->pushButtonOpenMaterialImage, SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonCopyToClipboard, SIGNAL (released()), this, SLOT (copyToClipboard()));
@@ -26,7 +26,7 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpe
 
     ui->groupBox->setDisabled(true);
     setAcceptDrops(true);
-    getImage()->textureType = MATERIAL_TEXTURE;
+    getImage()->setTextureType(MATERIAL_TEXTURE);
 }
 
 FormMaterialIndicesManager::~FormMaterialIndicesManager()
@@ -47,7 +47,7 @@ void FormMaterialIndicesManager::disableMaterials()
 
 void FormMaterialIndicesManager::setImage(QImage _image)
 {
-    if (imageProp.openGLWidget->isValid())
+    if (imageProp.getOpenGLWidget()->isValid())
     {
         // Remember the last id.
         int mIndex = Image::currentMaterialIndex;
@@ -303,7 +303,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(imageProp.textureType) +
+                    PostfixNames::getTextureName(imageProp.getTextureType()) +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage image = pixmap.toImage();
@@ -314,7 +314,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(imageProp.textureType) +
+                PostfixNames::getTextureName(imageProp.getTextureType()) +
                 " copied to clipboard.";
 
     QApplication::processEvents();
