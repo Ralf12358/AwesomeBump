@@ -92,7 +92,6 @@ HEADERS = \
     openglwidget.h \
     utils/mesh.h \
     openglerrorcheck.h \
-    imagebasewidget.h \
     imagewidget.h \
     image.h
 
@@ -131,7 +130,6 @@ SOURCES = \
     openglimageeditor.cpp \
     openglwidget.cpp \
     utils/mesh.cpp \
-    imagebasewidget.cpp \
     imagewidget.cpp \
     image.cpp
 

@@ -5,7 +5,6 @@
 #include <QImage>
 #include <QString>
 
-#include "imagebasewidget.h"
 #include "openglimageeditor.h"
 #include "PropertyBase.h"
 #include "dialogheightcalculator.h"
@@ -15,7 +14,7 @@ namespace Ui
 class ImageWidget;
 }
 
-class ImageWidget : public ImageBaseWidget
+class ImageWidget : public QWidget
 {
     Q_OBJECT
 
@@ -23,13 +22,19 @@ public:
     explicit ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType);
     ~ImageWidget();
 
-    void setImage(const QImage &Image);
+    Image* getImage();
+    void setImage(const QImage& qImage);
+    QString getImageName();
+    void setImageName(const QString& name);
     void setOpenGLWidget(QOpenGLWidget *openGLWidget);
     void setupPropertiesGUI();
     void reloadSettings();
     bool loadFile(const QString &fileName);
+    void saveFileToDir(const QString& dir);
+    void saveImageToDir(const QString& dir, const QImage& qImage);
 
     static bool loadingImages;
+    static QDir* recentDir;
 
 signals:
     void reloadSettingsFromConfigFile(TextureType type);
@@ -70,8 +75,10 @@ public slots:
     void loadPredefinedGrunge(QString);
 
 private:
+    bool saveFile(const QString &fileName);
     void pasteImageFromClipboard(const QImage &image);
 
+    Image image;
     Ui::ImageWidget *ui;
     // Height calculator tool.
     DialogHeightCalculator *heightCalculator;
