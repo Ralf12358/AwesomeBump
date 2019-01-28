@@ -83,6 +83,7 @@ public slots:
     void pickImageColor(QtnPropertyABColor *property);
     // When image is rendered copy it to paintFBO in order to display result.
     void copyRenderToPaintFBO();
+    void toggleMouseWrap(bool toggle);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -286,6 +287,7 @@ private:
     QPoint lastCursorPos;
     bool mouseUpdateIsQueued;
     bool blockMouseMovement;
+    bool wrapMouse;
 };
 
 #endif // OPENGL2DIMAGEWIDGET_H

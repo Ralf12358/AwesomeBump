@@ -15,6 +15,8 @@ OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
     blockMouseMovement(false),
     keyPressed((Qt::Key)0)
 {
+    centerCamCursor = QCursor(QPixmap(":/resources/cursors/centerCamCursor.png"));
+    wrapMouse = true;
     setAcceptDrops(true);
     zoom                    = 60;
     lightPosition           = QVector4D(0,0.0,5.0,1);
@@ -179,6 +181,26 @@ void OpenGL3DImageWidget::resetCameraPosition()
     cameraInterpolation = 1.0;
     emit changeCamPositionApplied(false);
     update();
+}
+
+void OpenGL3DImageWidget::toggleChangeCamPosition(bool toggle)
+{
+    if(!toggle)
+    {
+        setCursor(Qt::PointingHandCursor);
+        keyPressed = (Qt::Key)0;
+    }
+    else
+    {
+        keyPressed = Qt::Key_Shift;
+        setCursor(centerCamCursor);
+    }
+    update();
+}
+
+void OpenGL3DImageWidget::toggleMouseWrap(bool toggle)
+{
+    wrapMouse = toggle;
 }
 
 void OpenGL3DImageWidget::loadMeshFromFile()

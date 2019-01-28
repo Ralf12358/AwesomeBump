@@ -51,6 +51,8 @@ public slots:
     void toggleMetallicView(bool);
     void setCameraMouseSensitivity(int value);
     void resetCameraPosition();
+    void toggleChangeCamPosition(bool toggle);
+    void toggleMouseWrap(bool toggle);
 
     // Mesh functions.
     void loadMeshFromFile();//opens file dialog
@@ -178,6 +180,8 @@ private:
     bool mouseUpdateIsQueued;
     bool blockMouseMovement;
     Qt::Key keyPressed;
+    QCursor centerCamCursor;
+    bool wrapMouse;
 
 public:
     static QDir* recentMeshDir;

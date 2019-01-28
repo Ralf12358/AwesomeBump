@@ -8,6 +8,7 @@ OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     mouseUpdateIsQueued(false),
     blockMouseMovement(false)
 {
+    wrapMouse = true;
     bShadowRender         = false;
     bSkipProcessing       = false;
     bRendering            = false;
@@ -3124,4 +3125,9 @@ void OpenGL2DImageWidget::copyRenderToPaintFBO()
     GLCHK( program->setUniformValue("material_id", int(-1)) );
     copyFBO(renderFBO,paintFBO);
     bRendering = false;
+}
+
+void OpenGL2DImageWidget::toggleMouseWrap(bool toggle)
+{
+    wrapMouse = toggle;
 }
