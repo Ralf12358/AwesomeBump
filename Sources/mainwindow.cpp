@@ -524,27 +524,27 @@ void MainWindow::materialsToggled(bool toggle)
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
     if(toggle)
     {
-        bLastValue = diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion;
-        diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion = false;
+        bLastValue = diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion;
+        diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = false;
         ui->pushButtonUVWarning->setVisible(false);
         if(bLastValue)
             replotAllImages();
     }
     else
     {
-        diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.EnableConversion = bLastValue;
+        diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = bLastValue;
     }
-    diffuseImageWidget->imageProp.getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
+    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
 }
 
 void MainWindow::checkWarnings()
 {
     ui->pushButtonConversionWarning->setVisible(Image::bConversionBaseMap);
-    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->imageProp.getProperties()->Grunge.OverallWeight.value() > 0);
+    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->getImage()->getProperties()->Grunge.OverallWeight.value() > 0);
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
-    bool bOccTest = (occlusionImageWidget->imageProp.getInputImageType() == INPUT_FROM_HO_NO) ||
-            (occlusionImageWidget->imageProp.getInputImageType() == INPUT_FROM_HI_NI);
+    bool bOccTest = (occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO) ||
+            (occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HI_NI);
     ui->pushButtonOccWarning->setVisible(bOccTest);
 }
 
@@ -1557,28 +1557,28 @@ void MainWindow::loadImageSettings(TextureType type)
     switch(type)
     {
     case DIFFUSE_TEXTURE:
-        diffuseImageWidget    ->imageProp.getProperties()->copyValues(&abSettings->Diffuse);
+        diffuseImageWidget    ->getImage()->getProperties()->copyValues(&abSettings->Diffuse);
         break;
     case NORMAL_TEXTURE:
-        normalImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Normal);
+        normalImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Normal);
         break;
     case SPECULAR_TEXTURE:
-        specularImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Specular);
+        specularImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Specular);
         break;
     case HEIGHT_TEXTURE:
-        heightImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Height);
+        heightImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Height);
         break;
     case OCCLUSION_TEXTURE:
-        occlusionImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Occlusion);
+        occlusionImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Occlusion);
         break;
     case ROUGHNESS_TEXTURE:
-        roughnessImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Roughness);
+        roughnessImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Roughness);
         break;
     case METALLIC_TEXTURE:
-        metallicImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Metallic);
+        metallicImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Metallic);
         break;
     case GRUNGE_TEXTURE:
-        grungeImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Grunge);
+        grungeImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Grunge);
         break;
     default:
         qWarning() << "Trying to load non supported image! Given textureType:" << type;
@@ -1649,14 +1649,14 @@ void MainWindow::saveSettings()
 
     dock3Dsettings->saveSettings(abSettings);
 
-    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->imageProp.getProperties());
-    abSettings->Specular .copyValues(specularImageWidget  ->imageProp.getProperties());
-    abSettings->Normal   .copyValues(normalImageWidget    ->imageProp.getProperties());
-    abSettings->Occlusion.copyValues(occlusionImageWidget ->imageProp.getProperties());
-    abSettings->Height   .copyValues(heightImageWidget    ->imageProp.getProperties());
-    abSettings->Metallic .copyValues(metallicImageWidget  ->imageProp.getProperties());
-    abSettings->Roughness.copyValues(roughnessImageWidget ->imageProp.getProperties());
-    abSettings->Grunge   .copyValues(grungeImageWidget    ->imageProp.getProperties());
+    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->getImage()->getProperties());
+    abSettings->Specular .copyValues(specularImageWidget  ->getImage()->getProperties());
+    abSettings->Normal   .copyValues(normalImageWidget    ->getImage()->getProperties());
+    abSettings->Occlusion.copyValues(occlusionImageWidget ->getImage()->getProperties());
+    abSettings->Height   .copyValues(heightImageWidget    ->getImage()->getProperties());
+    abSettings->Metallic .copyValues(metallicImageWidget  ->getImage()->getProperties());
+    abSettings->Roughness.copyValues(roughnessImageWidget ->getImage()->getProperties());
+    abSettings->Grunge   .copyValues(grungeImageWidget    ->getImage()->getProperties());
 
     // Disable possibility to save conversion status
     //    abSettings->Diffuse.BaseMapToOthers.EnableConversion.setValue(false);
@@ -1706,14 +1706,14 @@ void MainWindow::loadSettings()
     QString name = abSettings->settings_name.value();
     ui->pushButtonProjectManager->setText("Project manager (" + name + ")");
 
-    diffuseImageWidget    ->imageProp.getProperties()->copyValues(&abSettings->Diffuse);
-    specularImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Specular);
-    normalImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Normal);
-    occlusionImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Occlusion);
-    heightImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Height);
-    metallicImageWidget   ->imageProp.getProperties()->copyValues(&abSettings->Metallic);
-    roughnessImageWidget  ->imageProp.getProperties()->copyValues(&abSettings->Roughness);
-    grungeImageWidget     ->imageProp.getProperties()->copyValues(&abSettings->Grunge);
+    diffuseImageWidget    ->getImage()->getProperties()->copyValues(&abSettings->Diffuse);
+    specularImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Specular);
+    normalImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Normal);
+    occlusionImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Occlusion);
+    heightImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Height);
+    metallicImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Metallic);
+    roughnessImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Roughness);
+    grungeImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Grunge);
 
     // Update general settings.
     if(bFirstTime)

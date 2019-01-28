@@ -8,15 +8,14 @@
 #include <QImageReader>
 
 #include "targaimage.h"
-//#include "OpenGLFramebufferObjectProperties.h"
 #include "image.h"
 
-FormMaterialIndicesManager::FormMaterialIndicesManager(QMainWindow *parent, QOpenGLWidget* qlW_ptr) :
-    ImageBaseWidget(parent),
+FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, QOpenGLWidget *qlW_ptr) :
+    QWidget(parent),
     ui(new Ui::FormMaterialIndicesManager)
 {
     ui->setupUi(this);
-    imageProp.setOpenGLWidget(qlW_ptr);
+    getImage()->setOpenGLWidget(qlW_ptr);
 
     connect(ui->pushButtonOpenMaterialImage, SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonCopyToClipboard, SIGNAL (released()), this, SLOT (copyToClipboard()));
@@ -47,13 +46,13 @@ void FormMaterialIndicesManager::disableMaterials()
 
 void FormMaterialIndicesManager::setImage(const QImage& image)
 {
-    if (imageProp.getOpenGLWidget()->isValid())
+    if (getImage()->getOpenGLWidget()->isValid())
     {
         // Remember the last id.
         int mIndex = Image::currentMaterialIndex;
         if(updateMaterials(image))
         {
-            imageProp.init(image);
+            getImage()->init(image);
             emit materialChanged();
         }
 
@@ -119,7 +118,7 @@ bool FormMaterialIndicesManager::updateMaterials(const QImage& image)
         {
             QString m_name = ui->listWidgetMaterialIndices->item(m)->text();
             Image tmp;
-            tmp.copySettings(imagesPointers[i]->imageProp);
+            tmp.copySettings(imagesPointers[i]->getImage());
             materialIndices[i][m_name] = tmp;
         }
     }
@@ -146,7 +145,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
     QString m_name = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->text();
     for(int i = 0 ; i < MATERIAL_TEXTURE ; i++)
     {
-        materialIndices[i][m_name].copySettings(imagesPointers[i]->imageProp);
+        materialIndices[i][m_name].copySettings(imagesPointers[i]->getImage());
     }
 
     lastMaterialIndex = index;
@@ -159,7 +158,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
     m_name = ui->listWidgetMaterialIndices->item(index)->text();
     for(int i = 0 ; i < MATERIAL_TEXTURE ; i++)
     {
-        imagesPointers[i]->imageProp.copySettings(materialIndices[i][m_name]);
+        imagesPointers[i]->getImage()->copySettings(&materialIndices[i][m_name]);
         imagesPointers[i]->reloadSettings();
     }
 
@@ -202,7 +201,7 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     if(updateMaterials(image))
     {
         //image = _image;
-        imageProp.init(image);
+        getImage()->init(image);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(image.width(), image.height());
@@ -220,7 +219,7 @@ void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& image)
     int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(image))
     {
-        imageProp.init(image);
+        getImage()->init(image);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(image.width(), image.height());
@@ -301,7 +300,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(imageProp.getTextureType()) +
+                    PostfixNames::getTextureName(getImage()->getTextureType()) +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage image = pixmap.toImage();
@@ -312,10 +311,10 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(imageProp.getTextureType()) +
+                PostfixNames::getTextureName(getImage()->getTextureType()) +
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    QImage image = imageProp.getFBOImage();
+    QImage image = getImage()->getFBOImage();
     QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
 }

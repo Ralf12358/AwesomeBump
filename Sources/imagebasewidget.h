@@ -27,8 +27,6 @@ public:
     virtual void saveFileToDir(const QString& dir);
     virtual void saveImageToDir(const QString& dir, const QImage& image);
     virtual void setImageType(TextureType imageType);
-    Image imageProp; // for simplicity I made this public, why not...
-    // some properties are visible or hiden for given texture type
 
 protected:
     void dropEvent(QDropEvent *event);
@@ -43,6 +41,9 @@ public slots:
 
 public:
     static QDir* recentDir;
+
+private:
+    Image imageProp;
 };
 
 #endif // IMAGEBASEWIDGET_H

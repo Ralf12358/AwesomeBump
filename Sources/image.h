@@ -54,7 +54,7 @@ public:
     Image();
     ~Image();
 
-    void copySettings(const Image& source);
+    void copySettings(const Image *source);
     void init(const QImage &image);
 
     QOpenGLWidget* getOpenGLWidget();

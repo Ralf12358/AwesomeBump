@@ -56,15 +56,15 @@ Image::~Image()
     }
 }
 
-void Image::copySettings(const Image &source)
+void Image::copySettings(const Image *source)
 {
-    bFirstDraw         = source.bFirstDraw;
-    conversionHNDepth  = source.conversionHNDepth;
-    bConversionBaseMap = source.bConversionBaseMap;
-    inputImageType     = source.inputImageType;
+    bFirstDraw         = source->bFirstDraw;
+    conversionHNDepth  = source->conversionHNDepth;
+    bConversionBaseMap = source->bConversionBaseMap;
+    inputImageType     = source->inputImageType;
 
-    if(properties != NULL && source.properties != NULL )
-        properties->copyValues(source.properties);
+    if(properties != NULL && source->properties != NULL )
+        properties->copyValues(source->properties);
 }
 
 void Image::init(const QImage& image)

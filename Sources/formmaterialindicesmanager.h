@@ -1,13 +1,12 @@
 #ifndef FORMMATERIALINDICESMANAGER_H
 #define FORMMATERIALINDICESMANAGER_H
 
-#include <QMainWindow>
+#include <QWidget>
 #include <QOpenGLWidget>
 #include <QImage>
 #include <QString>
 #include <QRgb>
 
-#include "imagebasewidget.h"
 #include "imagewidget.h"
 #include "image.h"
 
@@ -18,18 +17,19 @@ class FormMaterialIndicesManager;
 
 typedef std::map<int,QRgb>::iterator it_type;
 
-class FormMaterialIndicesManager : public ImageBaseWidget
+class FormMaterialIndicesManager : public QWidget
 {
     Q_OBJECT
 
 public:
-    FormMaterialIndicesManager(QMainWindow *parent = 0, QOpenGLWidget *qlW_ptr = 0 );
+    FormMaterialIndicesManager(QWidget *parent = 0, QOpenGLWidget *qlW_ptr = 0);
     ~FormMaterialIndicesManager();
 
+    Image* getImage(){return &imageProp;}
     void setImage(const QImage &image);
 
     // Counts colors and manages material masking
-    bool updateMaterials(const QImage &_image);
+    bool updateMaterials(const QImage &image);
     bool isEnabled();
     void disableMaterials();
 
@@ -60,6 +60,9 @@ protected:
     int lastMaterialIndex;
     Ui::FormMaterialIndicesManager *ui;
     bool bSkipUpdating;
+
+private:
+    Image imageProp;
 };
 
 #endif // FORMMATERIALINDICESMANAGER_H
