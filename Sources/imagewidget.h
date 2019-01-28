@@ -23,7 +23,7 @@ public:
     explicit ImageWidget(QWidget *parent, OpenGLImageEditor *openGLWidget, TextureType textureType);
     ~ImageWidget();
 
-    void setImage(QImage newImage);
+    void setImage(const QImage &Image);
     void setOpenGLWidget(QOpenGLWidget *openGLWidget);
     void setupPropertiesGUI();
     void reloadSettings();
@@ -70,7 +70,7 @@ public slots:
     void loadPredefinedGrunge(QString);
 
 private:
-    void pasteImageFromClipboard(QImage& _image);
+    void pasteImageFromClipboard(const QImage &image);
 
     Ui::ImageWidget *ui;
     // Height calculator tool.

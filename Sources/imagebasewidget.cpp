@@ -63,7 +63,7 @@ void ImageBaseWidget::saveFileToDir(const QString &dir)
     saveFile(fullFileName);
 }
 
-void ImageBaseWidget::saveImageToDir(const QString &dir,QImage& image)
+void ImageBaseWidget::saveImageToDir(const QString& dir,const QImage& image)
 {
     QString fullFileName = dir + "/" +
             imageName +
@@ -134,7 +134,7 @@ bool ImageBaseWidget::saveFile(const QString &fileName)
 
     QFileInfo fileInfo(fileName);
     (*recentDir).setPath(fileInfo.absolutePath());
-    image = imageProp.getFBOImage();
+    QImage image = imageProp.getFBOImage();
 
     if( PostfixNames::outputFormat.compare(".tga") == 0
             || fileInfo.completeSuffix().compare("tga") == 0 )
@@ -219,7 +219,7 @@ void ImageBaseWidget::keyPressEvent(QKeyEvent *event)
                         " copied to clipboard.";
 
             QApplication::processEvents();
-            image = imageProp.getFBOImage();
+            QImage image = imageProp.getFBOImage();
             QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
         } // End of Ctrl + C (copy To clipboard)
     }

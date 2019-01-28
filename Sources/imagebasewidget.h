@@ -24,8 +24,8 @@ public:
     virtual Image* getImage(){return &imageProp;}
     virtual void setImageName(QString name);
     virtual QString getImageName();
-    virtual void saveFileToDir(const QString &dir);
-    virtual void saveImageToDir(const QString &dir,QImage& image);
+    virtual void saveFileToDir(const QString& dir);
+    virtual void saveImageToDir(const QString& dir, const QImage& image);
     virtual void setImageType(TextureType imageType);
     Image imageProp; // for simplicity I made this public, why not...
     // some properties are visible or hiden for given texture type
@@ -33,10 +33,9 @@ public:
 protected:
     void dropEvent(QDropEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
-    virtual void pasteImageFromClipboard(QImage& image) = 0;
+    virtual void pasteImageFromClipboard(const QImage& image) = 0;
     virtual bool loadFile(const QString& file) = 0;
     virtual bool saveFile(const QString &fileName);
-    QImage  image;
     QString imageName;
 
 public slots:

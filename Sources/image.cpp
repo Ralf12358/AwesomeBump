@@ -67,7 +67,7 @@ void Image::copySettings(const Image &source)
         properties->copyValues(source.properties);
 }
 
-void Image::init(QImage& image)
+void Image::init(const QImage& image)
 {
     qDebug() << Q_FUNC_INFO;
 

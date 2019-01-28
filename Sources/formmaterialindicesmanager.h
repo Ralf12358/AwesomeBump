@@ -26,10 +26,10 @@ public:
     FormMaterialIndicesManager(QMainWindow *parent = 0, QOpenGLWidget *qlW_ptr = 0 );
     ~FormMaterialIndicesManager();
 
-    void setImage(QImage image);
+    void setImage(const QImage &image);
 
     // Counts colors and manages material masking
-    bool updateMaterials(QImage &_image);
+    bool updateMaterials(const QImage &_image);
     bool isEnabled();
     void disableMaterials();
 
@@ -52,7 +52,7 @@ signals:
 
 protected:
     bool loadFile(const QString &fileName);
-    void pasteImageFromClipboard(QImage& image);
+    void pasteImageFromClipboard(const QImage& image);
 
     // Settings
     std::map<QString, Image> materialIndices[7];

@@ -45,15 +45,14 @@ void FormMaterialIndicesManager::disableMaterials()
     Image::currentMaterialIndex = MATERIALS_DISABLED;
 }
 
-void FormMaterialIndicesManager::setImage(QImage _image)
+void FormMaterialIndicesManager::setImage(const QImage& image)
 {
     if (imageProp.getOpenGLWidget()->isValid())
     {
         // Remember the last id.
         int mIndex = Image::currentMaterialIndex;
-        if(updateMaterials(_image))
+        if(updateMaterials(image))
         {
-            image = _image;
             imageProp.init(image);
             emit materialChanged();
         }
@@ -64,7 +63,7 @@ void FormMaterialIndicesManager::setImage(QImage _image)
         qDebug() << Q_FUNC_INFO << "Invalid context.";
 }
 
-bool FormMaterialIndicesManager::updateMaterials(QImage& image)
+bool FormMaterialIndicesManager::updateMaterials(const QImage& image)
 {
     bSkipUpdating = true;
 
@@ -76,8 +75,8 @@ bool FormMaterialIndicesManager::updateMaterials(QImage& image)
         {
             QRgb pixel = image.pixel(w,h);
             QColor bgColor = QColor(pixel);
-            int indeks = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
-            colorIndices[indeks] = pixel;
+            int index = bgColor.red()*255*255 + bgColor.green()*255 + bgColor.blue();
+            colorIndices[index] = pixel;
         }
     }
     if(colorIndices.size() > 32)
@@ -173,21 +172,21 @@ void FormMaterialIndicesManager::changeMaterial(int index)
 bool FormMaterialIndicesManager::loadFile(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
-    QImage _image;
+    QImage image;
 
     // Targa support added.
     if(fileInfo.completeSuffix().compare("tga") == 0)
     {
         TargaImage tgaImage;
-        _image = tgaImage.read(fileName);
+        image = tgaImage.read(fileName);
     }
     else
     {
         QImageReader loadedImage(fileName);
-        _image = loadedImage.read();
+        image = loadedImage.read();
     }
 
-    if (_image.isNull())
+    if (image.isNull())
     {
         QMessageBox::information(
                     this, QGuiApplication::applicationDisplayName(),
@@ -200,13 +199,13 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     (*ImageWidget::recentDir).setPath(fileName);
 
     int mIndex = Image::currentMaterialIndex;
-    if(updateMaterials(_image))
+    if(updateMaterials(image))
     {
-        image = _image;
+        //image = _image;
         imageProp.init(image);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
-        emit imageLoaded(image.width(),image.height());
+        emit imageLoaded(image.width(), image.height());
         // Repaint all materials.
         if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
@@ -216,16 +215,15 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     return true;
 }
 
-void FormMaterialIndicesManager::pasteImageFromClipboard(QImage& _image)
+void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& image)
 {
     int mIndex = Image::currentMaterialIndex;
-    if(updateMaterials(_image))
+    if(updateMaterials(image))
     {
-        image    = _image;
         imageProp.init(image);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
-        emit imageLoaded(image.width(),image.height());
+        emit imageLoaded(image.width(), image.height());
         // Repaint all materials.
         if(Image::currentMaterialIndex != MATERIALS_DISABLED)
         {
@@ -308,9 +306,9 @@ void FormMaterialIndicesManager::pasteFromClipboard()
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage image = pixmap.toImage();
         pasteImageFromClipboard(image);
-
     }
 }
+
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
@@ -318,6 +316,6 @@ void FormMaterialIndicesManager::copyToClipboard()
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    image = imageProp.getFBOImage();
+    QImage image = imageProp.getFBOImage();
     QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
 }

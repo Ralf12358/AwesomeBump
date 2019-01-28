@@ -102,11 +102,10 @@ ImageWidget::~ImageWidget()
     delete ui;
 }
 
-void ImageWidget::setImage(QImage newImage)
+void ImageWidget::setImage(const QImage& Image)
 {
-    image = newImage;
     if (imageProp.getOpenGLWidget()->isValid())
-        imageProp.init(image);
+        imageProp.init(Image);
     else
         qDebug() << Q_FUNC_INFO << "Invalid context.";
 }
@@ -341,21 +340,21 @@ void ImageWidget::reloadSettings()
 bool ImageWidget::loadFile(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
-    QImage _image;
+    QImage image;
     //    qDebug() << "Opening file: " << fileName;
     // Targa support added
     if(fileInfo.completeSuffix().compare("tga") == 0)
     {
         TargaImage tgaImage;
-        _image = tgaImage.read(fileName);
+        image = tgaImage.read(fileName);
     }
     else
     {
         QImageReader loadedImage(fileName);
-        _image = loadedImage.read();
+        image = loadedImage.read();
     }
 
-    if (_image.isNull())
+    if (image.isNull())
     {
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
                                  tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
@@ -368,7 +367,7 @@ bool ImageWidget::loadFile(const QString &fileName)
         //if(glIsTexture(imageProp.normalMixerInputTexId))
         //    imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
         //    imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
-        imageProp.setNormalMixerInputTexture(_image);
+        imageProp.setNormalMixerInputTexture(image);
 
         emit imageChanged();
     }
@@ -378,12 +377,11 @@ bool ImageWidget::loadFile(const QString &fileName)
 
         imageName = fileInfo.baseName();
         (*recentDir).setPath(fileName);
-        image    = _image;
         imageProp.init(image);
 
-        //emit imageChanged();
-        emit imageLoaded(image.width(),image.height());
-        if(imageProp.getTextureType() == GRUNGE_TEXTURE)emit imageChanged();
+        emit imageLoaded(image.width(), image.height());
+        if(imageProp.getTextureType() == GRUNGE_TEXTURE)
+            emit imageChanged();
     }
     return true;
 }
@@ -400,8 +398,8 @@ void ImageWidget::copyToClipboard()
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    image = imageProp.getFBOImage();
-    QApplication::clipboard()->setImage(image,QClipboard::Clipboard);
+    QImage image = imageProp.getFBOImage();
+    QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 }
 
 void ImageWidget::pasteFromClipboard()
@@ -431,13 +429,13 @@ void ImageWidget::pasteNormalFromClipBoard()
                     PostfixNames::getTextureName(imageProp.getTextureType()) +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
-        QImage _image = pixmap.toImage();
+        QImage image = pixmap.toImage();
 
         //imageProp.getOpenGLWidget()->makeCurrent();
         //        if(glIsTexture(imageProp.normalMixerInputTexId))
         //            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
         //        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
-        imageProp.setNormalMixerInputTexture(_image);
+        imageProp.setNormalMixerInputTexture(image);
 
         emit imageChanged();
     }
@@ -698,11 +696,11 @@ void ImageWidget::loadPredefinedGrunge(QString image)
     loadFile(QString(RESOURCE_BASE) + "Core/2D/grunge/" + image);
 }
 
-void ImageWidget::pasteImageFromClipboard(QImage& _image)
+void ImageWidget::pasteImageFromClipboard(const QImage& image)
 {
     imageName = "clipboard_image";
-    image     = _image;
     imageProp.init(image);
-    emit imageLoaded(image.width(),image.height());
-    if(imageProp.getTextureType() == GRUNGE_TEXTURE)emit imageChanged();
+    emit imageLoaded(image.width(), image.height());
+    if(imageProp.getTextureType() == GRUNGE_TEXTURE)
+        emit imageChanged();
 }
