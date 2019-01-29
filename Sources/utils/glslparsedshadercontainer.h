@@ -1,6 +1,8 @@
 #ifndef GLSLPARSEDSHADERCONTAINER_H
 #define GLSLPARSEDSHADERCONTAINER_H
 
+#include <QVector>
+
 #include "glslshaderparser.h"
 
 class GLSLParsedShaderContainer

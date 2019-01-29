@@ -1,12 +1,10 @@
 #ifndef GLSLSHADERPARSER_H
 #define GLSLSHADERPARSER_H
 
-#include <QOpenGLFunctions_3_3_Core>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
 #include <QOpenGLShaderProgram>
-#include <QDebug>
-#include <QDir>
+#include <QString>
+#include <QStringList>
+#include <QVector>
 
 enum UniformDataType
 {
@@ -40,41 +38,45 @@ struct UniformData
                 "Type       :" + QString::number(type) + "\n" +
                 "Data       :" + QString::number(value) +
                 " range=[" +
-                    QString::number(min) + "," +
-                    QString::number(max) + ";" +
-                    QString::number(step)+ "]\n" +
+                QString::number(min) + "," +
+                QString::number(max) + ";" +
+                QString::number(step)+ "]\n" +
                 "Description:" + description;
         return uniformString;
     }
 };
 
-class GLSLShaderParser: public QOpenGLFunctions_3_3_Core
+class GLSLShaderParser
 {
 public:
     GLSLShaderParser();
-    bool parseShader(QString path);
-    void reparseShader();
-    void setParsedUniforms();
     ~GLSLShaderParser();
 
-    QString shaderName;
+    bool parseShader(QString filename);
+    void reparseShader();
+    void setParsedUniforms();
+
     // Contains all editable parsed uniforms.
     QVector<UniformData> uniforms;
-    QString shaderPath;
     // GLSL shader
     QOpenGLShaderProgram *program;
+
+    QString shaderBaseName;
+    QString shaderFilename;
 
 private:
     void cleanup();
     void parseLine(const QString& line);
-    void parseUniformParameters(UniformData &uniform, const QString &line, const QString& param);
+    void parseUniformParameters(UniformData& uniformData,
+            const QString& line,
+            const QString& param);
 
     // List of uniforms names which will be not parsed.
-    QStringList reservedNames;
-    // List of types (int, float, ...) which can be parsed.
-    QStringList supportedTypes;
-    // List of regular expresions to obtain the maxium, minium etc parameters of the uniform.
-    QStringList supportedParams;
+    static QStringList reservedNames;
+    // List of types (int, float, etc.) which can be parsed.
+    static QStringList supportedTypes;
+    // List of regular expresions to obtain the maximum, minimum etc. parameters of the uniform.
+    static QStringList supportedParams;
 };
 
 #endif // GLSLSHADERPARSER_H

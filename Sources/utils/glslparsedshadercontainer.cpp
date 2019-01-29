@@ -1,10 +1,14 @@
 #include "glslparsedshadercontainer.h"
 
+#include <QDir>
+#include <QString>
+#include <QStringList>
+
 extern QString getDataDirectory(const QString& base);
 
 GLSLParsedShaderContainer::GLSLParsedShaderContainer()
 {
-    qDebug() << "Parsing shaders in Render folder:";
+    qDebug() << "Parsing shaders in Core/Render folder:";
 
     QDir currentDir(getDataDirectory(QString(RESOURCE_BASE) + "Core/Render"));
     currentDir.setFilter(QDir::Files);
