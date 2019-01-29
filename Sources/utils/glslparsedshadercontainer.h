@@ -3,8 +3,6 @@
 
 #include "glslshaderparser.h"
 
-#define RENDER_FOLDER "Core/Render/"
-
 class GLSLParsedShaderContainer
 {
 public:
