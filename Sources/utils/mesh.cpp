@@ -213,37 +213,39 @@ void Mesh::initializeMesh()
     }
 
     initializeOpenGLFunctions();
-    glGenBuffers(6, &mesh_vbos[0]);
+    GLCHK( glGenVertexArrays(6, mesh_vbos) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[0]);
-    glBufferData(GL_ARRAY_BUFFER, gl_vertices.size() * sizeof(QVector3D), gl_vertices.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    for (int i = 0; i < 6; ++i)
+    {
+        GLCHK( glBindVertexArray(mesh_vbos[i]) );
+        GLCHK( glEnableVertexAttribArray(mesh_vbos[i]) );
+        GLCHK( glVertexAttribPointer(mesh_vbos[i], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]);
-    glBufferData(GL_ARRAY_BUFFER, gl_texcoords.size() * sizeof(QVector3D), gl_texcoords.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]) );
+//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_texcoords.size() * sizeof(QVector3D), gl_texcoords.constData(), GL_STATIC_DRAW) );
+//    GLCHK( glEnableVertexAttribArray(1) );
+//    GLCHK( glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]);
-    glBufferData(GL_ARRAY_BUFFER, gl_normals.size() * sizeof(QVector3D), gl_normals.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]) );
+//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_normals.size() * sizeof(QVector3D), gl_normals.constData(), GL_STATIC_DRAW) );
+//    GLCHK( glEnableVertexAttribArray(2) );
+//    GLCHK( glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]);
-    glBufferData(GL_ARRAY_BUFFER, gl_tangents.size() * sizeof(QVector3D), gl_tangents.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]) );
+//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_tangents.size() * sizeof(QVector3D), gl_tangents.constData(), GL_STATIC_DRAW) );
+//    GLCHK( glEnableVertexAttribArray(3) );
+//    GLCHK( glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]);
-    glBufferData(GL_ARRAY_BUFFER, gl_bitangents.size() * sizeof(QVector3D), gl_bitangents.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]) );
+//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_bitangents.size() * sizeof(QVector3D), gl_bitangents.constData(), GL_STATIC_DRAW) );
+//    GLCHK( glEnableVertexAttribArray(4) );
+//    GLCHK( glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]);
-    glBufferData(GL_ARRAY_BUFFER, gl_smoothed_normals.size() * sizeof(QVector3D), gl_smoothed_normals.constData(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]) );
+//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_smoothed_normals.size() * sizeof(QVector3D), gl_smoothed_normals.constData(), GL_STATIC_DRAW) );
+//    GLCHK( glEnableVertexAttribArray(5) );
+//    GLCHK( glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 }
 
 void Mesh::drawMesh(bool bUseArrays )
