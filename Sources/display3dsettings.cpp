@@ -1,7 +1,5 @@
 #include "display3dsettings.h"
 
-float Display3DSettings::openGLVersion = 3.3;
-
 Display3DSettings::Display3DSettings()
 {
     depthScale = 0.1;

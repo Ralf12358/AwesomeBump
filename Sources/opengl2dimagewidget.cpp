@@ -90,9 +90,13 @@ QSize OpenGL2DImageWidget::sizeHint() const
 
 void OpenGL2DImageWidget::initializeGL()
 {
-    qDebug() << "calling " << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO;
 
     initializeOpenGLFunctions();
+
+    qDebug() << QString("OpenGL version: %1.%2")
+                .arg(context()->format().majorVersion())
+                .arg(context()->format().minorVersion());
 
     QColor clearColor = QColor::fromCmykF(0.79, 0.79, 0.79, 0.0).dark();
     GLCHK( glClearColor((GLfloat)clearColor.red() / 255.0, (GLfloat)clearColor.green() / 255.0,

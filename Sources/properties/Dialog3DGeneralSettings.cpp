@@ -3,9 +3,9 @@
 
 #include <QMessageBox>
 
-QtnPropertySetFilters3D* Dialog3DGeneralSettings::settings3D = NULL;
-GLSLShaderParser* Dialog3DGeneralSettings::currentRenderShader        = NULL;
-GLSLParsedShaderContainer* Dialog3DGeneralSettings::glslParsedShaders = NULL;
+QtnPropertySetFilters3D *Dialog3DGeneralSettings::filters3DProperties = NULL;
+GLSLShaderParser *Dialog3DGeneralSettings::currentShaderParser = NULL;
+GLSLParsedShaderContainer *Dialog3DGeneralSettings::parsedShaderContainer = NULL;
 
 Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
     QDialog(parent),
@@ -15,9 +15,9 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
     hide();
     ui->widget->setParts(QtnPropertyWidgetPartsDescriptionPanel);
 
-    QtnPropertySetFilters3D* settings = new QtnPropertySetFilters3D(this);
+    QtnPropertySetFilters3D *settings = new QtnPropertySetFilters3D(this);
 
-    settings3D = settings;
+    filters3DProperties = settings;
 
     ui->widget->setPropertySet(settings);
 
@@ -29,37 +29,37 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
         QString property;
         QTextStream outstream(&file);
         property = outstream.readAll();
-        settings3D->fromStr(property);
+        filters3DProperties->fromStr(property);
     }
 
     connect(ui->pushButtonCancel,SIGNAL(pressed()),this,SLOT(cancelSettings()));
     connect(ui->pushButtonOK    ,SIGNAL(pressed()),this,SLOT(acceptSettings()));
     connect(ui->pushButtonRecompileShaders,SIGNAL(released()),this,SLOT(recompileCustomShader()));
     connect(settings,SIGNAL(propertyDidChange(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)),
-                this,SLOT(propertyChanged(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)));
+            this,SLOT(propertyChanged(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)));
 
     // Parse and create list of avaiable shaders in Render folder.
-    glslParsedShaders = new GLSLParsedShaderContainer;
+    parsedShaderContainer = new GLSLParsedShaderContainer;
 
     // Create list of available shaders.
     QStringList shaderList;
-    for(int i = 0 ; i < glslParsedShaders->glslParsedShaders.size(); i++)
+    for(int i = 0 ; i < parsedShaderContainer->glslParsedShaders.size(); i++)
     {
-        shaderList << glslParsedShaders->glslParsedShaders.at(i)->shaderName;
+        shaderList << parsedShaderContainer->glslParsedShaders.at(i)->shaderBaseName;
     }
     ui->comboBoxShadersList->addItems(shaderList);
 
     // Setup pointer and comboBox
     int lastIndex = settings->ParsedShader.LastShaderIndex.value();
     ui->comboBoxShadersList->setCurrentIndex(lastIndex);
-    currentRenderShader  = glslParsedShaders->glslParsedShaders[lastIndex];
+    currentShaderParser  = parsedShaderContainer->glslParsedShaders[lastIndex];
 
     connect(ui->comboBoxShadersList,SIGNAL(currentIndexChanged(int)),this,SLOT(shaderChanged(int)));
 }
 
 void Dialog3DGeneralSettings::propertyChanged(const QtnPropertyBase *,
                                               const QtnPropertyBase *,
-                                             QtnPropertyChangeReason reason)
+                                              QtnPropertyChangeReason reason)
 {
     if (reason & QtnPropertyChangeReasonValue)
     {
@@ -74,7 +74,7 @@ void Dialog3DGeneralSettings::recompileCustomShader()
 
 void Dialog3DGeneralSettings::shaderChanged(int index)
 {
-    currentRenderShader  = glslParsedShaders->glslParsedShaders[index];
+    currentShaderParser  = parsedShaderContainer->glslParsedShaders[index];
     updateParsedShaders();
     emit signalPropertyChanged();
 }
@@ -114,16 +114,16 @@ void Dialog3DGeneralSettings::saveSettings()
     QFile file("Configs/settings3D.dat");
     file.open(QIODevice::WriteOnly);
     QString property;
-    settings3D->ParsedShader.LastShaderIndex.setValue(ui->comboBoxShadersList->currentIndex());
-    settings3D->toStr(property);
+    filters3DProperties->ParsedShader.LastShaderIndex.setValue(ui->comboBoxShadersList->currentIndex());
+    filters3DProperties->toStr(property);
     QTextStream outstream(&file);
     outstream << property;
 }
 
 void Dialog3DGeneralSettings::updateParsedShaders()
 {
-    GLSLShaderParser* parsedShader = currentRenderShader;
-    int maxParams      = settings3D->ParsedShader.MaxParams;
+    GLSLShaderParser* parsedShader = currentShaderParser;
+    int maxParams      = filters3DProperties->ParsedShader.MaxParams;
     int noParsedParams = parsedShader->uniforms.size();
 
     // If parsed number uniform is greater than supported number of params display warning message.
@@ -131,7 +131,7 @@ void Dialog3DGeneralSettings::updateParsedShaders()
     {
         QMessageBox msgBox;
         msgBox.setText("Error!");
-        msgBox.setInformativeText("Custom shader with name:"+parsedShader->shaderName+
+        msgBox.setInformativeText("Custom shader with name:"+parsedShader->shaderBaseName+
                                   " has more than maxiumum allowed number of user-defined uniforms. \n"+
                                   "Current number of parameters:"+QString::number(noParsedParams)+".\n"+
                                   "Supported number:"+QString::number(maxParams)+".\n"+
@@ -144,14 +144,14 @@ void Dialog3DGeneralSettings::updateParsedShaders()
     // Hide all by default.
     for(int i = 0 ; i < maxParams ; i++)
     {
-        QtnPropertyFloat* p = (QtnPropertyFloat*)(settings3D->ParsedShader.findChildProperty(i+1));
+        QtnPropertyFloat* p = (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i+1));
         p->switchState(QtnPropertyStateInvisible,true);
     }
 
     // Update property set based on parsed fragment shader.
     for(int i = 0 ; i < qMin(noParsedParams,maxParams) ; i++)
     {
-        QtnPropertyFloat* p = (QtnPropertyFloat*)(settings3D->ParsedShader.findChildProperty(i+1));
+        QtnPropertyFloat* p = (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i+1));
         UniformData& uniform = parsedShader->uniforms[i];
         p->switchState(QtnPropertyStateInvisible,false);
         p->setDescription(uniform.description);
@@ -165,14 +165,14 @@ void Dialog3DGeneralSettings::updateParsedShaders()
 
 void Dialog3DGeneralSettings::setUniforms()
 {
-    GLSLShaderParser* parsedShader = currentRenderShader;
-    int maxParams      = settings3D->ParsedShader.MaxParams;
+    GLSLShaderParser* parsedShader = currentShaderParser;
+    int maxParams      = filters3DProperties->ParsedShader.MaxParams;
     int noParsedParams = parsedShader->uniforms.size();
 
     // Update property set based on parsed fragment shader.
     for(int i = 0 ; i < qMin(noParsedParams,maxParams) ; i++)
     {
-        QtnPropertyFloat* p = (QtnPropertyFloat*)(settings3D->ParsedShader.findChildProperty(i+1));
+        QtnPropertyFloat* p = (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i+1));
         UniformData& uniform = parsedShader->uniforms[i];
         uniform.value = (float)p->value();
     }
@@ -182,8 +182,8 @@ void Dialog3DGeneralSettings::setUniforms()
 Dialog3DGeneralSettings::~Dialog3DGeneralSettings()
 {
     qDebug() << "calling" << Q_FUNC_INFO;
-    settings3D = NULL;
-    delete glslParsedShaders;
-    glslParsedShaders = NULL;
+    filters3DProperties = NULL;
+    delete parsedShaderContainer;
+    parsedShaderContainer = NULL;
     delete ui;
 }

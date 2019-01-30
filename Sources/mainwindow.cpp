@@ -142,10 +142,11 @@ void MainWindow::initialiseWindow()
     // show hide 3D settings
     connect(ui->pushButton3DSettings, SIGNAL (toggled(bool)), dock3Dsettings, SLOT (setVisible(bool)));
 
-    dialog3dGeneralSettings = new Dialog3DGeneralSettings(this);
-    connect(ui->pushButton3DGeneralSettings, SIGNAL (released()), dialog3dGeneralSettings, SLOT (show()));
-    connect(dialog3dGeneralSettings, SIGNAL (signalPropertyChanged()), openGL3DImageWidget, SLOT (repaint()));
-    connect(dialog3dGeneralSettings, SIGNAL (signalRecompileCustomShader()), openGL3DImageWidget, SLOT (recompileRenderShader()));
+    //dialog3dGeneralSettings = new Dialog3DGeneralSettings(this);
+    //connect(ui->pushButton3DGeneralSettings, SIGNAL (released()), dialog3dGeneralSettings, SLOT (show()));
+    connect(ui->pushButton3DGeneralSettings, SIGNAL (released()), openGL3DImageWidget, SLOT (show3DGeneralSettingsDialog()));
+    //connect(dialog3dGeneralSettings, SIGNAL (signalPropertyChanged()), openGL3DImageWidget, SLOT (repaint()));
+    //connect(dialog3dGeneralSettings, SIGNAL (signalRecompileCustomShader()), openGL3DImageWidget, SLOT (recompileRenderShader()));
 
     ui->verticalLayout3DImage->addWidget(openGL3DImageWidget);
     ui->verticalLayout2DImage->addWidget(openGL2DImageWidget);
@@ -454,7 +455,6 @@ MainWindow::~MainWindow()
     delete materialManager;
     delete settingsContainer;
     delete dock3Dsettings;
-    delete dialog3dGeneralSettings;
     delete diffuseImageWidget;
     delete normalImageWidget;
     delete specularImageWidget;
@@ -1820,6 +1820,8 @@ if(!checkOpenGL()){
 
 bool MainWindow::checkOpenGL()
 {
+    qDebug() << Q_FUNC_INFO;
+
     QGLWidget *glWidget = new QGLWidget;
 
     QGLContext* glContext = (QGLContext *) glWidget->context();

@@ -18,7 +18,7 @@ class PropertyDialog;
 class Dialog3DGeneralSettings : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     Dialog3DGeneralSettings(QWidget* parent);
     ~Dialog3DGeneralSettings();
@@ -27,9 +27,9 @@ public:
     // Save current properties to file.
     void saveSettings();
 
-    static QtnPropertySetFilters3D* settings3D;
-    static GLSLShaderParser* currentRenderShader;
-    static GLSLParsedShaderContainer* glslParsedShaders;
+    static QtnPropertySetFilters3D* filters3DProperties;
+    static GLSLShaderParser* currentShaderParser;
+    static GLSLParsedShaderContainer* parsedShaderContainer;
 
 signals:
     void signalPropertyChanged();
@@ -49,9 +49,11 @@ public slots:
     static void setUniforms();
 
 private:
-    QtnPropertyDelegateInfo delegate;
+
     Ui::PropertyDialog *ui;
-    QtnPropertySet* cpyPropertySet;//keeps last settings before window was open
+    QtnPropertyDelegateInfo delegate;
+    // Stores last settings before window was opened.
+    QtnPropertySet *cpyPropertySet;
 };
 
 #endif // MYDIALOG_H

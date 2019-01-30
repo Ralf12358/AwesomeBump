@@ -16,10 +16,6 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "utils/glslshaderparser.h"
 
-#define settings3D      Dialog3DGeneralSettings::settings3D
-#define currentShader   Dialog3DGeneralSettings::currentRenderShader
-#define glslShadersList Dialog3DGeneralSettings::glslParsedShaders
-
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
 class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
@@ -42,6 +38,7 @@ signals:
     void changeCamPositionApplied(bool);
 
 public slots:
+    void show3DGeneralSettingsDialog();
     void toggleDiffuseView(bool);
     void toggleSpecularView(bool);
     void toggleOcclusionView(bool);
@@ -114,6 +111,8 @@ private:
     bool bToggleMetallicView;
 
     Display3DSettings display3Dparameters;
+    // 3D shading & display settings dialog.
+    Dialog3DGeneralSettings *dialog3dGeneralSettings;
 
     // 3D view parameters.
     QMatrix4x4 projectionMatrix;

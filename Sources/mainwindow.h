@@ -32,7 +32,6 @@ class ImageWidget;
 class FormMaterialIndicesManager;
 class FormSettingsContainer;
 class DockWidget3DSettings;
-class Dialog3DGeneralSettings;
 class DialogLogger;
 class DialogShortcuts;
 
@@ -171,8 +170,6 @@ private:
     QtnPropertySetAwesomeBump *abSettings;
     // 3D settings manager.
     DockWidget3DSettings *dock3Dsettings;
-    // 3D shading & display settings dialog.
-    Dialog3DGeneralSettings *dialog3dGeneralSettings;
 
     QAction *aboutQtAction;
     QAction *aboutAction;

@@ -53,6 +53,10 @@ OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
 
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setSizePolicy(sizePolicy);
+
+    dialog3dGeneralSettings = new Dialog3DGeneralSettings(this);
+    connect(dialog3dGeneralSettings, SIGNAL (signalPropertyChanged()), this, SLOT (repaint()));
+    connect(dialog3dGeneralSettings, SIGNAL (signalRecompileCustomShader()), this, SLOT (recompileRenderShader()));
 }
 
 OpenGL3DImageWidget::~OpenGL3DImageWidget()
@@ -125,6 +129,11 @@ void OpenGL3DImageWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer,
     default:
         break;
     }
+}
+
+void OpenGL3DImageWidget::show3DGeneralSettingsDialog()
+{
+    dialog3dGeneralSettings->show();
 }
 
 void OpenGL3DImageWidget::toggleDiffuseView(bool enable)
@@ -306,18 +315,19 @@ void OpenGL3DImageWidget::updatePerformanceSettings(Display3DSettings settings)
 
 void OpenGL3DImageWidget::recompileRenderShader()
 {
+    qDebug() << Q_FUNC_INFO;
+
     makeCurrent();
-    currentShader->reparseShader();
-    currentShader->program->release();
-    delete currentShader->program;
-    currentShader->program = new QOpenGLShaderProgram(this);
+    Dialog3DGeneralSettings::currentShaderParser->reparseShader();
+    Dialog3DGeneralSettings::currentShaderParser->program->release();
+    delete Dialog3DGeneralSettings::currentShaderParser->program;
+    Dialog3DGeneralSettings::currentShaderParser->program = new QOpenGLShaderProgram(this);
 
     QOpenGLShader *vshader  = NULL;
     QOpenGLShader *tcshader = NULL;
     QOpenGLShader *teshader = NULL;
     QOpenGLShader *gshader  = NULL;
 
-    qDebug() << "Recompiling shaders:";
     gshader = new QOpenGLShader(QOpenGLShader::Geometry, this);
     QFile gFile(":/resources/shaders/plane.geom");
     gFile.open(QFile::ReadOnly);
@@ -363,24 +373,24 @@ void OpenGL3DImageWidget::recompileRenderShader()
 
     // Load custom fragment shader.
     QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    pfshader->compileSourceFile(currentShader->shaderPath);
+    pfshader->compileSourceFile(Dialog3DGeneralSettings::currentShaderParser->shaderFilename);
     if (!pfshader->log().isEmpty())
         qDebug() << pfshader->log();
     else
         qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
 
 #ifndef USE_OPENGL_330
-    currentShader->program->addShader(tcshader);
-    currentShader->program->addShader(teshader);
+    Dialog3DGeneralSettings::currentShaderParser->program->addShader(tcshader);
+    Dialog3DGeneralSettings::currentShaderParser->program->addShader(teshader);
 #endif
-    currentShader->program->addShader(vshader);
-    currentShader->program->addShader(pfshader);
-    currentShader->program->addShader(gshader);
-    currentShader->program->bindAttributeLocation("FragColor",0);
-    currentShader->program->bindAttributeLocation("FragNormal",1);
-    currentShader->program->bindAttributeLocation("FragGlowColor",2);
-    currentShader->program->bindAttributeLocation("FragPosition",3);
-    GLCHK(currentShader->program->link());
+    Dialog3DGeneralSettings::currentShaderParser->program->addShader(vshader);
+    Dialog3DGeneralSettings::currentShaderParser->program->addShader(pfshader);
+    Dialog3DGeneralSettings::currentShaderParser->program->addShader(gshader);
+    Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragColor",0);
+    Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragNormal",1);
+    Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragGlowColor",2);
+    Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragPosition",3);
+    GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->link());
 
     delete pfshader;
     if(vshader  != NULL) delete vshader;
@@ -388,37 +398,48 @@ void OpenGL3DImageWidget::recompileRenderShader()
     if(teshader != NULL) delete teshader;
     if(gshader  != NULL) delete gshader;
 
-    GLCHK(currentShader->program->bind());
-    currentShader->program->setUniformValue("texDiffuse",           0);
-    currentShader->program->setUniformValue("texNormal",            1);
-    currentShader->program->setUniformValue("texSpecular",          2);
-    currentShader->program->setUniformValue("texHeight",            3);
-    currentShader->program->setUniformValue("texSSAO",              4);
-    currentShader->program->setUniformValue("texRoughness",         5);
-    currentShader->program->setUniformValue("texMetallic",          6);
-    currentShader->program->setUniformValue("texMaterial",          7);
-    currentShader->program->setUniformValue("texPrefilteredEnvMap", 8);
-    currentShader->program->setUniformValue("texSourceEnvMap",      9);
+    GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->bind());
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texDiffuse",           0);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texNormal",            1);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSpecular",          2);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texHeight",            3);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSSAO",              4);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texRoughness",         5);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texMetallic",          6);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texMaterial",          7);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
+    Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSourceEnvMap",      9);
 
-    GLCHK(currentShader->program->release());
+    GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->release());
     Dialog3DGeneralSettings::updateParsedShaders();
     update();
 }
 
 void OpenGL3DImageWidget::initializeGL()
 {
+    qDebug() << Q_FUNC_INFO;
+
     initializeOpenGLFunctions();
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+    qDebug() << QString("OpenGL version: %1.%2")
+                .arg(context()->format().majorVersion())
+                .arg(context()->format().minorVersion());
+
+    qDebug() << "GLSL version:"
+             << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    GLCHK( glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS) );
     makeCurrent();
 
     QColor clearColor = QColor::fromCmykF(0.79, 0.79, 0.79, 0.0).dark();
-    glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blackF(), clearColor.alpha());
+    glClearColor(clearColor.redF(),
+                 clearColor.greenF(),
+                 clearColor.blackF(),
+                 clearColor.alpha());
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_DEPTH_TEST);
-
-    qDebug() << "Initializing 3D widget: detected openGL version:" << QString::number(Display3DSettings::openGLVersion);
+    GLCHK( glEnable(GL_DEPTH_TEST) );
+    GLCHK( glEnable(GL_MULTISAMPLE) );
+    GLCHK( glEnable(GL_DEPTH_TEST) );
 
     QOpenGLShader *vshader  = NULL;
     QOpenGLShader *fshader  = NULL;
@@ -432,9 +453,9 @@ void OpenGL3DImageWidget::initializeGL()
     gFile.open(QFile::ReadOnly);
     QTextStream in(&gFile);
     QString shaderCode = in.readAll();
-    QString preambule = "#version 330 core\n"
-                        "layout(triangle_strip, max_vertices = 3) out;\n" ;
-    gshader->compileSourceCode(preambule+shaderCode);
+    QString preamble = "#version 330 core\n"
+                        "layout(triangle_strip, max_vertices = 3) out;\n";
+    gshader->compileSourceCode(preamble+shaderCode);
     if (!gshader->log().isEmpty()) qDebug() << gshader->log();
     else qDebug() << "done";
 
@@ -465,60 +486,60 @@ void OpenGL3DImageWidget::initializeGL()
     else qDebug() << "done";
 #endif
 
-    GLSLShaderParser* lastIndex = currentShader;
-    for(int ip = 0 ; ip < glslShadersList->glslParsedShaders.size();ip++)
+    GLSLShaderParser* lastIndex = Dialog3DGeneralSettings::currentShaderParser;
+    for(int ip = 0 ; ip < Dialog3DGeneralSettings::parsedShaderContainer->glslParsedShaders.size(); ip++)
     {
-        currentShader = glslShadersList->glslParsedShaders[ip];
-        currentShader->program = new QOpenGLShaderProgram(this);
+        Dialog3DGeneralSettings::currentShaderParser = Dialog3DGeneralSettings::parsedShaderContainer->glslParsedShaders[ip];
+        Dialog3DGeneralSettings::currentShaderParser->program = new QOpenGLShaderProgram(this);
 
         // Load custom fragment shader.
-        qDebug() << "Loading parsed glsl fragmend shader";
+        qDebug() << "Loading parsed glsl fragment shader";
         QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-        pfshader->compileSourceFile(currentShader->shaderPath);
+        pfshader->compileSourceFile(Dialog3DGeneralSettings::currentShaderParser->shaderFilename);
         if (!pfshader->log().isEmpty()) qDebug() << pfshader->log();
         else qDebug() << "done";
 
 #ifndef USE_OPENGL_330
-        currentShader->program->addShader(tcshader);
-        currentShader->program->addShader(teshader);
+        Dialog3DGeneralSettings::currentShaderParser->program->addShader(tcshader);
+        Dialog3DGeneralSettings::currentShaderParser->program->addShader(teshader);
 #endif
 
-        currentShader->program->addShader(vshader);
-        currentShader->program->addShader(pfshader);
-        currentShader->program->addShader(gshader);
-        currentShader->program->bindAttributeLocation("FragColor",     0);
-        currentShader->program->bindAttributeLocation("FragNormal",    1);
-        currentShader->program->bindAttributeLocation("FragGlowColor", 2);
-        currentShader->program->bindAttributeLocation("FragPosition",  3);
-        GLCHK(currentShader->program->link());
+        Dialog3DGeneralSettings::currentShaderParser->program->addShader(vshader);
+        Dialog3DGeneralSettings::currentShaderParser->program->addShader(pfshader);
+        Dialog3DGeneralSettings::currentShaderParser->program->addShader(gshader);
+        Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragColor",     0);
+        Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragNormal",    1);
+        Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragGlowColor", 2);
+        Dialog3DGeneralSettings::currentShaderParser->program->bindAttributeLocation("FragPosition",  3);
+        GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->link());
 
         delete pfshader;
 
-        GLCHK(currentShader->program->bind());
-        currentShader->program->setUniformValue("texDiffuse",           0);
-        currentShader->program->setUniformValue("texNormal",            1);
-        currentShader->program->setUniformValue("texSpecular",          2);
-        currentShader->program->setUniformValue("texHeight",            3);
-        currentShader->program->setUniformValue("texSSAO",              4);
-        currentShader->program->setUniformValue("texRoughness",         5);
-        currentShader->program->setUniformValue("texMetallic",          6);
-        currentShader->program->setUniformValue("texMaterial",          7);
-        currentShader->program->setUniformValue("texPrefilteredEnvMap", 8);
-        currentShader->program->setUniformValue("texSourceEnvMap",      9);
+        GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->bind());
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texDiffuse",           0);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texNormal",            1);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSpecular",          2);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texHeight",            3);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSSAO",              4);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texRoughness",         5);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texMetallic",          6);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texMaterial",          7);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
+        Dialog3DGeneralSettings::currentShaderParser->program->setUniformValue("texSourceEnvMap",      9);
 
-        GLCHK(currentShader->program->release());
+        GLCHK(Dialog3DGeneralSettings::currentShaderParser->program->release());
 
         Dialog3DGeneralSettings::updateParsedShaders();
     } // End of loading parsed shaders.
 
-    currentShader           = lastIndex;
+    Dialog3DGeneralSettings::currentShaderParser           = lastIndex;
     Dialog3DGeneralSettings::updateParsedShaders();
 
     // Lines shader
     qDebug() << "Compiling lines program...";
-    preambule = QString("#version 330 core\n") +
+    preamble = QString("#version 330 core\n") +
             "layout(line_strip, max_vertices = 3) out;\n";
-    gshader->compileSourceCode(preambule+shaderCode);
+    gshader->compileSourceCode(preamble+shaderCode);
     if (!gshader->log().isEmpty()) qDebug() << gshader->log();
     else qDebug() << "done";
 
@@ -754,7 +775,7 @@ void OpenGL3DImageWidget::paintGL()
     GLCHK( skybox_mesh->drawMesh(true) );
 
     // Drawing model
-    QOpenGLShaderProgram* program_ptrs[2] = {currentShader->program,line_program};
+    QOpenGLShaderProgram* program_ptrs[2] = {Dialog3DGeneralSettings::currentShaderParser->program,line_program};
     GLCHK( glEnable(GL_CULL_FACE) );
     GLCHK( glEnable(GL_DEPTH_TEST) );
     GLCHK( glCullFace(GL_BACK) );
@@ -1174,7 +1195,7 @@ void OpenGL3DImageWidget::applyDofFilter(
         QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
-    if(!settings3D->DOF.EnableEffect) return;
+    if(!Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.EnableEffect) return;
 
     filter_program = post_processing_programs["DOF_FILTER"];
     filter_program->bind();
@@ -1182,18 +1203,18 @@ void OpenGL3DImageWidget::applyDofFilter(
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     GLCHK( filter_program->setUniformValue("quad_scale",       QVector2D(1.0,1.0)) );
     GLCHK( filter_program->setUniformValue("quad_pos",         QVector2D(0.0,0.0)) );
-    GLCHK( filter_program->setUniformValue("dof_FocalLenght",  (float)settings3D->DOF.FocalLength ) );
-    GLCHK( filter_program->setUniformValue("dof_FocalDepht",   settings3D->DOF.FocalDepth ) );
-    GLCHK( filter_program->setUniformValue("dof_FocalStop",    settings3D->DOF.FocalStop ) );
-    GLCHK( filter_program->setUniformValue("dof_NoSamples",    settings3D->DOF.NoSamples ) );
-    GLCHK( filter_program->setUniformValue("dof_NoRings",      settings3D->DOF.NoRings ) );
-    GLCHK( filter_program->setUniformValue("dof_bNoise",       settings3D->DOF.Noise ) );
-    GLCHK( filter_program->setUniformValue("dof_Coc",          settings3D->DOF.Coc ) );
-    GLCHK( filter_program->setUniformValue("dof_Threshold",    settings3D->DOF.Threshold ) );
-    GLCHK( filter_program->setUniformValue("dof_Gain",         settings3D->DOF.Gain ) );
-    GLCHK( filter_program->setUniformValue("dof_BokehBias",    settings3D->DOF.BokehBias ) );
-    GLCHK( filter_program->setUniformValue("dof_BokehFringe",  settings3D->DOF.BokehFringe ) );
-    GLCHK( filter_program->setUniformValue("dof_DitherAmount", (float)settings3D->DOF.DitherAmount ) );
+    GLCHK( filter_program->setUniformValue("dof_FocalLenght",  (float)Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.FocalLength ) );
+    GLCHK( filter_program->setUniformValue("dof_FocalDepht",   Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.FocalDepth ) );
+    GLCHK( filter_program->setUniformValue("dof_FocalStop",    Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.FocalStop ) );
+    GLCHK( filter_program->setUniformValue("dof_NoSamples",    Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.NoSamples ) );
+    GLCHK( filter_program->setUniformValue("dof_NoRings",      Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.NoRings ) );
+    GLCHK( filter_program->setUniformValue("dof_bNoise",       Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.Noise ) );
+    GLCHK( filter_program->setUniformValue("dof_Coc",          Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.Coc ) );
+    GLCHK( filter_program->setUniformValue("dof_Threshold",    Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.Threshold ) );
+    GLCHK( filter_program->setUniformValue("dof_Gain",         Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.Gain ) );
+    GLCHK( filter_program->setUniformValue("dof_BokehBias",    Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.BokehBias ) );
+    GLCHK( filter_program->setUniformValue("dof_BokehFringe",  Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.BokehFringe ) );
+    GLCHK( filter_program->setUniformValue("dof_DitherAmount", (float)Dialog3DGeneralSettings::Dialog3DGeneralSettings::filters3DProperties->DOF.DitherAmount ) );
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
@@ -1211,7 +1232,7 @@ void OpenGL3DImageWidget::applyDofFilter(
 void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
-    if(!settings3D->Bloom.EnableEffect) return;
+    if(!Dialog3DGeneralSettings::filters3DProperties->Bloom.EnableEffect) return;
 
     applyGaussFilter(colorFBO->getAttachedTexture(1),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
     applyGaussFilter(glowOutputColor[0]->fbo->texture(),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
@@ -1229,12 +1250,12 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
 
     GLCHK( filter_program->setUniformValue("quad_scale",        QVector2D(1.0,1.0)) );
     GLCHK( filter_program->setUniformValue("quad_pos",          QVector2D(0.0,0.0)) );
-    GLCHK( filter_program->setUniformValue("bloom_WeightA",     settings3D->Bloom.WeightA ) );
-    GLCHK( filter_program->setUniformValue("bloom_WeightB",     settings3D->Bloom.WeightB ) );
-    GLCHK( filter_program->setUniformValue("bloom_WeightB",     settings3D->Bloom.WeightC ) );
-    GLCHK( filter_program->setUniformValue("bloom_WeightC",     settings3D->Bloom.WeightD ) );
-    GLCHK( filter_program->setUniformValue("bloom_Vignette",    settings3D->Bloom.Vignette ) );
-    GLCHK( filter_program->setUniformValue("bloom_VignetteAtt", settings3D->Bloom.VignetteAtt ) );
+    GLCHK( filter_program->setUniformValue("bloom_WeightA",     Dialog3DGeneralSettings::filters3DProperties->Bloom.WeightA ) );
+    GLCHK( filter_program->setUniformValue("bloom_WeightB",     Dialog3DGeneralSettings::filters3DProperties->Bloom.WeightB ) );
+    GLCHK( filter_program->setUniformValue("bloom_WeightB",     Dialog3DGeneralSettings::filters3DProperties->Bloom.WeightC ) );
+    GLCHK( filter_program->setUniformValue("bloom_WeightC",     Dialog3DGeneralSettings::filters3DProperties->Bloom.WeightD ) );
+    GLCHK( filter_program->setUniformValue("bloom_Vignette",    Dialog3DGeneralSettings::filters3DProperties->Bloom.Vignette ) );
+    GLCHK( filter_program->setUniformValue("bloom_VignetteAtt", Dialog3DGeneralSettings::filters3DProperties->Bloom.VignetteAtt ) );
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, colorFBO->fbo->texture()) );
@@ -1257,7 +1278,7 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
 void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
-    if(!settings3D->ToneMapping.EnableEffect) return;
+    if(!Dialog3DGeneralSettings::filters3DProperties->ToneMapping.EnableEffect) return;
 
     filter_program = post_processing_programs["TONE_MAPPING_FILTER"];
     filter_program->bind();
@@ -1269,11 +1290,11 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( filter_program->setUniformValue("quad_scale",         QVector2D(1.0,1.0)) );
     GLCHK( filter_program->setUniformValue("quad_pos",           QVector2D(0.0,0.0)) );
     GLCHK( filter_program->setUniformValue("tm_step",            1 ) );
-    GLCHK( filter_program->setUniformValue("tm_Delta",           settings3D->ToneMapping.Delta ) );
-    GLCHK( filter_program->setUniformValue("tm_Scale",           settings3D->ToneMapping.Scale ) );
-    GLCHK( filter_program->setUniformValue("tm_LumMaxWhite",     settings3D->ToneMapping.LumMaxWhite ) );
-    GLCHK( filter_program->setUniformValue("tm_GammaCorrection", settings3D->ToneMapping.GammaCorrection ) );
-    GLCHK( filter_program->setUniformValue("tm_BlendingWeight",  settings3D->ToneMapping.BlendingWeight ) );
+    GLCHK( filter_program->setUniformValue("tm_Delta",           Dialog3DGeneralSettings::filters3DProperties->ToneMapping.Delta ) );
+    GLCHK( filter_program->setUniformValue("tm_Scale",           Dialog3DGeneralSettings::filters3DProperties->ToneMapping.Scale ) );
+    GLCHK( filter_program->setUniformValue("tm_LumMaxWhite",     Dialog3DGeneralSettings::filters3DProperties->ToneMapping.LumMaxWhite ) );
+    GLCHK( filter_program->setUniformValue("tm_GammaCorrection", Dialog3DGeneralSettings::filters3DProperties->ToneMapping.GammaCorrection ) );
+    GLCHK( filter_program->setUniformValue("tm_BlendingWeight",  Dialog3DGeneralSettings::filters3DProperties->ToneMapping.BlendingWeight ) );
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
@@ -1318,11 +1339,11 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
 void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
 {
     // Skip processing if effect is disabled.
-    if(!settings3D->Flares.EnableEffect) return;
+    if(!Dialog3DGeneralSettings::filters3DProperties->Flares.EnableEffect) return;
 
     // Based on: http://john-chapman-graphics.blogspot.com/2013/02/pseudo-lens-flare.html
     // Prepare mask image
-    if(!display3Dparameters.bBloomEffect || !settings3D->Bloom.EnableEffect)
+    if(!display3Dparameters.bBloomEffect || !Dialog3DGeneralSettings::filters3DProperties->Bloom.EnableEffect)
     {
         applyGaussFilter(colorFBO->getAttachedTexture(1),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
         applyGaussFilter(glowOutputColor[0]->fbo->texture(),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
@@ -1332,11 +1353,11 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     filter_program->bind();
 
     // Prepare threshold image.
-    GLCHK( filter_program->setUniformValue("lf_NoSamples",  settings3D->Flares.NoSamples  ) );
-    GLCHK( filter_program->setUniformValue("lf_Dispersal",  settings3D->Flares.Dispersal  ) );
-    GLCHK( filter_program->setUniformValue("lf_HaloWidth",  settings3D->Flares.HaloWidth  ) );
-    GLCHK( filter_program->setUniformValue("lf_Distortion", settings3D->Flares.Distortion ) );
-    GLCHK( filter_program->setUniformValue("lf_weightLF",   settings3D->Flares.weightLF   ) );
+    GLCHK( filter_program->setUniformValue("lf_NoSamples",  Dialog3DGeneralSettings::filters3DProperties->Flares.NoSamples  ) );
+    GLCHK( filter_program->setUniformValue("lf_Dispersal",  Dialog3DGeneralSettings::filters3DProperties->Flares.Dispersal  ) );
+    GLCHK( filter_program->setUniformValue("lf_HaloWidth",  Dialog3DGeneralSettings::filters3DProperties->Flares.HaloWidth  ) );
+    GLCHK( filter_program->setUniformValue("lf_Distortion", Dialog3DGeneralSettings::filters3DProperties->Flares.Distortion ) );
+    GLCHK( filter_program->setUniformValue("lf_weightLF",   Dialog3DGeneralSettings::filters3DProperties->Flares.weightLF   ) );
 
     glowInputColor[0]->fbo->bind();
     GLCHK( glViewport(0,0,glowInputColor[0]->fbo->width(),glowInputColor[0]->fbo->height()) );
