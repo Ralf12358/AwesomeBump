@@ -6,37 +6,38 @@ OpenGLTextureCube::OpenGLTextureCube(int size) : m_texture(0), m_failed(false)
 {
     initializeOpenGLFunctions();
     fbo = 0;
-    glGenTextures(1, &m_texture);
+    GLCHK( glGenTextures(1, &m_texture) );
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
 
     for (int i = 0; i < 6; ++i)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 4, size, size, 0,
-                     GL_BGRA, GL_UNSIGNED_BYTE, 0);
+        GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, size, size, 0,
+                     GL_BGRA, GL_UNSIGNED_BYTE, 0) );
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE);
-    //glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+    //GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) );
+    //GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE) );
+    //GLCHK( glGenerateMipmap(GL_TEXTURE_CUBE_MAP) );
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
 
     // from http://stackoverflow.com/questions/462721/rendering-to-cube-map
     // framebuffer object
-    glGenFramebuffers   (1, &fbo);
-    glBindFramebuffer   (GL_FRAMEBUFFER, fbo);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
-    glDrawBuffer        (GL_COLOR_ATTACHMENT0); // important!
+    GLCHK( glGenFramebuffers   (1, &fbo) );
+    GLCHK( glBindFramebuffer   (GL_FRAMEBUFFER, fbo) );
+    GLCHK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0) );
+    GLCHK( glDrawBuffer        (GL_COLOR_ATTACHMENT0) );
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(status != GL_FRAMEBUFFER_COMPLETE){
-        glDeleteFramebuffers(1, &fbo);
+    if(status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        GLCHK( glDeleteFramebuffers(1, &fbo) );
         fbo = 0;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER,0) );
 }
 
 OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m_texture(0), m_failed(false)
@@ -47,7 +48,7 @@ OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m
 
     // TODO: Add error handling.
 
-    GLCHK(glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture));
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
 
     int index = 0;
     foreach (QString file, fileNames) {
@@ -76,19 +77,19 @@ OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m
 
     // Clear remaining faces.
     while (index < 6) {
-        GLCHK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 4, size, size, 0,
-                           GL_BGRA, GL_UNSIGNED_BYTE, 0));
+        GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, GL_RGB, size, size, 0,
+                           GL_BGRA, GL_UNSIGNED_BYTE, 0) );
         ++index;
     }
 
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
     //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    GLCHK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE));
-    GLCHK(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) );
+    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE) );
+    GLCHK( glGenerateMipmap(GL_TEXTURE_CUBE_MAP) );
 
 
     // get number of mip maps
@@ -98,9 +99,8 @@ OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m
         numMipmaps = 1 + floor(log2(size > max_level?size:max_level) );
     }
 
-    GLCHK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
     qDebug() << "Generated number of mipmaps:" << numMipmaps;
-
 }
 
 OpenGLTextureCube::~OpenGLTextureCube()

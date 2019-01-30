@@ -725,8 +725,10 @@ void OpenGL3DImageWidget::initializeGL()
 
     mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
     skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
-    env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
-    quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
+    // The next lines are diabled, because we run out of generic vertex attributes.
+    // Need to use the built-in ones.
+    //env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
+    //quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
 
     m_prefiltered_env_map = new OpenGLTextureCube(512);
 
@@ -1100,7 +1102,8 @@ void OpenGL3DImageWidget::resizeFBOs()
     format.setMipmap(true);
     format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-    if(colorFBO != NULL) delete colorFBO;
+    if(colorFBO != NULL)
+        delete colorFBO;
     colorFBO = new QOpenGLFramebufferObject(width(), height(), format);
     setFBOTextureParameters(colorFBO);
     addTexture(GL_COLOR_ATTACHMENT1);
