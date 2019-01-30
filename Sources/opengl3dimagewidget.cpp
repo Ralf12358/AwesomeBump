@@ -78,8 +78,8 @@ OpenGL3DImageWidget::~OpenGL3DImageWidget()
     delete line_program;
     delete skybox_program;
     delete env_program;
-    delete mesh;
-    delete skybox_mesh;
+//    delete mesh;
+//    delete skybox_mesh;
     delete env_mesh;
     delete quad_mesh;
     delete m_env_map;
@@ -723,13 +723,15 @@ void OpenGL3DImageWidget::initializeGL()
     lightDirection.toggleFreeCamera(false);
     lightDirection.radius = 1;
 
-    mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
-    skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
-    // The next lines are diabled, because we run out of generic vertex attributes.
+    // We run out of generic vertex attributes.
     // Need to use the built-in ones.
-    //env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
-    //quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
+    // In the meantime only use two.
+    //mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
+    //skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
+    env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
+    quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
 
+    m_env_map = new OpenGLTextureCube(512);
     m_prefiltered_env_map = new OpenGLTextureCube(512);
 
     resizeFBOs();
@@ -771,11 +773,11 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->bind();
 
     objectMatrix.setToIdentity();
-    if(skybox_mesh->isLoaded())
-    {
-        objectMatrix.translate(camera.position);
-        objectMatrix.scale(150.0);
-    }
+//    if(skybox_mesh->isLoaded())
+//    {
+//        objectMatrix.translate(camera.position);
+//        objectMatrix.scale(150.0);
+//    }
     modelViewMatrix = viewMatrix * objectMatrix;
     NormalMatrix    = modelViewMatrix.normalMatrix();
 
@@ -787,7 +789,7 @@ void OpenGL3DImageWidget::paintGL()
     GLCHK( skybox_program->setUniformValue("ProjectionMatrix", projectionMatrix) );
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( m_env_map->bind());
-    GLCHK( skybox_mesh->drawMesh(true) );
+//    GLCHK( skybox_mesh->drawMesh(true) );
 
     // Drawing model
     QOpenGLShaderProgram* program_ptrs[2] = {settingsDialog->currentShaderParser->program,line_program};
@@ -816,15 +818,15 @@ void OpenGL3DImageWidget::paintGL()
             float fboRatio = float((fboIdPtrs[0])->width())/(fboIdPtrs[0])->height();
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
-        if(mesh->isLoaded())
-        {
+//        if(mesh->isLoaded())
+//        {
 
-            objectMatrix.scale(0.5/mesh->radius);
-            objectMatrix.translate(-mesh->centre_of_mass);
-        }
+//            objectMatrix.scale(0.5/mesh->radius);
+//            objectMatrix.translate(-mesh->centre_of_mass);
+//        }
         modelViewMatrix = viewMatrix*objectMatrix;
         NormalMatrix = modelViewMatrix.normalMatrix();
-        float mesh_scale = 0.5/mesh->radius;
+        float mesh_scale = 0.5;// /mesh->radius;
 
         GLCHK( program_ptr->setUniformValue("ModelViewMatrix",       modelViewMatrix) );
         GLCHK( program_ptr->setUniformValue("NormalMatrix",          NormalMatrix) );
@@ -905,7 +907,7 @@ void OpenGL3DImageWidget::paintGL()
             tindeks++;
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindeks) );
             GLCHK( m_env_map->bind());
-            GLCHK( mesh->drawMesh() );
+//            GLCHK( mesh->drawMesh() );
             // Set default active texture.
             glActiveTexture(GL_TEXTURE0);
         }
