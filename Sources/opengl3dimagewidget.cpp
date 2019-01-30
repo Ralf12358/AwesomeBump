@@ -339,7 +339,6 @@ void OpenGL3DImageWidget::recompileRenderShader()
     if (!gshader->log().isEmpty()) qDebug() << gshader->log();
     else qDebug() << "  Geometry shader: OK";
 
-#ifndef USE_OPENGL_330
     vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     vshader->compileSourceFile(":/resources/shaders/plane.vert");
     if (!vshader->log().isEmpty())
@@ -360,16 +359,6 @@ void OpenGL3DImageWidget::recompileRenderShader()
         qDebug() << teshader->log();
     else
         qDebug() << "  Tessellation evaluation shader (GLSL4.0): OK";
-#else
-    // Set shaders for 3.30 version of openGL
-    qDebug() << "Loading quad (vertex shader) for openGL 3.30";
-    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceFile(":/resources/shaders/plane_330.vert");
-    if (!vshader->log().isEmpty())
-        qDebug() << vshader->log();
-    else
-        qDebug() << "  Vertex shader (GLSL3.3): OK";
-#endif
 
     // Load custom fragment shader.
     QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
@@ -379,10 +368,8 @@ void OpenGL3DImageWidget::recompileRenderShader()
     else
         qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
 
-#ifndef USE_OPENGL_330
     settingsDialog->currentShaderParser->program->addShader(tcshader);
     settingsDialog->currentShaderParser->program->addShader(teshader);
-#endif
     settingsDialog->currentShaderParser->program->addShader(vshader);
     settingsDialog->currentShaderParser->program->addShader(pfshader);
     settingsDialog->currentShaderParser->program->addShader(gshader);
@@ -459,7 +446,6 @@ void OpenGL3DImageWidget::initializeGL()
     if (!gshader->log().isEmpty()) qDebug() << gshader->log();
     else qDebug() << "done";
 
-#ifndef USE_OPENGL_330
     qDebug() << "Loading quad (vertex shader)";
     vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     vshader->compileSourceFile(":/resources/shaders/plane.vert");
@@ -477,14 +463,6 @@ void OpenGL3DImageWidget::initializeGL()
     teshader->compileSourceFile(":/resources/shaders/plane.tes.vert");
     if (!teshader->log().isEmpty()) qDebug() << teshader->log();
     else qDebug() << "done";
-#else
-    // Setting shaders for 3.30 version of openGL
-    qDebug() << "Loading quad (vertex shader) for openGL 3.30";
-    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceFile(":/resources/shaders/plane_330.vert");
-    if (!vshader->log().isEmpty()) qDebug() << vshader->log();
-    else qDebug() << "done";
-#endif
 
     // Load parsed shaders.
     for(int ip = 0 ; ip < settingsDialog->parsedShaderContainer->glslParsedShaders.size(); ip++)
@@ -501,11 +479,8 @@ void OpenGL3DImageWidget::initializeGL()
         else
             qDebug() << "done";
 
-#ifndef USE_OPENGL_330
         shaderParser->program->addShader(tcshader);
         shaderParser->program->addShader(teshader);
-#endif
-
         shaderParser->program->addShader(vshader);
         shaderParser->program->addShader(pfshader);
         shaderParser->program->addShader(gshader);
@@ -549,12 +524,8 @@ void OpenGL3DImageWidget::initializeGL()
     line_program = new QOpenGLShaderProgram(this);
     line_program->addShader(vshader);
     line_program->addShader(fshader);
-
-#ifndef USE_OPENGL_330
     line_program->addShader(tcshader);
     line_program->addShader(teshader);
-#endif
-
     line_program->addShader(gshader);
     line_program->bindAttributeLocation("FragColor",     0);
     line_program->bindAttributeLocation("FragNormal",    1);
