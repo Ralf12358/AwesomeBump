@@ -486,53 +486,54 @@ void OpenGL3DImageWidget::initializeGL()
     else qDebug() << "done";
 #endif
 
-    GLSLShaderParser* lastIndex = settingsDialog->currentShaderParser;
+    // Load parsed shaders.
     for(int ip = 0 ; ip < settingsDialog->parsedShaderContainer->glslParsedShaders.size(); ip++)
     {
-        settingsDialog->currentShaderParser = settingsDialog->parsedShaderContainer->glslParsedShaders[ip];
-        settingsDialog->currentShaderParser->program = new QOpenGLShaderProgram(this);
+        GLSLShaderParser* shaderParser = settingsDialog->parsedShaderContainer->glslParsedShaders[ip];
+        shaderParser->program = new QOpenGLShaderProgram(this);
 
         // Load custom fragment shader.
         qDebug() << "Loading parsed glsl fragment shader";
         QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-        pfshader->compileSourceFile(settingsDialog->currentShaderParser->shaderFilename);
-        if (!pfshader->log().isEmpty()) qDebug() << pfshader->log();
-        else qDebug() << "done";
+        pfshader->compileSourceFile(shaderParser->shaderFilename);
+        if (!pfshader->log().isEmpty())
+            qDebug() << pfshader->log();
+        else
+            qDebug() << "done";
 
 #ifndef USE_OPENGL_330
-        settingsDialog->currentShaderParser->program->addShader(tcshader);
-        settingsDialog->currentShaderParser->program->addShader(teshader);
+        shaderParser->program->addShader(tcshader);
+        shaderParser->program->addShader(teshader);
 #endif
 
-        settingsDialog->currentShaderParser->program->addShader(vshader);
-        settingsDialog->currentShaderParser->program->addShader(pfshader);
-        settingsDialog->currentShaderParser->program->addShader(gshader);
-        settingsDialog->currentShaderParser->program->bindAttributeLocation("FragColor",     0);
-        settingsDialog->currentShaderParser->program->bindAttributeLocation("FragNormal",    1);
-        settingsDialog->currentShaderParser->program->bindAttributeLocation("FragGlowColor", 2);
-        settingsDialog->currentShaderParser->program->bindAttributeLocation("FragPosition",  3);
-        GLCHK(settingsDialog->currentShaderParser->program->link());
+        shaderParser->program->addShader(vshader);
+        shaderParser->program->addShader(pfshader);
+        shaderParser->program->addShader(gshader);
+        shaderParser->program->bindAttributeLocation("FragColor",     0);
+        shaderParser->program->bindAttributeLocation("FragNormal",    1);
+        shaderParser->program->bindAttributeLocation("FragGlowColor", 2);
+        shaderParser->program->bindAttributeLocation("FragPosition",  3);
+        GLCHK(shaderParser->program->link());
 
         delete pfshader;
 
-        GLCHK(settingsDialog->currentShaderParser->program->bind());
-        settingsDialog->currentShaderParser->program->setUniformValue("texDiffuse",           0);
-        settingsDialog->currentShaderParser->program->setUniformValue("texNormal",            1);
-        settingsDialog->currentShaderParser->program->setUniformValue("texSpecular",          2);
-        settingsDialog->currentShaderParser->program->setUniformValue("texHeight",            3);
-        settingsDialog->currentShaderParser->program->setUniformValue("texSSAO",              4);
-        settingsDialog->currentShaderParser->program->setUniformValue("texRoughness",         5);
-        settingsDialog->currentShaderParser->program->setUniformValue("texMetallic",          6);
-        settingsDialog->currentShaderParser->program->setUniformValue("texMaterial",          7);
-        settingsDialog->currentShaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
-        settingsDialog->currentShaderParser->program->setUniformValue("texSourceEnvMap",      9);
+        GLCHK(shaderParser->program->bind());
+        shaderParser->program->setUniformValue("texDiffuse",           0);
+        shaderParser->program->setUniformValue("texNormal",            1);
+        shaderParser->program->setUniformValue("texSpecular",          2);
+        shaderParser->program->setUniformValue("texHeight",            3);
+        shaderParser->program->setUniformValue("texSSAO",              4);
+        shaderParser->program->setUniformValue("texRoughness",         5);
+        shaderParser->program->setUniformValue("texMetallic",          6);
+        shaderParser->program->setUniformValue("texMaterial",          7);
+        shaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
+        shaderParser->program->setUniformValue("texSourceEnvMap",      9);
 
-        GLCHK(settingsDialog->currentShaderParser->program->release());
+        GLCHK(shaderParser->program->release());
 
         settingsDialog->updateParsedShaders();
     } // End of loading parsed shaders.
 
-    settingsDialog->currentShaderParser           = lastIndex;
     settingsDialog->updateParsedShaders();
 
     // Lines shader
