@@ -541,8 +541,10 @@ void OpenGL3DImageWidget::initializeGL()
     preamble = QString("#version 330 core\n") +
             "layout(line_strip, max_vertices = 3) out;\n";
     gshader->compileSourceCode(preamble+shaderCode);
-    if (!gshader->log().isEmpty()) qDebug() << gshader->log();
-    else qDebug() << "done";
+    if (!gshader->log().isEmpty())
+        qDebug() << gshader->log();
+    else
+        qDebug() << "done";
 
     line_program = new QOpenGLShaderProgram(this);
     line_program->addShader(vshader);
@@ -582,14 +584,18 @@ void OpenGL3DImageWidget::initializeGL()
     qDebug() << "Loading skybox shader (vertex shader)";
     vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     vshader->compileSourceFile(":/resources/shaders/skybox.vert.glsl");
-    if (!vshader->log().isEmpty()) qDebug() << vshader->log();
-    else qDebug() << "done";
+    if (!vshader->log().isEmpty())
+        qDebug() << vshader->log();
+    else
+        qDebug() << "done";
 
     qDebug() << "Loading skybox shader (fragment shader)";
     fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
     fshader->compileSourceFile(":/resources/shaders/skybox.frag.glsl");
-    if (!fshader->log().isEmpty()) qDebug() << fshader->log();
-    else qDebug() << "done";
+    if (!fshader->log().isEmpty())
+        qDebug() << fshader->log();
+    else
+        qDebug() << "done";
 
     skybox_program = new QOpenGLShaderProgram(this);
     skybox_program->addShader(vshader);
@@ -606,8 +612,10 @@ void OpenGL3DImageWidget::initializeGL()
     qDebug() << "Loading enviromental shader (vertex shader)";
     vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     vshader->compileSourceFile(":/resources/shaders/env.vert");
-    if (!vshader->log().isEmpty()) qDebug() << vshader->log();
-    else qDebug() << "done";
+    if (!vshader->log().isEmpty())
+        qDebug() << vshader->log();
+    else
+        qDebug() << "done";
 
     qDebug() << "Loading enviromental shader (geometry shader)";
     gshader = new QOpenGLShader(QOpenGLShader::Geometry, this);
@@ -618,8 +626,10 @@ void OpenGL3DImageWidget::initializeGL()
     qDebug() << "Loading enviromental shader (fragment shader)";
     fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
     fshader->compileSourceFile(":/resources/shaders/env.frag");
-    if (!fshader->log().isEmpty()) qDebug() << fshader->log();
-    else qDebug() << "done";
+    if (!fshader->log().isEmpty())
+        qDebug() << fshader->log();
+    else
+        qDebug() << "done";
 
     env_program = new QOpenGLShaderProgram(this);
     env_program->addShader(vshader);
@@ -638,8 +648,10 @@ void OpenGL3DImageWidget::initializeGL()
     qDebug() << "Loading post-processing shader (vertex shader)";
     vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
     vshader->compileSourceFile(":/resources/shaders/filters_3d.vert");
-    if (!vshader->log().isEmpty()) qDebug() << vshader->log();
-    else qDebug() << "done";
+    if (!vshader->log().isEmpty())
+        qDebug() << vshader->log();
+    else
+        qDebug() << "done";
 
     qDebug() << "Loading post-processing shaders (fragment shader)";
     QFile fFile(":/resources/shaders/filters_3d.frag");
@@ -685,7 +697,7 @@ void OpenGL3DImageWidget::initializeGL()
         GLCHK( filter_program->release());
         delete fshader;
     }
-    if(vshader  != NULL)
+    if(vshader != NULL)
         delete vshader;
 
     //GLCHK( lensFlareColorsTexture = bindTexture(QImage(":/resources/textures/lenscolor.png"),GL_TEXTURE_2D) );
