@@ -248,41 +248,44 @@ void Mesh::initializeMesh()
 //    GLCHK( glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 }
 
-void Mesh::drawMesh(bool bUseArrays )
+void Mesh::drawMesh(bool bUseArrays)
 {
     if(bLoaded == false) return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    for (int i = 0; i < 6; ++i)
+    {
+        GLCHK( glBindVertexArray(mesh_vbos[i]) );
+        GLCHK( glVertexAttribPointer(mesh_vbos[i], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]) );
+//    GLCHK( glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]) );
+//    GLCHK( glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]) );
+//    GLCHK( glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]) );
+//    GLCHK( glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]) );
+//    GLCHK( glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
 
     if(bUseArrays)
     {
-        GLCHK(glDrawArrays(GL_TRIANGLES, 0,  gl_vertices.size()));
+        GLCHK( glDrawArrays(GL_TRIANGLES, 0,  gl_vertices.size()) );
     }
     else
     {
 #ifdef USE_OPENGL_330
-        GLCHK(glDrawArrays(GL_TRIANGLES, 0,  gl_vertices.size()));
+        GLCHK( glDrawArrays(GL_TRIANGLES, 0,  gl_vertices.size()) );
 #else
         // Tell OpenGL that every patch has 16 verts.
-        glPatchParameteri(GL_PATCH_VERTICES, 3);
+        GLCHK( glPatchParameteri(GL_PATCH_VERTICES, 3) );
         // Draw a bunch of patches.
-        GLCHK(glDrawArrays(GL_PATCHES, 0, gl_vertices.size()));
+        GLCHK( glDrawArrays(GL_PATCHES, 0, gl_vertices.size()) );
 #endif
     }
 }

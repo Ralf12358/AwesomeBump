@@ -740,7 +740,7 @@ void OpenGL3DImageWidget::initializeGL()
 
 void OpenGL3DImageWidget::paintGL()
 {
-    glReadBuffer(GL_BACK);
+    //GLCHK( glReadBuffer(GL_BACK) );
 
     // Drawing environment.
     bakeEnviromentalMaps();
@@ -1517,7 +1517,7 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
     // Drawing env - one pass method
     env_program->bind();
     m_prefiltered_env_map->bindFBO();
-    glViewport(0,0,512,512);
+    GLCHK( glViewport(0, 0, 512, 512) );
 
     objectMatrix.setToIdentity();
     objectMatrix.scale(1.0);
@@ -1526,16 +1526,16 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
     modelViewMatrix = viewMatrix * objectMatrix;
     NormalMatrix    = modelViewMatrix.normalMatrix();
 
-    GLCHK( env_program->setUniformValue("ModelViewMatrix",  modelViewMatrix) );
-    GLCHK( env_program->setUniformValue("NormalMatrix",     NormalMatrix) );
-    GLCHK( env_program->setUniformValue("ModelMatrix",      objectMatrix) );
-    GLCHK( env_program->setUniformValue("ProjectionMatrix", projectionMatrix) );
+    env_program->setUniformValue("ModelViewMatrix",  modelViewMatrix);
+    env_program->setUniformValue("NormalMatrix",     NormalMatrix);
+    env_program->setUniformValue("ModelMatrix",      objectMatrix);
+    env_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
-    GLCHK( m_env_map->bind());
-    GLCHK( env_mesh->drawMesh(true) );
+    m_env_map->bind();
+    env_mesh->drawMesh(true);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, width(), height()) ;
+    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+    GLCHK( glViewport(0, 0, width(), height()) );
 }
 
 bool OpenGL3DImageWidget::addTexture(GLenum COLOR_ATTACHMENTn)

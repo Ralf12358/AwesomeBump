@@ -105,26 +105,27 @@ OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m
 
 OpenGLTextureCube::~OpenGLTextureCube()
 {
-    glDeleteTextures(1, &m_texture);
-    if(fbo != 0 ) glDeleteFramebuffers(1, &fbo);
+    GLCHK( glDeleteTextures(1, &m_texture) );
+    if(fbo)
+        GLCHK( glDeleteFramebuffers(1, &fbo) );
 }
 
 void OpenGLTextureCube::bind()
 {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
-    glEnable(GL_TEXTURE_CUBE_MAP);
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
+    GLCHK( glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS) );
 }
 
 void OpenGLTextureCube::bindFBO(){
-    glBindFramebuffer   (GL_FRAMEBUFFER, fbo);
-    glDrawBuffer        (GL_COLOR_ATTACHMENT0); // important!
+    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, fbo) );
+    GLCHK( glDrawBuffer(GL_COLOR_ATTACHMENT0) );
 }
 
 
 void OpenGLTextureCube::unbind()
 {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    glDisable(GL_TEXTURE_CUBE_MAP);
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
+    GLCHK( glDisable(GL_TEXTURE_CUBE_MAP) );
 }
 
 bool OpenGLTextureCube::failed() const
@@ -134,20 +135,20 @@ bool OpenGLTextureCube::failed() const
 
 void OpenGLTextureCube::load(int size, int face, QRgb *data)
 {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 4, size, size, 0,
-                 GL_BGRA, GL_UNSIGNED_BYTE, data);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
+    GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 4, size, size, 0,
+                 GL_BGRA, GL_UNSIGNED_BYTE, data) );
+    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
 }
 
 int OpenGLTextureCube::textureCalcLevels(GLenum target)
 {
     int max_level;
-    GLCHK(glGetTexParameteriv( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, &max_level ));
+    GLCHK( glGetTexParameteriv( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, &max_level) );
     int max_mipmap = -1;
     for ( int i = 0; i < max_level; ++i ) {
         int width;
-        GLCHK(glGetTexLevelParameteriv( target, i, GL_TEXTURE_WIDTH, &width ));
+        GLCHK( glGetTexLevelParameteriv( target, i, GL_TEXTURE_WIDTH, &width) );
         if ( 0 == width || GL_INVALID_VALUE == width) {
             max_mipmap = i - 1;
             break;
