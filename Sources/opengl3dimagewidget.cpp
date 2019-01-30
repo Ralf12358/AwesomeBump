@@ -703,15 +703,15 @@ void OpenGL3DImageWidget::initializeGL()
     //GLCHK( lensFlareColorsTexture = bindTexture(QImage(":/resources/textures/lenscolor.png"),GL_TEXTURE_2D) );
     lensFlareColorsTexture = new QOpenGLTexture(QImage(":/resources/textures/lenscolor.png"));
     lensFlareColorsTexture->bind();
-    qDebug() << "Loading lensColors texture: (id=" << lensFlareColorsTexture->textureId() << ")";
+    qDebug() << "Loading lens color texture: (id=" << lensFlareColorsTexture->textureId() << ")";
     //GLCHK( lensDirtTexture = bindTexture(QImage(":/resources/textures/lensdirt.png"),GL_TEXTURE_2D) );
     lensDirtTexture = new QOpenGLTexture(QImage(":/resources/textures/lensdirt.png"));
     lensDirtTexture->bind();
-    qDebug() << "Loading lensDirt texture: (id=" << lensDirtTexture->textureId() << ")";
+    qDebug() << "Loading lens dirt texture: (id=" << lensDirtTexture->textureId() << ")";
     //GLCHK( lensStarTexture = bindTexture(QImage(":/resources/textures/lensstar.png"),GL_TEXTURE_2D) );
     lensStarTexture = new QOpenGLTexture(QImage(":/resources/textures/lensstar.png"));
     lensStarTexture->bind();
-    qDebug() << "Loading lensDirt texture: (id=" << lensStarTexture << ")";
+    qDebug() << "Loading lens star texture: (id=" << lensStarTexture->textureId() << ")";
 
     camera.position.setZ( -0 );
     camera.toggleFreeCamera(false);
@@ -928,25 +928,25 @@ void OpenGL3DImageWidget::paintGL()
     // Do post processing if materials are not shown.
     if( keyPressed != KEY_SHOW_MATERIALS )
     {
-        copyTexToFBO(colorFBO->fbo->texture(), outputFBO->fbo);
+        copyTexToFBO(colorFBO->texture(), outputFBO);
 
         // Post processing:
         // 1. Bloom effect (can be disabled/enabled by gui).
         if(display3Dparameters.bBloomEffect)
-            applyGlowFilter(outputFBO->fbo);
+            applyGlowFilter(outputFBO);
         // 2. DOF (can be disabled/enabled by gui).
         if(display3Dparameters.bDofEffect)
-            applyDofFilter(colorFBO->fbo->texture(),outputFBO->fbo);
+            applyDofFilter(colorFBO->texture(),outputFBO);
         // 3. Lens Flares (can be disabled/enabled by gui).
         if(display3Dparameters.bLensFlares)
-            applyLensFlaresFilter(colorFBO->fbo->texture(),outputFBO->fbo);
+            applyLensFlaresFilter(colorFBO->texture(),outputFBO);
 
-        applyToneFilter(colorFBO->fbo->texture(),outputFBO->fbo);
-        applyNormalFilter(outputFBO->fbo->texture());
+        applyToneFilter(colorFBO->texture(),outputFBO);
+        applyNormalFilter(outputFBO->texture());
     }
     else
     { // Show materials.
-        GLCHK( applyNormalFilter(colorFBO->fbo->texture()));
+        GLCHK( applyNormalFilter(colorFBO->texture()));
     }
 
     GLCHK( filter_program->release() );
@@ -1094,19 +1094,28 @@ void OpenGL3DImageWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void OpenGL3DImageWidget::resizeFBOs()
 {
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(TEXTURE_3DRENDER_FORMAT);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setMipmap(true);
+    format.setAttachment(QOpenGLFramebufferObject::Depth);
+
     if(colorFBO != NULL) delete colorFBO;
-    colorFBO = new OpenGLFramebufferObject(width(),height());
-    colorFBO->addTexture(GL_COLOR_ATTACHMENT1);
-    colorFBO->addTexture(GL_COLOR_ATTACHMENT2);
-    colorFBO->addTexture(GL_COLOR_ATTACHMENT3);
+    colorFBO = new QOpenGLFramebufferObject(width(), height(), format);
+    setFBOTextureParameters(colorFBO);
+    addTexture(GL_COLOR_ATTACHMENT1);
+    addTexture(GL_COLOR_ATTACHMENT2);
+    addTexture(GL_COLOR_ATTACHMENT3);
 
     if(outputFBO != NULL)
         delete outputFBO;
-    outputFBO = new OpenGLFramebufferObject(width(),height());
+    outputFBO = new QOpenGLFramebufferObject(width(), height(), format);
+    setFBOTextureParameters(outputFBO);
 
     if(auxFBO != NULL)
         delete auxFBO;
-    auxFBO = new OpenGLFramebufferObject(width(),height());
+    auxFBO = new QOpenGLFramebufferObject(width(), height(), format);
+    setFBOTextureParameters(auxFBO);
 
     // Initialize/resize glow FBOS.
     for(int i = 0; i < 4 ; i++)
@@ -1115,8 +1124,10 @@ void OpenGL3DImageWidget::resizeFBOs()
             delete glowInputColor[i];
         if(glowOutputColor[i] != NULL)
             delete glowOutputColor[i];
-        glowInputColor[i] =  new OpenGLFramebufferObject(width()/pow(2.0,i+1),height()/pow(2.0,i+1));
-        glowOutputColor[i] = new OpenGLFramebufferObject(width()/pow(2.0,i+1),height()/pow(2.0,i+1));
+        glowInputColor[i] =  new QOpenGLFramebufferObject(width() / pow(2.0, i + 1), height() / pow(2.0, i + 1), format);
+        setFBOTextureParameters(glowInputColor[i]);
+        glowOutputColor[i] = new QOpenGLFramebufferObject(width() / pow(2.0, i + 1), height() / pow(2.0, i + 1), format);
+        setFBOTextureParameters(glowOutputColor[i]);
     }
 
     // Initialize/resize tone mapping FBOs.
@@ -1124,7 +1135,8 @@ void OpenGL3DImageWidget::resizeFBOs()
     {
         if(toneMipmaps[i] != NULL)
             delete toneMipmaps[i];
-        toneMipmaps[i] = new OpenGLFramebufferObject(qMax(width()/pow(2.0,i+1),1.0),qMax(height()/pow(2.0,i+1),1.0));
+        toneMipmaps[i] = new QOpenGLFramebufferObject(qMax(width() / pow(2.0, i + 1), 1.0), qMax(height() / pow(2.0, i + 1), 1.0));
+        setFBOTextureParameters(toneMipmaps[i]);
     }
 }
 
@@ -1232,13 +1244,13 @@ void OpenGL3DImageWidget::applyDofFilter(
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, colorFBO->getAttachedTexture(2)) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, getAttachedTexture(2)) );
 
     outputFBO->bind();
     quad_mesh->drawMesh(true);
     outputFBO->bindDefault();
 
-    copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
+    copyTexToFBO(outputFBO->texture(),colorFBO);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
@@ -1247,13 +1259,13 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
     // Skip processing if effect is disabled.
     if(!settingsDialog->filters3DProperties->Bloom.EnableEffect) return;
 
-    applyGaussFilter(colorFBO->getAttachedTexture(1),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
-    applyGaussFilter(glowOutputColor[0]->fbo->texture(),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
-    applyGaussFilter(glowOutputColor[0]->fbo->texture(),glowInputColor[1]->fbo,glowOutputColor[1]->fbo);
-    applyGaussFilter(glowOutputColor[1]->fbo->texture(),glowInputColor[1]->fbo,glowOutputColor[1]->fbo);
-    applyGaussFilter(glowOutputColor[1]->fbo->texture(),glowInputColor[2]->fbo,glowOutputColor[2]->fbo);
-    applyGaussFilter(glowOutputColor[2]->fbo->texture(),glowInputColor[2]->fbo,glowOutputColor[2]->fbo);
-    applyGaussFilter(glowOutputColor[2]->fbo->texture(),glowInputColor[3]->fbo,glowOutputColor[3]->fbo);
+    applyGaussFilter(getAttachedTexture(1),glowInputColor[0],glowOutputColor[0]);
+    applyGaussFilter(glowOutputColor[0]->texture(),glowInputColor[0],glowOutputColor[0]);
+    applyGaussFilter(glowOutputColor[0]->texture(),glowInputColor[1],glowOutputColor[1]);
+    applyGaussFilter(glowOutputColor[1]->texture(),glowInputColor[1],glowOutputColor[1]);
+    applyGaussFilter(glowOutputColor[1]->texture(),glowInputColor[2],glowOutputColor[2]);
+    applyGaussFilter(glowOutputColor[2]->texture(),glowInputColor[2],glowOutputColor[2]);
+    applyGaussFilter(glowOutputColor[2]->texture(),glowInputColor[3],glowOutputColor[3]);
 
     filter_program = post_processing_programs["BLOOM_FILTER"];
     filter_program->bind();
@@ -1271,21 +1283,21 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
     GLCHK( filter_program->setUniformValue("bloom_VignetteAtt", settingsDialog->filters3DProperties->Bloom.VignetteAtt ) );
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, colorFBO->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, colorFBO->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE2) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[1]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[1]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE3) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[2]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[2]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE4) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
     quad_mesh->drawMesh(true);
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
     // Copy obtained result to main FBO.
-    copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
+    copyTexToFBO(outputFBO->texture(),colorFBO);
 }
 
 void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
@@ -1320,13 +1332,13 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( filter_program->setUniformValue("tm_step", 2 ) );
     for(int i = 0 ; i < 10 ; i++)
     {
-        toneMipmaps[i]->fbo->bind();
-        GLCHK( glViewport(0,0,toneMipmaps[i]->fbo->width(),toneMipmaps[i]->fbo->height()) );
+        toneMipmaps[i]->bind();
+        GLCHK( glViewport(0,0,toneMipmaps[i]->width(),toneMipmaps[i]->height()) );
         GLCHK( glActiveTexture(GL_TEXTURE0) );
         GLCHK( glBindTexture(GL_TEXTURE_2D, averagedTexID) );
 
         quad_mesh->drawMesh(true);
-        averagedTexID = toneMipmaps[i]->fbo->texture();
+        averagedTexID = toneMipmaps[i]->texture();
     }
 
     outputFBO->bind();
@@ -1346,7 +1358,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 
     // Copy result to Color FBO.
-    copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
+    copyTexToFBO(outputFBO->texture(),colorFBO);
 }
 
 void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebufferObject* outputFBO)
@@ -1358,8 +1370,8 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     // Prepare mask image
     if(!display3Dparameters.bBloomEffect || !settingsDialog->filters3DProperties->Bloom.EnableEffect)
     {
-        applyGaussFilter(colorFBO->getAttachedTexture(1),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
-        applyGaussFilter(glowOutputColor[0]->fbo->texture(),glowInputColor[0]->fbo,glowOutputColor[0]->fbo);
+        applyGaussFilter(getAttachedTexture(1),glowInputColor[0],glowOutputColor[0]);
+        applyGaussFilter(glowOutputColor[0]->texture(),glowInputColor[0],glowOutputColor[0]);
     }
 
     filter_program = post_processing_programs["LENS_FLARES_FILTER"];
@@ -1372,21 +1384,21 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( filter_program->setUniformValue("lf_Distortion", settingsDialog->filters3DProperties->Flares.Distortion ) );
     GLCHK( filter_program->setUniformValue("lf_weightLF",   settingsDialog->filters3DProperties->Flares.weightLF   ) );
 
-    glowInputColor[0]->fbo->bind();
-    GLCHK( glViewport(0,0,glowInputColor[0]->fbo->width(),glowInputColor[0]->fbo->height()) );
+    glowInputColor[0]->bind();
+    GLCHK( glViewport(0,0,glowInputColor[0]->width(),glowInputColor[0]->height()) );
     GLCHK( filter_program->setUniformValue("quad_scale",    QVector2D(1.0,1.0)) );
     GLCHK( filter_program->setUniformValue("quad_pos",      QVector2D(0.0,0.0)) );
     // Threshold step
     GLCHK( filter_program->setUniformValue("lf_step",       int(0)) );
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
     quad_mesh->drawMesh(true);
 
     // Create ghosts and halos.
 
-    glowOutputColor[0]->fbo->bind();
-    GLCHK( glViewport(0,0,glowOutputColor[0]->fbo->width(),glowOutputColor[0]->fbo->height()) );
+    glowOutputColor[0]->bind();
+    GLCHK( glViewport(0,0,glowOutputColor[0]->width(),glowOutputColor[0]->height()) );
 
     GLCHK( filter_program->setUniformValue("lf_step"  , int(1)) );//II step
 
@@ -1397,7 +1409,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     lensFlareColorsTexture->bind();
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowInputColor[0]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowInputColor[0]->texture()) );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -1440,7 +1452,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     // Ghost texture.
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE2) );
     // Dirt texture.
     //GLCHK( glBindTexture(GL_TEXTURE_2D, lensDirtTexture) );
@@ -1451,9 +1463,9 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     lensStarTexture->bind();
     GLCHK( glActiveTexture(GL_TEXTURE4) );
     // Exposure reference
-    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->fbo->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
     quad_mesh->drawMesh(true);
-    copyTexToFBO(outputFBO->texture(),colorFBO->fbo);
+    copyTexToFBO(outputFBO->texture(),colorFBO);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
@@ -1519,4 +1531,55 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width(), height()) ;
+}
+
+bool OpenGL3DImageWidget::addTexture(GLenum COLOR_ATTACHMENTn)
+{
+    GLuint tex[1];
+    GLCHK(glGenTextures(1, &tex[0]));
+    glBindTexture(GL_TEXTURE_2D, tex[0]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, TEXTURE_3DRENDER_FORMAT, width(), height(), 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    if(!glIsTexture(tex[0]))
+    {
+        qDebug() << "Error: Cannot create additional texture. Process stopped." << endl;
+        return false;
+    }
+    GLCHK(colorFBO->bind());
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, COLOR_ATTACHMENTn,GL_TEXTURE_2D, tex[0], 0);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status != GL_FRAMEBUFFER_COMPLETE){
+        qDebug() << "Cannot add new texture to current FBO! FBO is incomplete.";
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return false;
+    }
+
+    // Switch back to window-system-provided framebuffer.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    attachments.push_back(tex[0]);
+    return true;
+}
+
+const GLuint& OpenGL3DImageWidget::getAttachedTexture(GLuint index)
+{
+    return attachments[index];
+}
+
+void OpenGL3DImageWidget::setFBOTextureParameters(QOpenGLFramebufferObject *fbo)
+{
+    GLCHK( glBindTexture(GL_TEXTURE_2D, fbo->texture()) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT) );
+    GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+    GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
+    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
 }

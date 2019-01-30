@@ -11,6 +11,7 @@
 #include "randomtilingmode.h"
 
 #define TEXTURE_3DRENDER_FORMAT GL_RGB16F
+#define TEXTURE_FORMAT GL_RGB16F
 
 enum MaterialIndicesType
 {

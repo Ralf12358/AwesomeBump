@@ -94,6 +94,9 @@ private:
                       QVector4D& objectCoordinate);
     // Calculate prefiltered enviromental map.
     void bakeEnviromentalMaps();
+    bool addTexture(GLenum COLOR_ATTACHMENTn);
+    const GLuint& getAttachedTexture(GLuint index);
+    void setFBOTextureParameters(QOpenGLFramebufferObject *fbo);
 
     // Same as "program" but instead of triangles lines are used
     QOpenGLShaderProgram *line_program;
@@ -159,14 +162,16 @@ private:
     Mesh* quad_mesh;
     // Holds pointer to current post-processing program
     QOpenGLShaderProgram *filter_program;
-    OpenGLFramebufferObject* colorFBO;
-    OpenGLFramebufferObject* outputFBO;
-    OpenGLFramebufferObject* auxFBO;
+    QOpenGLFramebufferObject* colorFBO;
+    QOpenGLFramebufferObject* outputFBO;
+    QOpenGLFramebufferObject* auxFBO;
     // Glow FBOs.
-    OpenGLFramebufferObject* glowInputColor[4];
-    OpenGLFramebufferObject* glowOutputColor[4];
+    QOpenGLFramebufferObject* glowInputColor[4];
+    QOpenGLFramebufferObject* glowOutputColor[4];
     // Tone mapping mipmaps FBOS.
-    OpenGLFramebufferObject* toneMipmaps[10];
+    QOpenGLFramebufferObject* toneMipmaps[10];
+
+    QVector<GLuint> attachments;
 
 //    GLuint lensFlareColorsTexture;
 //    GLuint lensDirtTexture;
