@@ -112,7 +112,7 @@ private:
 
     Display3DSettings display3Dparameters;
     // 3D shading & display settings dialog.
-    Dialog3DGeneralSettings *dialog3dGeneralSettings;
+    Dialog3DGeneralSettings *settingsDialog;
 
     // 3D view parameters.
     QMatrix4x4 projectionMatrix;

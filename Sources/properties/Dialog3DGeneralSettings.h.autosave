@@ -53,7 +53,7 @@ private:
     Ui::PropertyDialog *ui;
     QtnPropertyDelegateInfo delegate;
     // Stores last settings before window was opened.
-    QtnPropertySet *cpyPropertySet;
+    QtnPropertySet *propertySetCopy;
 };
 
 #endif // MYDIALOG_H
