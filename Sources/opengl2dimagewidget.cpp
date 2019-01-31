@@ -1924,10 +1924,10 @@ void OpenGL2DImageWidget::render()
     GLCHK( glDisable(GL_DEPTH_TEST) );
 
     // Positions.
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0);
+    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, vbos[0]) );
+    GLCHK( glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0) );
     // Indices
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
+    GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
 
     QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
 
@@ -2481,7 +2481,6 @@ void OpenGL2DImageWidget::render()
         GLCHK( program->setUniformValue("material_id", int(-1)) );
         GLCHK(applyNormalFilter(activeFBO, renderFBO));
     }
-    emit rendered();
 }
 
 void OpenGL2DImageWidget::makeScreenQuad()

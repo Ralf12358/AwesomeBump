@@ -64,10 +64,6 @@ public:
     Image* targetImageGrunge;
     Image* targetImageMaterial;
 
-signals:
-    void rendered();
-    void colorPicked(QVector4D color);
-
 public slots:
     void resizeFBO(int width, int height);
     void imageChanged();
