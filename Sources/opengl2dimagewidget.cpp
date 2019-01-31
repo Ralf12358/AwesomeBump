@@ -34,11 +34,6 @@ OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
 
 OpenGL2DImageWidget::~OpenGL2DImageWidget()
 {
-    cleanup();
-}
-
-void OpenGL2DImageWidget::cleanup()
-{
     makeCurrent();
     averageColorFBO->bindDefault();
     typedef std::map<std::string,QOpenGLShaderProgram*>::iterator it_type;
@@ -65,7 +60,7 @@ void OpenGL2DImageWidget::cleanup()
     delete  paintFBO;
     delete renderFBO;
 
-    glDeleteBuffers(sizeof(vbos)/sizeof(GLuint), &vbos[0]);
+    GLCHK( glDeleteBuffers(sizeof(vbos) / sizeof(GLuint), &vbos[0]) );
     doneCurrent();
 }
 
@@ -79,6 +74,156 @@ QSize OpenGL2DImageWidget::sizeHint() const
     return QSize(500, 400);
 }
 
+Image* OpenGL2DImageWidget::getActiveImage()
+{
+    return activeImage;
+}
+
+void OpenGL2DImageWidget::setActiveImage(Image *image)
+{
+    activeImage = image;
+    update();
+}
+
+void OpenGL2DImageWidget::enableShadowRender(bool enable)
+{
+    bShadowRender = enable;
+}
+
+ConversionType OpenGL2DImageWidget::getConversionType()
+{
+    return conversionType;
+}
+
+void OpenGL2DImageWidget::setConversionType(ConversionType type)
+{
+    conversionType = type ;
+}
+
+void OpenGL2DImageWidget::updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4)
+{
+    cornerPositions[0] = QVector2D(0,0) + dc1;
+    cornerPositions[1] = QVector2D(1,0) + dc2;
+    cornerPositions[2] = QVector2D(1,1) + dc3;
+    cornerPositions[3] = QVector2D(0,1) + dc4;
+
+    for(int i = 0 ; i < 4 ; i++)
+    {
+        grungeCornerPositions[i] = cornerPositions[i];
+    }
+    update();
+}
+
+void OpenGL2DImageWidget::resizeFBO(int width, int height)
+{
+    conversionType = CONVERT_RESIZE;
+    resize_width   = width;
+    resize_height  = height;
+}
+
+void OpenGL2DImageWidget::imageChanged()
+{
+    // Restore picking state when another property was changed.
+    bToggleColorPicking = false;
+}
+
+void OpenGL2DImageWidget::resetView()
+{
+    if (!activeImage) return;
+
+    makeCurrent();
+
+    zoom = 0;
+    windowRatio = float(width()) / height();
+    fboRatio    = float(activeImage->getFBO()->width()) / activeImage->getFBO()->height();
+    // OpenGL window dimensions.
+    orthographicProjHeight = (1 + zoom) / windowRatio;
+    orthographicProjWidth = (1 + zoom) / fboRatio;
+
+    if(orthographicProjWidth < 1.0)
+    {
+        // Fit x direction.
+        zoom = fboRatio - 1;
+        orthographicProjHeight = (1 + zoom) / windowRatio;
+        orthographicProjWidth = (1 + zoom) / fboRatio;
+    }
+
+    if(orthographicProjHeight < 1.0)
+    {
+        // Fit y direction.
+        zoom = windowRatio - 1;
+        orthographicProjHeight = (1 + zoom) / windowRatio;
+        orthographicProjWidth = (1 + zoom) / fboRatio;
+    }
+
+    // Set the image in the center.
+    xTranslation = orthographicProjWidth / 2;
+    yTranslation = orthographicProjHeight / 2;
+}
+
+void OpenGL2DImageWidget::selectPerspectiveTransformMethod(int method)
+{
+    gui_perspective_mode = method;
+    update();
+}
+
+void OpenGL2DImageWidget::selectUVManipulationMethod(UVManipulationMethod method)
+{
+    uvManilupationMethod = method;
+    update();
+}
+
+void OpenGL2DImageWidget::updateCornersWeights(float w1, float w2, float w3, float w4)
+{
+    cornerWeights.setX(w1);
+    cornerWeights.setY(w2);
+    cornerWeights.setZ(w3);
+    cornerWeights.setW(w4);
+    update();
+}
+
+void OpenGL2DImageWidget::selectSeamlessMode(SeamlessMode mode)
+{
+    Image::seamlessMode = mode;
+    update();
+}
+
+void OpenGL2DImageWidget::toggleColorPicking(bool toggle)
+{
+    bToggleColorPicking = toggle;
+    ptr_ABColor = NULL;
+    if(toggle)
+    {
+        setCursor(Qt::UpArrowCursor);
+    }
+    else
+    {
+        setCursor(Qt::PointingHandCursor);
+    }
+}
+
+void OpenGL2DImageWidget::pickImageColor(QtnPropertyABColor *property)
+{
+    bToggleColorPicking = true;
+    ptr_ABColor = property;
+    setCursor(Qt::UpArrowCursor);
+    repaint();
+}
+
+void OpenGL2DImageWidget::copyRenderToPaintFBO()
+{
+    if (paintFBO) delete paintFBO;
+    paintFBO = createFBO(renderFBO->width(), renderFBO->height());
+    GLCHK( program->setUniformValue("material_id", int(-1)) );
+    copyFBO(renderFBO, paintFBO);
+    bRendering = false;
+}
+
+void OpenGL2DImageWidget::toggleMouseWrap(bool toggle)
+{
+    wrapMouse = toggle;
+}
+
 void OpenGL2DImageWidget::initializeGL()
 {
     qDebug() << Q_FUNC_INFO;
@@ -86,11 +231,7 @@ void OpenGL2DImageWidget::initializeGL()
     initializeOpenGLFunctions();
 
     QColor clearColor = QColor::fromCmykF(0.79, 0.79, 0.79, 0.0).dark();
-    GLCHK( glClearColor(
-               clearColor.redF(),
-               clearColor.greenF(),
-               clearColor.blueF(),
-               clearColor.alphaF()) );
+    GLCHK( glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()) );
 
     // Use multiple fragment samples to compute the final color of a pixel.
     GLCHK( glEnable(GL_MULTISAMPLE) );
@@ -205,20 +346,6 @@ void OpenGL2DImageWidget::initializeGL()
     averageColorFBO = createFBO(256, 256);
     samplerFBO1     = createFBO(1024, 1024);
     samplerFBO2     = createFBO(1024, 1024);
-
-    auxFBO1 = NULL;
-    auxFBO2 = NULL;
-    auxFBO3 = NULL;
-    auxFBO4 = NULL;
-    for(int i = 0; i < 3 ; i++)
-    {
-        auxFBO0BMLevels[i] = NULL;
-        auxFBO1BMLevels[i] = NULL;
-        auxFBO2BMLevels[i] = NULL;
-    }
-    paintFBO   = NULL;
-
-    emit readyGL();
 }
 
 void OpenGL2DImageWidget::paintGL()
@@ -237,627 +364,71 @@ void OpenGL2DImageWidget::paintGL()
     // Draw current FBO using current image after rendering the paintFBO will be replaced.
     if(!bShadowRender)
     {
-        //if (!activeImage) return;
         // Since grunge map can be different we need to calculate ratio each time.
         if (paintFBO != NULL)
         {
-            fboRatio = float(paintFBO->width())/paintFBO->height();
-            orthographicProjHeight = (1+zoom)/windowRatio;
-            orthographicProjWidth  = (1+zoom)/fboRatio;
+            fboRatio = float(paintFBO->width()) / paintFBO->height();
+            orthographicProjHeight = (1 + zoom) / windowRatio;
+            orthographicProjWidth  = (1 + zoom) / fboRatio;
         }
         GLCHK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
         GLCHK( glDisable(GL_CULL_FACE) );
         GLCHK( glDisable(GL_DEPTH_TEST) );
         // Positions.
-        glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0);
+        GLCHK( glBindBuffer(GL_ARRAY_BUFFER, vbos[0]) );
+        GLCHK( glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
         // Indices
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
-
-        QOpenGLFramebufferObject *activeFBO     = paintFBO;
+        GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
 
         GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
 
         // Displaying new image
-        activeFBO->bindDefault();
-        program->setUniformValue("quad_draw_mode", 1);
+        GLCHK( paintFBO->bindDefault() );
+        GLCHK( program->setUniformValue("quad_draw_mode", 1) );
 
         GLCHK( glViewport(0,0,width(),height()) );
         GLCHK( glActiveTexture(GL_TEXTURE0) );
-        GLCHK( glBindTexture(GL_TEXTURE_2D, activeFBO->texture()) );
+        GLCHK( glBindTexture(GL_TEXTURE_2D, paintFBO->texture()) );
 
-        QMatrix4x4 m;
-        m.ortho(0,orthographicProjWidth,0,orthographicProjHeight,-1,1);
-        GLCHK( program->setUniformValue("ProjectionMatrix", m) );
-        m.setToIdentity();
-        m.translate(xTranslation,yTranslation,0);
-        GLCHK( program->setUniformValue("ModelViewMatrix", m) );
+        QMatrix4x4 matrix;
+        matrix.ortho(0, orthographicProjWidth, 0, orthographicProjHeight, -1, 1);
+        GLCHK( program->setUniformValue("ProjectionMatrix", matrix) );
+        matrix.setToIdentity();
+        matrix.translate(xTranslation, yTranslation, 0);
+        GLCHK( program->setUniformValue("ModelViewMatrix", matrix) );
         GLCHK( program->setUniformValue("material_id", int(-1)) );
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
         GLCHK( program->setUniformValue("quad_draw_mode", int(0)) );
     }
 }
 
-void OpenGL2DImageWidget::render()
+void OpenGL2DImageWidget::resizeGL(int width, int height)
 {
-    if (!activeImage)
-        return;
+    windowRatio = float(width) / height;
+//    if (isValid())
+//    {
+        GLCHK( glViewport(0, 0, width, height) );
+//        if (activeImage && activeImage->getFBO())
+//        {
+            fboRatio = float(activeImage->getFBO()->width()) / activeImage->getFBO()->height();
+            orthographicProjHeight = (1 + zoom) / windowRatio;
+            orthographicProjWidth = (1 + zoom) / fboRatio;
+//        }
+//        else
+//        {
+//            qWarning() << Q_FUNC_INFO;
+//            if (!activeImage)
+//                qWarning() << "  activeImage is null";
+//            else if (!activeImage->getFBO())
+//                qWarning() << "  activeImage->getFBO() is null";
+//        }
+//    }
+//    else
+//    {
+//        qDebug() << Q_FUNC_INFO << "invalid context.";
+//    }
 
-    // Since grunge map can be different we need to calculate ratio each time.
-    if (activeImage->getFBO())
-    {
-        fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
-        orthographicProjHeight = (1+zoom)/windowRatio;
-        orthographicProjWidth  = (1+zoom)/fboRatio;
-    }
-    // Do not clear the background during rendering process.
-    if(!bShadowRender)
-    {
-        GLCHK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
-    }
-
-    GLCHK( glDisable(GL_CULL_FACE) );
-    GLCHK( glDisable(GL_DEPTH_TEST) );
-
-    // Positions.
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0);
-    // Indices
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
-
-    QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
-
-    // Images which depend on others will not be affected by UV changes again.
-    bool bTransformUVs = true;
-    bool bSkipStandardProcessing = false;
-
-    // Do not process images when disabled.
-    if((activeImage->isSkippingProcessing()) && (activeImage->getTextureType() != MATERIAL_TEXTURE))
-        bSkipProcessing = true;
-    if(bToggleColorPicking)
-        bSkipStandardProcessing = true;
-
-    // Resizing the FBOs in case of convertion procedure.
-    if(!bSkipProcessing == true)
-    {
-        switch(conversionType)
-        {
-        case(CONVERT_FROM_H_TO_N):
-            break;
-        case(CONVERT_FROM_N_TO_H):
-            break;
-        case(CONVERT_FROM_D_TO_O):
-            break;
-        case(CONVERT_RESIZE):
-            // Apply resize textures.
-            activeImage->resizeFBO(resize_width,resize_height);
-            // Pointers were changed in resize function.
-            activeFBO = activeImage->getFBO();
-            bSkipStandardProcessing = true;
-            break;
-        default:
-            break;
-        }
-
-        // Create or resize when image was changed.
-        if (auxFBO1) delete auxFBO1;
-        auxFBO1 = createFBO(activeFBO->width(), activeFBO->height());
-        if (auxFBO2) delete auxFBO2;
-        auxFBO2 = createFBO(activeFBO->width(), activeFBO->height());
-        if (auxFBO3) delete auxFBO3;
-        auxFBO3 = createFBO(activeFBO->width(), activeFBO->height());
-        if (auxFBO4) delete auxFBO4;
-        auxFBO4 = createFBO(activeFBO->width(), activeFBO->height());
-
-        // Allocate aditional FBOs when conversion from BaseMap is enabled.
-        if(activeImage->getTextureType() == DIFFUSE_TEXTURE && activeImage->bConversionBaseMap)
-        {
-            for(int i = 0; i < 3 ; i++)
-            {
-                int width = activeFBO->width() / pow (2, i + 1);
-                int height = activeFBO->height() / pow (2, i + 1);
-                if (auxFBO0BMLevels[i]) delete auxFBO0BMLevels[i];
-                auxFBO0BMLevels[i] = createFBO(width, height);
-                if (auxFBO1BMLevels[i]) delete auxFBO1BMLevels[i];
-                auxFBO1BMLevels[i] = createFBO(width, height);
-                if (auxFBO2BMLevels[i]) delete auxFBO2BMLevels[i];
-                auxFBO2BMLevels[i] = createFBO(width, height);
-            }
-        }
-
-        GLCHK( program->bind() );
-        GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
-        openGL330ForceTexType = activeImage->getTextureType();
-        GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
-        GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
-        GLCHK( program->setUniformValue("material_id", int(activeImage->currentMaterialIndex) ) );
-
-        if(activeImage->isFirstDraw())
-        {
-            resetView();
-            qDebug() << "Doing first draw of" << PostfixNames::getTextureName(activeImage->getTextureType()) << " texture.";
-            activeImage->setFirstDraw(false);
-        }
-
-        // Skip all precessing when material tab is selected.
-        if(activeImage->getTextureType() == MATERIAL_TEXTURE)
-        {
-            bSkipStandardProcessing = true;
-            GLCHK( program->setUniformValue("material_id", int(-1) ) );
-        }
-        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
-        {
-            bTransformUVs = false;
-            GLCHK( program->setUniformValue("material_id", int(MATERIALS_DISABLED) ) );
-        }
-
-        GLCHK( glActiveTexture(GL_TEXTURE10) );
-        GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageMaterial->getTexture()->textureId()) );
-        GLCHK( glActiveTexture(GL_TEXTURE0) );
-
-        //if(int(activeImage->currentMaterialIndeks) < 0)
-        //{
-        copyTex2FBO(activeImage->getTexture()->textureId(),activeImage->getFBO());
-        //}
-
-        // In some cases the output image will be taken from other sources.
-        switch(activeImage->getTextureType())
-        {
-        case(NORMAL_TEXTURE):
-        {
-            // Choose proper action.
-            switch(activeImage->getInputImageType())
-            {
-            case(INPUT_FROM_NORMAL_INPUT):
-                if(conversionType == CONVERT_FROM_H_TO_N)
-                {
-                    applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
-                    bTransformUVs = false;
-                }
-                break;
-            case(INPUT_FROM_HEIGHT_INPUT):
-                // Transform height before normal calculation.
-                if(conversionType == CONVERT_NONE)
-                {
-                    // Perspective transformation treats normal texture differently.
-                    // Temporarily change the texture type to perform transformations.
-                    // Used for GL3.30 version
-                    openGL330ForceTexType = HEIGHT_TEXTURE;
-                    GLCHK( program->setUniformValue("gui_image_type", HEIGHT_TEXTURE) );
-
-                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
-                    applyAllUVsTransforms(activeFBO);
-                    copyFBO(activeFBO,auxFBO1);
-                    applyHeightToNormal(auxFBO1,activeFBO);
-                    GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
-                    openGL330ForceTexType = activeImage->getTextureType();
-                    bTransformUVs = false;
-                }
-                else
-                {
-                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
-                }
-                break;
-            case(INPUT_FROM_HEIGHT_OUTPUT):
-                applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
-
-                if(!targetImageHeight->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            default:
-                break;
-            }
-            break;
-        } // End of NORMAL_TEXTURE case.
-
-        case(SPECULAR_TEXTURE):
-        {
-            // Choose proper action.
-            switch(activeImage->getInputImageType())
-            {
-            case(INPUT_FROM_SPECULAR_INPUT):
-                break;
-            case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
-                break;
-            case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            default:
-                break;
-            }
-            break;
-        } // End of SPECULAR_TEXTURE case.
-
-        case(OCCLUSION_TEXTURE):
-        {
-            // Choose proper action.
-            switch(activeImage->getInputImageType())
-            {
-            case(INPUT_FROM_OCCLUSION_INPUT):
-                if(conversionType == CONVERT_FROM_HN_TO_OC)
-                {
-                    // Ambient occlusion is calculated from normal and height map.
-                    // Skip some parts of the processing.
-                    applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
-                    bSkipStandardProcessing =  true;
-                    if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
-                        bTransformUVs = false;
-                    qDebug() << "Calculation AO from Normal and Height";
-                }
-                break;
-            case(INPUT_FROM_HI_NI):
-                // Ambient occlusion is calculated from normal and height map.
-                // Skip some parts of the processing.
-                applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_HO_NO):
-                applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
-                if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            default:
-                break;
-            }
-            break;
-        } // End of OCCULSION_TEXTURE case.
-
-        case(HEIGHT_TEXTURE):
-        {
-            if(conversionType == CONVERT_FROM_N_TO_H)
-            {
-                applyNormalToHeight(activeImage,targetImageNormal->getFBO(),activeFBO,auxFBO1);
-                applyCPUNormalizationFilter(auxFBO1,activeFBO);
-                applyAddNoiseFilter(activeFBO,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-
-                targetImageHeight->updateTextureFromFBO(activeFBO);
-                if(!targetImageNormal->isSkippingProcessing())
-                    bTransformUVs = false;
-            }
-            break;
-        } // End of HEIGHT_TEXTURE case.
-
-        case(ROUGHNESS_TEXTURE):
-        {
-            // Choose proper action.
-            switch(activeImage->getInputImageType())
-            {
-            case(INPUT_FROM_ROUGHNESS_INPUT):
-                break;
-            case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            default:
-                break;
-            }
-            break;
-        } // End of ROUGHNESS_TEXTURE case.
-
-        case(METALLIC_TEXTURE):
-        {
-            // Choose proper action.
-            switch(activeImage->getInputImageType())
-            {
-            case(INPUT_FROM_METALLIC_INPUT):
-                break;
-            case(INPUT_FROM_HEIGHT_INPUT):
-                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            case(INPUT_FROM_DIFFUSE_INPUT):
-                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
-                break;
-            case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
-                    bTransformUVs = false;
-                break;
-            default:
-                break;
-            }
-            break;
-        } // End of METALLIC_TEXTURE case.
-
-        case(GRUNGE_TEXTURE):
-        {
-            applyGrungeWarpNormalFilter(activeFBO,auxFBO2);
-
-            //if(activeImage->grungeSeed != 0)
-            applyGrungeRandomizationFilter(auxFBO2,activeFBO);
-            //else
-            //    copyTex2FBO(auxFBO2->texture(),activeFBO);
-            break;
-        } // End of GRUNGE_TEXTURE case.
-
-        default:
-            break;
-        };
-
-        // Apply grunge filter when enabled.
-        if(conversionType == CONVERT_NONE && GrungeProp.OverallWeight != 0.0f )
-        {
-            if(activeImage->getTextureType() < MATERIAL_TEXTURE)
-            {
-                copyTex2FBO(targetImageGrunge->getFBO()->texture(),auxFBO2);
-                // If "output" type selected, transform grunge map.
-                if(bTransformUVs == false)
-                {
-                    // auxFBO1 is used inside
-                    applyAllUVsTransforms(auxFBO2);
-                }
-                // auxFBO3 is used inside
-                applyGrungeImageFilter(activeFBO,auxFBO1,auxFBO2);
-                copyTex2FBO(auxFBO1->texture(),activeFBO);
-            }
-        }
-
-        // Transform UVs in some cases.
-        if(conversionType == CONVERT_NONE && bTransformUVs)
-        {
-            applyAllUVsTransforms(activeFBO);
-        }
-
-        // Skip all processing and when mouse is dragged.
-        if(!bSkipStandardProcessing)
-        {
-            // Begin standard pipe-line (for each image).
-            applyInvertComponentsFilter(activeFBO,auxFBO1);
-            copyFBO(auxFBO1,activeFBO);
-
-            if(activeImage->getTextureType() != HEIGHT_TEXTURE &&
-                    activeImage->getTextureType() != NORMAL_TEXTURE &&
-                    activeImage->getTextureType() != OCCLUSION_TEXTURE &&
-                    activeImage->getTextureType() != ROUGHNESS_TEXTURE)
-            {
-                // Hue manipulation.
-                applyColorHueFilter(activeFBO,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(BasicProp.GrayScale.EnableGrayScale ||
-                    activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
-                    activeImage->getTextureType() == OCCLUSION_TEXTURE ||
-                    activeImage->getTextureType() == HEIGHT_TEXTURE )
-            {
-                applyGrayScaleFilter(auxFBO1,activeFBO);
-            }
-            else
-            {
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            // Specular manipulation.
-            if(SurfaceDetailsProp.EnableSurfaceDetails &&
-                    activeImage->getTextureType() != HEIGHT_TEXTURE)
-            {
-                applyDGaussiansFilter(activeFBO,auxFBO2,auxFBO1);
-                //copyFBO(auxFBO1,activeFBO);
-                applyContrastFilter(auxFBO1,activeFBO);
-            }
-
-            // Removing shading.
-            if(activeImage->getProperties()->EnableRemoveShading)
-            {
-                applyRemoveLowFreqFilter(activeFBO,auxFBO1,auxFBO2);
-                copyFBO(auxFBO2,activeFBO);
-
-                applyGaussFilter(activeFBO,auxFBO2,auxFBO1,1);
-                applyInverseColorFilter(auxFBO1,auxFBO2);
-                copyFBO(auxFBO2,auxFBO1);
-                applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
-
-                applyRemoveShadingFilter(auxFBO2, targetImageOcclusion->getFBO(), activeFBO, auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(BasicProp.EnhanceDetails > 0)
-            {
-                for(int i = 0 ; i < BasicProp.EnhanceDetails ; i++ )
-                {
-                    applyGaussFilter(activeFBO,auxFBO2,auxFBO1,1);
-                    applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
-                    copyFBO(auxFBO2,activeFBO);
-                }
-            }
-
-            if(BasicProp.SmallDetails  > 0.0f)
-            {
-                applySmallDetailsFilter(activeFBO,auxFBO2,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(BasicProp.MediumDetails > 0.0f)
-            {
-                applyMediumDetailsFilter(activeFBO,auxFBO2,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(BasicProp.SharpenBlur != 0)
-            {
-                applySharpenBlurFilter(activeFBO,auxFBO2,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(activeImage->getTextureType() != NORMAL_TEXTURE)
-            {
-                applyHeightProcessingFilter(activeFBO,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            // Roughness color mapping.
-            // Use the same filters for both metallic and roughness, because they are almost the same.
-            if( (activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
-                 activeImage->getTextureType() == METALLIC_TEXTURE )
-                    && RMFilterProp.Filter == COLOR_FILTER::Noise )
-            {
-                // Processing surface.
-                applyRoughnessFilter(activeFBO,auxFBO2,auxFBO1);
-                copyFBO(auxFBO1,activeFBO);
-            }
-
-            if(activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
-                    activeImage->getTextureType() == METALLIC_TEXTURE)
-            {
-                if(RMFilterProp.Filter == COLOR_FILTER::Color)
-                {
-                    applyRoughnessColorFilter(activeFBO,auxFBO1);
-                    copyFBO(auxFBO1,activeFBO);
-                }
-            }
-
-            // Height processing pipeline.
-
-            // Normal processing pipeline.
-            if(activeImage->getTextureType() == NORMAL_TEXTURE)
-            {
-                applyNormalsStepFilter(activeFBO,auxFBO1);
-                // Apply normal mixer filter.
-                if(NormalMixerProp.EnableMixer && activeImage->getNormalMixerInputTexture() != 0)
-                {
-                    applyNormalMixerFilter(auxFBO1,activeFBO);
-                }
-                else
-                {
-                    // Skip.
-                    copyFBO(auxFBO1,activeFBO);
-                }
-            }
-
-            // Diffuse processing pipeline.
-            if(!bToggleColorPicking)
-            {
-                // Skip this step if the Color picking is enabled
-                if(activeImage->getTextureType() == DIFFUSE_TEXTURE &&
-                        (activeImage->bConversionBaseMap || conversionType == CONVERT_FROM_D_TO_O ))
-                {
-                    // Create mipmaps.
-                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[0]);
-                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[1]);
-                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[2]);
-                    // Calculate normal for orginal image.
-                    activeImage->getBaseMapConvLevelProperties()[0].fromProperty(BaseMapToOthersProp.LevelSmall);
-                    activeImage->getBaseMapConvLevelProperties()[1].fromProperty(BaseMapToOthersProp.LevelMedium);
-                    activeImage->getBaseMapConvLevelProperties()[2].fromProperty(BaseMapToOthersProp.LevelBig);
-                    activeImage->getBaseMapConvLevelProperties()[3].fromProperty(BaseMapToOthersProp.LevelHuge);
-                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1,activeImage->getBaseMapConvLevelProperties()[0]);
-
-                    // Calulcate normal for mipmaps.
-                    for(int i = 0 ; i < 3 ; i++)
-                    {
-                        applyBaseMapConversion(auxFBO0BMLevels[i],auxFBO1BMLevels[i],auxFBO2BMLevels[i],activeImage->getBaseMapConvLevelProperties()[i+1]);
-                    }
-
-                    // Mix normals together.
-                    applyMixNormalLevels(auxFBO1->texture(),
-                            auxFBO2BMLevels[0]->texture(),
-                            auxFBO2BMLevels[1]->texture(),
-                            auxFBO2BMLevels[2]->texture(),
-                            activeFBO);
-
-                    // Apply angle correction.
-                    applyNormalAngleCorrectionFilter(activeFBO,auxFBO1);
-                    copyTex2FBO(auxFBO1->texture(),activeFBO);
-
-                    if(conversionType == CONVERT_FROM_D_TO_O)
-                    {
-                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
-                        applyCPUNormalizationFilter(auxFBO2,auxFBO1);
-                        applyAddNoiseFilter(auxFBO1,auxFBO2);
-                        copyFBO(auxFBO2,auxFBO1);
-
-                    }
-                    else if(activeImage->bConversionBaseMapShowHeightTexture)
-                    {
-                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
-                        applyCPUNormalizationFilter(auxFBO2,activeFBO);
-                    }
-                } // End of base map conversion.
-            }
-        } // End of skip standard processing.
-
-
-        // Copy the conversion results to proper textures.
-        switch(conversionType)
-        {
-        case(CONVERT_FROM_H_TO_N):
-            if(activeImage->getTextureType() == NORMAL_TEXTURE)
-            {
-                copyFBO(activeFBO,targetImageNormal->getFBO());
-                targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
-            }
-            break;
-        case(CONVERT_FROM_N_TO_H):
-            if(activeImage->getTextureType() == HEIGHT_TEXTURE)
-            {
-                qDebug() << "Changing reference image of height";
-            }
-            break;
-        case(CONVERT_FROM_D_TO_O):
-            copyFBO(activeFBO,targetImageNormal->getFBO());
-            targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
-            copyFBO(auxFBO1,targetImageHeight->getFBO());
-            targetImageHeight->updateTextureFromFBO(targetImageHeight->getFBO());
-            applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateTextureFromFBO(targetImageOcclusion->getFBO());
-            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageSpecular->getFBO());
-            targetImageSpecular->updateTextureFromFBO(targetImageSpecular->getFBO());
-            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageRoughness->getFBO());
-            targetImageRoughness->updateTextureFromFBO(targetImageRoughness->getFBO());
-            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageMetallic->getFBO());
-            targetImageMetallic->updateTextureFromFBO(targetImageMetallic->getFBO());
-            break;
-        case(CONVERT_FROM_HN_TO_OC):
-            //copyFBO(activeFBO,targetImageOcclusion->ref_fbo);
-            copyFBO(activeFBO,targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateTextureFromFBO(activeFBO);
-            break;
-        default:
-            break;
-        }
-
-        activeFBO = activeImage->getFBO();
-
-    } // End of skip processing
-
-    bSkipProcessing = false;
-    conversionType  = CONVERT_NONE;
-
-    if(!bShadowRender)
-    {
-        if (renderFBO) delete renderFBO;
-        renderFBO = createFBO(activeFBO->width(), activeFBO->height());
-        GLCHK( program->setUniformValue("material_id", int(-1)) );
-        GLCHK(applyNormalFilter(activeFBO, renderFBO));
-    }
-    emit rendered();
+    resetView();
 }
 
 void OpenGL2DImageWidget::showEvent(QShowEvent* event)
@@ -866,53 +437,64 @@ void OpenGL2DImageWidget::showEvent(QShowEvent* event)
     resetView();
 }
 
-void OpenGL2DImageWidget::resizeFBO(int width, int height)
+void OpenGL2DImageWidget::mousePressEvent(QMouseEvent *event)
 {
-    conversionType = CONVERT_RESIZE;
-    resize_width   = width;
-    resize_height  = height;
+    lastCursorPos = event->pos();
+
+    // Reset the mouse handling state with, to avoid a bad state
+    blockMouseMovement = false;
+    mouseUpdateIsQueued = false;
+
+    bSkipProcessing = true;
+    draggingCorner = -1;
+
+    // Change cursor.
+    if (event->buttons() & Qt::RightButton)
+    {
+        setCursor(Qt::ClosedHandCursor);
+    }
+    update();
+
+    // In case of color picking: emit and stop picking
+    if(bToggleColorPicking)
+    {
+        std::vector<unsigned char> pixels(1 * 1 * 4);
+        GLCHK( glReadPixels(event->pos().x(), height()-event->pos().y(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]) );
+        QVector4D color(pixels[0], pixels[1], pixels[2], pixels[3]);
+        qDebug() << "Picked pixel (" << event->pos().x() << ", " << height()-event->pos().y() << ") with color:" << color;
+
+        QColor qcolor = QColor(pixels[0], pixels[1], pixels[2]);
+        if(ptr_ABColor != NULL)
+            ptr_ABColor->setValue(qcolor);
+        toggleColorPicking(false);
+    }
 }
 
-void OpenGL2DImageWidget::resetView()
+void OpenGL2DImageWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (!activeImage) return;
+    setCursor(Qt::OpenHandCursor);
+    draggingCorner = -1;
+    event->accept();
+    bSkipProcessing = true;
+    repaint();
+}
 
-    makeCurrent();
+void OpenGL2DImageWidget::wheelEvent(QWheelEvent *event)
+{
+    if(event->delta() > 0)
+        zoom -= 0.1;
+    else
+        zoom += 0.1;
+    if(zoom < -0.90)
+        zoom = -0.90;
 
-    zoom = 0;
+    updateMousePosition();
+
     windowRatio = float(width())/height();
-    fboRatio    = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
-    // OpenGL window dimensions.
-    orthographicProjHeight = (1+zoom)/windowRatio;
-    orthographicProjWidth = (1+zoom)/fboRatio;
-
-    if(orthographicProjWidth < 1.0)
-    {
-        // Fit x direction.
-        zoom = fboRatio - 1;
-        orthographicProjHeight = (1+zoom)/windowRatio;
-        orthographicProjWidth = (1+zoom)/fboRatio;
-    }
-
-    if(orthographicProjHeight < 1.0)
-    {
-        // Fit y direction.
-        zoom = windowRatio - 1;
-        orthographicProjHeight = (1+zoom)/windowRatio;
-        orthographicProjWidth = (1+zoom)/fboRatio;
-    }
-
-    // Set the image in the center.
-    xTranslation = orthographicProjWidth /2;
-    yTranslation = orthographicProjHeight/2;
-}
-
-void OpenGL2DImageWidget::resizeGL(int width, int height)
-{
-    windowRatio = float(width)/height;
     if (isValid())
     {
-        GLCHK( glViewport(0, 0, width, height) );
+        GLCHK( glViewport(0, 0, width(), height()) );
+
         if (activeImage && activeImage->getFBO())
         {
             fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
@@ -933,80 +515,14 @@ void OpenGL2DImageWidget::resizeGL(int width, int height)
         qDebug() << Q_FUNC_INFO << "invalid context.";
     }
 
-    resetView();
-}
+    // Getting the global position of cursor.
+    QPoint p = mapFromGlobal(QCursor::pos());
 
-void OpenGL2DImageWidget::setActiveImage(Image *image)
-{
-    activeImage = image;
+    // Restoring the translation after zooming.
+    xTranslation = double(p.x()) / width() * orthographicProjWidth - cursorPhysicalXPosition;
+    yTranslation = (1.0 - double(p.y()) / height()) * orthographicProjHeight - cursorPhysicalYPosition;
+
     update();
-}
-
-Image* OpenGL2DImageWidget::getActiveImage()
-{
-    return activeImage;
-}
-
-void OpenGL2DImageWidget::enableShadowRender(bool enable)
-{
-    bShadowRender = enable;
-}
-
-void OpenGL2DImageWidget::setConversionType(ConversionType type)
-{
-    conversionType = type ;
-}
-
-ConversionType OpenGL2DImageWidget::getConversionType()
-{
-    return conversionType;
-}
-
-void OpenGL2DImageWidget::updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4)
-{
-    cornerPositions[0] = QVector2D(0,0) + dc1;
-    cornerPositions[1] = QVector2D(1,0) + dc2;
-    cornerPositions[2] = QVector2D(1,1) + dc3;
-    cornerPositions[3] = QVector2D(0,1) + dc4;
-
-    for(int i = 0 ; i < 4 ; i++)
-    {
-        grungeCornerPositions[i] = cornerPositions[i];
-    }
-    update();
-}
-
-void OpenGL2DImageWidget::selectPerspectiveTransformMethod(int method)
-{
-    gui_perspective_mode = method;
-    update();
-}
-
-void OpenGL2DImageWidget::selectUVManipulationMethod(UVManipulationMethods method)
-{
-    uvManilupationMethod = method;
-    update();
-}
-
-void OpenGL2DImageWidget::updateCornersWeights(float w1, float w2, float w3, float w4)
-{
-    cornerWeights.setX(w1);
-    cornerWeights.setY(w2);
-    cornerWeights.setZ(w3);
-    cornerWeights.setW(w4);
-    update();
-}
-
-void OpenGL2DImageWidget::selectSeamlessMode(SeamlessMode mode)
-{
-    Image::seamlessMode = mode;
-    update();
-}
-
-void OpenGL2DImageWidget::imageChanged()
-{
-    // Restore picking state when another property was changed.
-    bToggleColorPicking = false;
 }
 
 void OpenGL2DImageWidget::applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
@@ -1020,7 +536,7 @@ void OpenGL2DImageWidget::applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
-    outputFBO->bindDefault();
+    GLCHK( outputFBO->bindDefault() );
 }
 
 void OpenGL2DImageWidget::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
@@ -1100,7 +616,7 @@ void OpenGL2DImageWidget::applyPerspectiveTransformFilter(  QOpenGLFramebufferOb
     GLCHK( glBindTexture(GL_TEXTURE_2D, outputFBO->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( glActiveTexture(GL_TEXTURE0) );
-    inputFBO->bindDefault();
+    GLCHK( inputFBO->bindDefault() );
 }
 
 void OpenGL2DImageWidget::applyGaussFilter(QOpenGLFramebufferObject *sourceFBO,
@@ -1158,8 +674,8 @@ void OpenGL2DImageWidget::applyRemoveShadingFilter(QOpenGLFramebufferObject *inp
 
     GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
     GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( program->setUniformValue("gui_remove_shading",RemoveShadingProp.RemoveShadingByGaussian));
-    GLCHK( program->setUniformValue("gui_ao_cancellation",RemoveShadingProp.AOCancellation ));
+    GLCHK( program->setUniformValue("gui_remove_shading", RemoveShadingProp.RemoveShadingByGaussian) );
+    GLCHK( program->setUniformValue("gui_ao_cancellation", RemoveShadingProp.AOCancellation) );
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -1178,11 +694,11 @@ void OpenGL2DImageWidget::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inp
                                                  QOpenGLFramebufferObject *,
                                                  QOpenGLFramebufferObject *outputFBO)
 {
-    applyGaussFilter(inputFBO,samplerFBO1,samplerFBO2,RemoveShadingProp.LowFrequencyFilterRadius*50);
+    applyGaussFilter(inputFBO, samplerFBO1, samplerFBO2, RemoveShadingProp.LowFrequencyFilterRadius * 50);
 
     // Calculate the average color on CPU.
     // Copy large file to smaller FBO to save time.
-    applyNormalFilter(inputFBO,averageColorFBO);
+    applyNormalFilter(inputFBO, averageColorFBO);
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, averageColorFBO->texture()) );
@@ -1191,16 +707,16 @@ void OpenGL2DImageWidget::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inp
     GLCHK( glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH , &textureWidth ) );
     GLCHK( glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight) );
 
-    float* img = new float[textureWidth*textureHeight*3];
-    float ave_color[3] = {0,0,0};
+    float* img = new float[textureWidth*textureHeight * 3];
+    float ave_color[3] = {0, 0, 0};
 
     GLCHK( glGetTexImage(	GL_TEXTURE_2D,0,GL_RGB,GL_FLOAT,img) );
 
     for(int i = 0 ; i < textureWidth*textureHeight ; i++)
     {
-        for(int c = 0 ; c < 3 ; c++)
+        for(int c = 0; c < 3; c++)
         {
-            ave_color[c] += img[3*i+c];
+            ave_color[c] += img[3 * i + c];
         }
     }
 
@@ -1210,7 +726,7 @@ void OpenGL2DImageWidget::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inp
     ave_color[2] /= (textureWidth*textureHeight);
     delete[] img;
 
-    QVector3D aveColor = QVector3D(ave_color[0],ave_color[1],ave_color[2]);
+    QVector3D aveColor = QVector3D(ave_color[0], ave_color[1], ave_color[2]);
 
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_remove_low_freq_filter"]) );
 
@@ -1582,7 +1098,7 @@ void OpenGL2DImageWidget::applyMediumDetailsFilter(QOpenGLFramebufferObject *inp
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( outputFBO->bindDefault() );
     GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
-    copyFBO(auxFBO,outputFBO);
+    copyFBO(auxFBO, outputFBO);
 }
 
 void OpenGL2DImageWidget::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFBO,
@@ -2213,64 +1729,6 @@ void OpenGL2DImageWidget::applyRoughnessColorFilter(QOpenGLFramebufferObject *in
     outputFBO->bindDefault();
 }
 
-void OpenGL2DImageWidget::copyFBO(QOpenGLFramebufferObject *src,
-                                QOpenGLFramebufferObject *dst)
-{
-    GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
-
-    GLCHK( dst->bind() );
-    GLCHK( glViewport(0,0,dst->width(),dst->height()) );
-    GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
-    GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, src->texture()) );
-    GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
-    src->bindDefault();
-}
-
-void OpenGL2DImageWidget::copyTex2FBO(GLuint src_tex_id,
-                                    QOpenGLFramebufferObject *dst)
-{
-    GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
-
-    GLCHK( dst->bind() );
-    GLCHK( glViewport(0,0,dst->width(),dst->height()) );
-
-    GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
-    GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, src_tex_id) );
-    GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
-    dst->bindDefault();
-}
-
-void OpenGL2DImageWidget::applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO)
-{
-    if(Image::bSeamlessTranslationsFirst)
-    {
-        // The output is saved to the activeFBO.
-        applyPerspectiveTransformFilter(inoutFBO, auxFBO1);
-    }
-    // Make seamless.
-    switch(Image::seamlessMode)
-    {
-    case(SEAMLESS_SIMPLE):
-        // The output is saved to the activeFBO.
-        applySeamlessLinearFilter(inoutFBO, auxFBO1);
-        break;
-    case(SEAMLESS_MIRROR):
-    case(SEAMLESS_RANDOM):
-        applySeamlessFilter(inoutFBO, auxFBO1);
-        copyFBO(auxFBO1, inoutFBO);
-        break;
-    case(SEAMLESS_NONE):
-    default:
-        break;
-    }
-    if(!Image::bSeamlessTranslationsFirst)
-    {
-        applyPerspectiveTransformFilter(inoutFBO,auxFBO1);// the output is save to activeFBO
-    }
-}
-
 void OpenGL2DImageWidget::applyGrungeImageFilter (QOpenGLFramebufferObject *inputFBO,
                                                 QOpenGLFramebufferObject *outputFBO,
                                                 QOpenGLFramebufferObject *grungeFBO)
@@ -2387,6 +1845,35 @@ void OpenGL2DImageWidget::applyGrungeWarpNormalFilter(QOpenGLFramebufferObject *
     outputFBO->bindDefault();
 }
 
+void OpenGL2DImageWidget::applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO)
+{
+    if(Image::bSeamlessTranslationsFirst)
+    {
+        // The output is saved to the activeFBO.
+        applyPerspectiveTransformFilter(inoutFBO, auxFBO1);
+    }
+    // Make seamless.
+    switch(Image::seamlessMode)
+    {
+    case(SEAMLESS_SIMPLE):
+        // The output is saved to the activeFBO.
+        applySeamlessLinearFilter(inoutFBO, auxFBO1);
+        break;
+    case(SEAMLESS_MIRROR):
+    case(SEAMLESS_RANDOM):
+        applySeamlessFilter(inoutFBO, auxFBO1);
+        copyFBO(auxFBO1, inoutFBO);
+        break;
+    case(SEAMLESS_NONE):
+    default:
+        break;
+    }
+    if(!Image::bSeamlessTranslationsFirst)
+    {
+        applyPerspectiveTransformFilter(inoutFBO,auxFBO1);// the output is save to activeFBO
+    }
+}
+
 void OpenGL2DImageWidget::updateProgramUniforms(int step)
 {
     switch(step)
@@ -2405,6 +1892,596 @@ void OpenGL2DImageWidget::updateProgramUniforms(int step)
     default:
         break;
     };
+}
+
+void OpenGL2DImageWidget::updateMousePosition()
+{
+    QPoint p = mapFromGlobal(QCursor::pos());
+    cursorPhysicalXPosition = double(p.x())/width() * orthographicProjWidth - xTranslation;
+    cursorPhysicalYPosition = (1.0-double(p.y())/height())* orthographicProjHeight - yTranslation;
+    bSkipProcessing = true;
+}
+
+void OpenGL2DImageWidget::render()
+{
+    if (!activeImage)
+        return;
+
+    // Since grunge map can be different we need to calculate ratio each time.
+    if (activeImage->getFBO())
+    {
+        fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
+        orthographicProjHeight = (1+zoom)/windowRatio;
+        orthographicProjWidth  = (1+zoom)/fboRatio;
+    }
+    // Do not clear the background during rendering process.
+    if(!bShadowRender)
+    {
+        GLCHK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
+    }
+
+    GLCHK( glDisable(GL_CULL_FACE) );
+    GLCHK( glDisable(GL_DEPTH_TEST) );
+
+    // Positions.
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0);
+    // Indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]);
+
+    QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
+
+    // Images which depend on others will not be affected by UV changes again.
+    bool bTransformUVs = true;
+    bool bSkipStandardProcessing = false;
+
+    // Do not process images when disabled.
+    if((activeImage->isSkippingProcessing()) && (activeImage->getTextureType() != MATERIAL_TEXTURE))
+        bSkipProcessing = true;
+    if(bToggleColorPicking)
+        bSkipStandardProcessing = true;
+
+    // Resizing the FBOs in case of convertion procedure.
+    if(!bSkipProcessing == true)
+    {
+        switch(conversionType)
+        {
+        case(CONVERT_FROM_H_TO_N):
+            break;
+        case(CONVERT_FROM_N_TO_H):
+            break;
+        case(CONVERT_FROM_D_TO_O):
+            break;
+        case(CONVERT_RESIZE):
+            // Apply resize textures.
+            activeImage->resizeFBO(resize_width,resize_height);
+            // Pointers were changed in resize function.
+            activeFBO = activeImage->getFBO();
+            bSkipStandardProcessing = true;
+            break;
+        default:
+            break;
+        }
+
+        // Create or resize when image was changed.
+        if (auxFBO1) delete auxFBO1;
+        auxFBO1 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO2) delete auxFBO2;
+        auxFBO2 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO3) delete auxFBO3;
+        auxFBO3 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO4) delete auxFBO4;
+        auxFBO4 = createFBO(activeFBO->width(), activeFBO->height());
+
+        // Allocate aditional FBOs when conversion from BaseMap is enabled.
+        if(activeImage->getTextureType() == DIFFUSE_TEXTURE && activeImage->bConversionBaseMap)
+        {
+            for(int i = 0; i < 3 ; i++)
+            {
+                int width = activeFBO->width() / pow (2, i + 1);
+                int height = activeFBO->height() / pow (2, i + 1);
+                if (auxFBO0BMLevels[i]) delete auxFBO0BMLevels[i];
+                auxFBO0BMLevels[i] = createFBO(width, height);
+                if (auxFBO1BMLevels[i]) delete auxFBO1BMLevels[i];
+                auxFBO1BMLevels[i] = createFBO(width, height);
+                if (auxFBO2BMLevels[i]) delete auxFBO2BMLevels[i];
+                auxFBO2BMLevels[i] = createFBO(width, height);
+            }
+        }
+
+        GLCHK( program->bind() );
+        GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
+        openGL330ForceTexType = activeImage->getTextureType();
+        GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
+        GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
+        GLCHK( program->setUniformValue("material_id", int(activeImage->currentMaterialIndex) ) );
+
+        if(activeImage->isFirstDraw())
+        {
+            resetView();
+            qDebug() << "Doing first draw of" << PostfixNames::getTextureName(activeImage->getTextureType()) << " texture.";
+            activeImage->setFirstDraw(false);
+        }
+
+        // Skip all precessing when material tab is selected.
+        if(activeImage->getTextureType() == MATERIAL_TEXTURE)
+        {
+            bSkipStandardProcessing = true;
+            GLCHK( program->setUniformValue("material_id", int(-1) ) );
+        }
+        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
+        {
+            bTransformUVs = false;
+            GLCHK( program->setUniformValue("material_id", int(MATERIALS_DISABLED) ) );
+        }
+
+        GLCHK( glActiveTexture(GL_TEXTURE10) );
+        GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageMaterial->getTexture()->textureId()) );
+        GLCHK( glActiveTexture(GL_TEXTURE0) );
+
+        //if(int(activeImage->currentMaterialIndeks) < 0)
+        //{
+        copyTex2FBO(activeImage->getTexture()->textureId(),activeImage->getFBO());
+        //}
+
+        // In some cases the output image will be taken from other sources.
+        switch(activeImage->getTextureType())
+        {
+        case(NORMAL_TEXTURE):
+        {
+            // Choose proper action.
+            switch(activeImage->getInputImageType())
+            {
+            case(INPUT_FROM_NORMAL_INPUT):
+                if(conversionType == CONVERT_FROM_H_TO_N)
+                {
+                    applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
+                    bTransformUVs = false;
+                }
+                break;
+            case(INPUT_FROM_HEIGHT_INPUT):
+                // Transform height before normal calculation.
+                if(conversionType == CONVERT_NONE)
+                {
+                    // Perspective transformation treats normal texture differently.
+                    // Temporarily change the texture type to perform transformations.
+                    // Used for GL3.30 version
+                    openGL330ForceTexType = HEIGHT_TEXTURE;
+                    GLCHK( program->setUniformValue("gui_image_type", HEIGHT_TEXTURE) );
+
+                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
+                    applyAllUVsTransforms(activeFBO);
+                    copyFBO(activeFBO,auxFBO1);
+                    applyHeightToNormal(auxFBO1,activeFBO);
+                    GLCHK( program->setUniformValue("gui_image_type", activeImage->getTextureType()) );
+                    openGL330ForceTexType = activeImage->getTextureType();
+                    bTransformUVs = false;
+                }
+                else
+                {
+                    copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
+                }
+                break;
+            case(INPUT_FROM_HEIGHT_OUTPUT):
+                applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
+
+                if(!targetImageHeight->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            default:
+                break;
+            }
+            break;
+        } // End of NORMAL_TEXTURE case.
+
+        case(SPECULAR_TEXTURE):
+        {
+            // Choose proper action.
+            switch(activeImage->getInputImageType())
+            {
+            case(INPUT_FROM_SPECULAR_INPUT):
+                break;
+            case(INPUT_FROM_HEIGHT_INPUT):
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
+                break;
+            case(INPUT_FROM_HEIGHT_OUTPUT):
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            case(INPUT_FROM_DIFFUSE_INPUT):
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_DIFFUSE_OUTPUT):
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            default:
+                break;
+            }
+            break;
+        } // End of SPECULAR_TEXTURE case.
+
+        case(OCCLUSION_TEXTURE):
+        {
+            // Choose proper action.
+            switch(activeImage->getInputImageType())
+            {
+            case(INPUT_FROM_OCCLUSION_INPUT):
+                if(conversionType == CONVERT_FROM_HN_TO_OC)
+                {
+                    // Ambient occlusion is calculated from normal and height map.
+                    // Skip some parts of the processing.
+                    applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
+                    bSkipStandardProcessing =  true;
+                    if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
+                        bTransformUVs = false;
+                    qDebug() << "Calculation AO from Normal and Height";
+                }
+                break;
+            case(INPUT_FROM_HI_NI):
+                // Ambient occlusion is calculated from normal and height map.
+                // Skip some parts of the processing.
+                applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_HO_NO):
+                applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            default:
+                break;
+            }
+            break;
+        } // End of OCCULSION_TEXTURE case.
+
+        case(HEIGHT_TEXTURE):
+        {
+            if(conversionType == CONVERT_FROM_N_TO_H)
+            {
+                applyNormalToHeight(activeImage,targetImageNormal->getFBO(),activeFBO,auxFBO1);
+                applyCPUNormalizationFilter(auxFBO1,activeFBO);
+                applyAddNoiseFilter(activeFBO,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+
+                targetImageHeight->updateTextureFromFBO(activeFBO);
+                if(!targetImageNormal->isSkippingProcessing())
+                    bTransformUVs = false;
+            }
+            break;
+        } // End of HEIGHT_TEXTURE case.
+
+        case(ROUGHNESS_TEXTURE):
+        {
+            // Choose proper action.
+            switch(activeImage->getInputImageType())
+            {
+            case(INPUT_FROM_ROUGHNESS_INPUT):
+                break;
+            case(INPUT_FROM_HEIGHT_INPUT):
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_HEIGHT_OUTPUT):
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            case(INPUT_FROM_DIFFUSE_INPUT):
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_DIFFUSE_OUTPUT):
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            default:
+                break;
+            }
+            break;
+        } // End of ROUGHNESS_TEXTURE case.
+
+        case(METALLIC_TEXTURE):
+        {
+            // Choose proper action.
+            switch(activeImage->getInputImageType())
+            {
+            case(INPUT_FROM_METALLIC_INPUT):
+                break;
+            case(INPUT_FROM_HEIGHT_INPUT):
+                copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_HEIGHT_OUTPUT):
+                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                if(!targetImageHeight->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            case(INPUT_FROM_DIFFUSE_INPUT):
+                copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
+                break;
+            case(INPUT_FROM_DIFFUSE_OUTPUT):
+                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                if(!targetImageDiffuse->isSkippingProcessing())
+                    bTransformUVs = false;
+                break;
+            default:
+                break;
+            }
+            break;
+        } // End of METALLIC_TEXTURE case.
+
+        case(GRUNGE_TEXTURE):
+        {
+            applyGrungeWarpNormalFilter(activeFBO,auxFBO2);
+
+            //if(activeImage->grungeSeed != 0)
+            applyGrungeRandomizationFilter(auxFBO2,activeFBO);
+            //else
+            //    copyTex2FBO(auxFBO2->texture(),activeFBO);
+            break;
+        } // End of GRUNGE_TEXTURE case.
+
+        default:
+            break;
+        };
+
+        // Apply grunge filter when enabled.
+        if(conversionType == CONVERT_NONE && GrungeProp.OverallWeight != 0.0f )
+        {
+            if(activeImage->getTextureType() < MATERIAL_TEXTURE)
+            {
+                copyTex2FBO(targetImageGrunge->getFBO()->texture(),auxFBO2);
+                // If "output" type selected, transform grunge map.
+                if(bTransformUVs == false)
+                {
+                    // auxFBO1 is used inside
+                    applyAllUVsTransforms(auxFBO2);
+                }
+                // auxFBO3 is used inside
+                applyGrungeImageFilter(activeFBO,auxFBO1,auxFBO2);
+                copyTex2FBO(auxFBO1->texture(),activeFBO);
+            }
+        }
+
+        // Transform UVs in some cases.
+        if(conversionType == CONVERT_NONE && bTransformUVs)
+        {
+            applyAllUVsTransforms(activeFBO);
+        }
+
+        // Skip all processing and when mouse is dragged.
+        if(!bSkipStandardProcessing)
+        {
+            // Begin standard pipe-line (for each image).
+            applyInvertComponentsFilter(activeFBO,auxFBO1);
+            copyFBO(auxFBO1,activeFBO);
+
+            if(activeImage->getTextureType() != HEIGHT_TEXTURE &&
+                    activeImage->getTextureType() != NORMAL_TEXTURE &&
+                    activeImage->getTextureType() != OCCLUSION_TEXTURE &&
+                    activeImage->getTextureType() != ROUGHNESS_TEXTURE)
+            {
+                // Hue manipulation.
+                applyColorHueFilter(activeFBO,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(BasicProp.GrayScale.EnableGrayScale ||
+                    activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                    activeImage->getTextureType() == OCCLUSION_TEXTURE ||
+                    activeImage->getTextureType() == HEIGHT_TEXTURE )
+            {
+                applyGrayScaleFilter(auxFBO1,activeFBO);
+            }
+            else
+            {
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            // Specular manipulation.
+            if(SurfaceDetailsProp.EnableSurfaceDetails &&
+                    activeImage->getTextureType() != HEIGHT_TEXTURE)
+            {
+                applyDGaussiansFilter(activeFBO,auxFBO2,auxFBO1);
+                //copyFBO(auxFBO1,activeFBO);
+                applyContrastFilter(auxFBO1,activeFBO);
+            }
+
+            // Removing shading.
+            if(activeImage->getProperties()->EnableRemoveShading)
+            {
+                applyRemoveLowFreqFilter(activeFBO,auxFBO1,auxFBO2);
+                copyFBO(auxFBO2,activeFBO);
+
+                applyGaussFilter(activeFBO,auxFBO2,auxFBO1,1);
+                applyInverseColorFilter(auxFBO1,auxFBO2);
+                copyFBO(auxFBO2,auxFBO1);
+                applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
+
+                applyRemoveShadingFilter(auxFBO2, targetImageOcclusion->getFBO(), activeFBO, auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(BasicProp.EnhanceDetails > 0)
+            {
+                for(int i = 0 ; i < BasicProp.EnhanceDetails ; i++ )
+                {
+                    applyGaussFilter(activeFBO,auxFBO2,auxFBO1,1);
+                    applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
+                    copyFBO(auxFBO2,activeFBO);
+                }
+            }
+
+            if(BasicProp.SmallDetails  > 0.0f)
+            {
+                applySmallDetailsFilter(activeFBO,auxFBO2,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(BasicProp.MediumDetails > 0.0f)
+            {
+                applyMediumDetailsFilter(activeFBO,auxFBO2,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(BasicProp.SharpenBlur != 0)
+            {
+                applySharpenBlurFilter(activeFBO,auxFBO2,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(activeImage->getTextureType() != NORMAL_TEXTURE)
+            {
+                applyHeightProcessingFilter(activeFBO,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            // Roughness color mapping.
+            // Use the same filters for both metallic and roughness, because they are almost the same.
+            if( (activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                 activeImage->getTextureType() == METALLIC_TEXTURE )
+                    && RMFilterProp.Filter == COLOR_FILTER::Noise )
+            {
+                // Processing surface.
+                applyRoughnessFilter(activeFBO,auxFBO2,auxFBO1);
+                copyFBO(auxFBO1,activeFBO);
+            }
+
+            if(activeImage->getTextureType() == ROUGHNESS_TEXTURE ||
+                    activeImage->getTextureType() == METALLIC_TEXTURE)
+            {
+                if(RMFilterProp.Filter == COLOR_FILTER::Color)
+                {
+                    applyRoughnessColorFilter(activeFBO,auxFBO1);
+                    copyFBO(auxFBO1,activeFBO);
+                }
+            }
+
+            // Height processing pipeline.
+
+            // Normal processing pipeline.
+            if(activeImage->getTextureType() == NORMAL_TEXTURE)
+            {
+                applyNormalsStepFilter(activeFBO,auxFBO1);
+                // Apply normal mixer filter.
+                if(NormalMixerProp.EnableMixer && activeImage->getNormalMixerInputTexture() != 0)
+                {
+                    applyNormalMixerFilter(auxFBO1,activeFBO);
+                }
+                else
+                {
+                    // Skip.
+                    copyFBO(auxFBO1,activeFBO);
+                }
+            }
+
+            // Diffuse processing pipeline.
+            if(!bToggleColorPicking)
+            {
+                // Skip this step if the Color picking is enabled
+                if(activeImage->getTextureType() == DIFFUSE_TEXTURE &&
+                        (activeImage->bConversionBaseMap || conversionType == CONVERT_FROM_D_TO_O ))
+                {
+                    // Create mipmaps.
+                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[0]);
+                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[1]);
+                    copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[2]);
+                    // Calculate normal for orginal image.
+                    activeImage->getBaseMapConvLevelProperties()[0].fromProperty(BaseMapToOthersProp.LevelSmall);
+                    activeImage->getBaseMapConvLevelProperties()[1].fromProperty(BaseMapToOthersProp.LevelMedium);
+                    activeImage->getBaseMapConvLevelProperties()[2].fromProperty(BaseMapToOthersProp.LevelBig);
+                    activeImage->getBaseMapConvLevelProperties()[3].fromProperty(BaseMapToOthersProp.LevelHuge);
+                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1,activeImage->getBaseMapConvLevelProperties()[0]);
+
+                    // Calulcate normal for mipmaps.
+                    for(int i = 0 ; i < 3 ; i++)
+                    {
+                        applyBaseMapConversion(auxFBO0BMLevels[i],auxFBO1BMLevels[i],auxFBO2BMLevels[i],activeImage->getBaseMapConvLevelProperties()[i+1]);
+                    }
+
+                    // Mix normals together.
+                    applyMixNormalLevels(auxFBO1->texture(),
+                            auxFBO2BMLevels[0]->texture(),
+                            auxFBO2BMLevels[1]->texture(),
+                            auxFBO2BMLevels[2]->texture(),
+                            activeFBO);
+
+                    // Apply angle correction.
+                    applyNormalAngleCorrectionFilter(activeFBO,auxFBO1);
+                    copyTex2FBO(auxFBO1->texture(),activeFBO);
+
+                    if(conversionType == CONVERT_FROM_D_TO_O)
+                    {
+                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
+                        applyCPUNormalizationFilter(auxFBO2,auxFBO1);
+                        applyAddNoiseFilter(auxFBO1,auxFBO2);
+                        copyFBO(auxFBO2,auxFBO1);
+
+                    }
+                    else if(activeImage->bConversionBaseMapShowHeightTexture)
+                    {
+                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
+                        applyCPUNormalizationFilter(auxFBO2,activeFBO);
+                    }
+                } // End of base map conversion.
+            }
+        } // End of skip standard processing.
+
+
+        // Copy the conversion results to proper textures.
+        switch(conversionType)
+        {
+        case(CONVERT_FROM_H_TO_N):
+            if(activeImage->getTextureType() == NORMAL_TEXTURE)
+            {
+                copyFBO(activeFBO,targetImageNormal->getFBO());
+                targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
+            }
+            break;
+        case(CONVERT_FROM_N_TO_H):
+            if(activeImage->getTextureType() == HEIGHT_TEXTURE)
+            {
+                qDebug() << "Changing reference image of height";
+            }
+            break;
+        case(CONVERT_FROM_D_TO_O):
+            copyFBO(activeFBO,targetImageNormal->getFBO());
+            targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
+            copyFBO(auxFBO1,targetImageHeight->getFBO());
+            targetImageHeight->updateTextureFromFBO(targetImageHeight->getFBO());
+            applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), targetImageOcclusion->getFBO());
+            targetImageOcclusion->updateTextureFromFBO(targetImageOcclusion->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageSpecular->getFBO());
+            targetImageSpecular->updateTextureFromFBO(targetImageSpecular->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageRoughness->getFBO());
+            targetImageRoughness->updateTextureFromFBO(targetImageRoughness->getFBO());
+            copyTex2FBO(activeImage->getTexture()->textureId(), targetImageMetallic->getFBO());
+            targetImageMetallic->updateTextureFromFBO(targetImageMetallic->getFBO());
+            break;
+        case(CONVERT_FROM_HN_TO_OC):
+            //copyFBO(activeFBO,targetImageOcclusion->ref_fbo);
+            copyFBO(activeFBO,targetImageOcclusion->getFBO());
+            targetImageOcclusion->updateTextureFromFBO(activeFBO);
+            break;
+        default:
+            break;
+        }
+
+        activeFBO = activeImage->getFBO();
+
+    } // End of skip processing
+
+    bSkipProcessing = false;
+    conversionType  = CONVERT_NONE;
+
+    if(!bShadowRender)
+    {
+        if (renderFBO) delete renderFBO;
+        renderFBO = createFBO(activeFBO->width(), activeFBO->height());
+        GLCHK( program->setUniformValue("material_id", int(-1)) );
+        GLCHK(applyNormalFilter(activeFBO, renderFBO));
+    }
+    emit rendered();
 }
 
 void OpenGL2DImageWidget::makeScreenQuad()
@@ -2493,343 +2570,31 @@ QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
     return fbo;
 }
 
-void OpenGL2DImageWidget::updateMousePosition()
+void OpenGL2DImageWidget::copyFBO(QOpenGLFramebufferObject *src,
+                                QOpenGLFramebufferObject *dst)
 {
-    QPoint p = mapFromGlobal(QCursor::pos());
-    cursorPhysicalXPosition =       double(p.x())/width() * orthographicProjWidth  - xTranslation;
-    cursorPhysicalYPosition = (1.0-double(p.y())/height())* orthographicProjHeight - yTranslation;
-    bSkipProcessing = true;
+    GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
+
+    GLCHK( dst->bind() );
+    GLCHK( glViewport(0,0,dst->width(),dst->height()) );
+    GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
+    GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, src->texture()) );
+    GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
+    src->bindDefault();
 }
 
-void OpenGL2DImageWidget::wheelEvent(QWheelEvent *event)
+void OpenGL2DImageWidget::copyTex2FBO(GLuint src_tex_id,
+                                    QOpenGLFramebufferObject *dst)
 {
-    if( event->delta() > 0)
-        zoom-=0.1;
-    else
-        zoom+=0.1;
-    if(zoom < -0.90)
-        zoom = -0.90;
+    GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
 
-    updateMousePosition();
+    GLCHK( dst->bind() );
+    GLCHK( glViewport(0,0,dst->width(),dst->height()) );
 
-    //resizeGL(width(),height());
-    windowRatio = float(width())/height();
-    if (isValid())
-    {
-        GLCHK( glViewport(0, 0, width(), height()) );
-
-        if (activeImage && activeImage->getFBO())
-        {
-            fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
-            orthographicProjHeight = (1+zoom)/windowRatio;
-            orthographicProjWidth = (1+zoom)/fboRatio;
-        }
-        else
-        {
-            qWarning() << Q_FUNC_INFO;
-            if (!activeImage)
-                qWarning() << "  activeImage is null";
-            else if (!activeImage->getFBO())
-                qWarning() << "  activeImage->getFBO() is null";
-        }
-    }
-    else
-    {
-        qDebug() << Q_FUNC_INFO << "invalid context.";
-    }
-
-    // Getting the global position of cursor.
-    QPoint p = mapFromGlobal(QCursor::pos());
-
-    // Restoring the translation after zooming.
-    xTranslation = double(p.x()) / width() * orthographicProjWidth - cursorPhysicalXPosition;
-    yTranslation = (1.0 - double(p.y()) / height()) * orthographicProjHeight - cursorPhysicalYPosition;
-
-    update();
-}
-
-void OpenGL2DImageWidget::relativeMouseMoveEvent(int dx, int dy, bool* wrapMouse, Qt::MouseButtons buttons)
-{
-    if(activeImage->getTextureType() != GRUNGE_TEXTURE)
-    {
-        if(Image::currentMaterialIndex != MATERIALS_DISABLED &&
-                buttons & Qt::LeftButton)
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Warning!");
-            msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping when materials textures are enabled.");
-            msgBox.setStandardButtons(QMessageBox::Cancel);
-            msgBox.exec();
-            return;
-        }
-    }
-
-    if(activeImage->getTextureType() == MATERIAL_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of materials texture. This texture is static.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == GRUNGE_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of Grunge texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == OCCLUSION_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of occlusion texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == NORMAL_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of normal texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == METALLIC_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of metallic texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == ROUGHNESS_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of roughness texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    if(activeImage->getTextureType() == SPECULAR_TEXTURE &&
-            buttons & Qt::LeftButton)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Sorry, but you cannot modify UV's mapping of specular texture. Try Diffuse or height texture.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
-
-    // Default position of corners.
-    QVector2D defCorners[4];
-    defCorners[0] = QVector2D(0,0) ;
-    defCorners[1] = QVector2D(1,0) ;
-    defCorners[2] = QVector2D(1,1) ;
-    defCorners[3] = QVector2D(0,1) ;
-    QVector2D mpos((cursorPhysicalXPosition+0.5), (cursorPhysicalYPosition+0.5));
-
-    // Manipulate UV coordinates based on chosen method.
-    switch(uvManilupationMethod)
-    {
-    case(UV_TRANSLATE):
-        if(buttons & Qt::LeftButton)
-        {
-            // Drag image.
-            setCursor(Qt::SizeAllCursor);
-            // Move all corners.
-            QVector2D averagePos(0.0,0.0);
-            QVector2D dmouse = QVector2D(-dx*(float(orthographicProjWidth)/width()),dy*(float(orthographicProjHeight)/height()));
-            for(int i = 0; i < 4 ; i++)
-            {
-                averagePos += cornerPositions[i]*0.25;
-                if(activeImage->getTextureType() == GRUNGE_TEXTURE)
-                    grungeCornerPositions[i] += dmouse;
-                else
-                    cornerPositions[i] += dmouse;
-            }
-            repaint();
-        }
-        break;
-        // Grab corners in perspective correction tool.
-    case(UV_GRAB_CORNERS):
-        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
-            break;
-        if(draggingCorner == -1)
-        {
-            setCursor(Qt::OpenHandCursor);
-            for(int i = 0; i < 4 ; i++)
-            {
-                float dist = (mpos - defCorners[i]).length();
-                if(dist < 0.2)
-                {
-                    setCursor(cornerCursors[i]);
-                }
-            }
-        }
-
-        if(buttons & Qt::LeftButton)
-        {
-            // Calculate distance from corners.
-            if(draggingCorner == -1)
-            {
-                for(int i = 0; i < 4 ; i++)
-                {
-                    float dist = (mpos - defCorners[i]).length();
-                    if(dist < 0.2)
-                    {
-                        draggingCorner = i;
-                    }
-                }
-            }
-
-            if(draggingCorner >=0 && draggingCorner < 4)
-            {
-                cornerPositions[draggingCorner] += QVector2D(-dx*(float(orthographicProjWidth)/width()),dy*(float(orthographicProjHeight)/height()));
-            }
-            repaint();
-        }
-        break;
-    case(UV_SCALE_XY):
-        if(activeImage->getTextureType() == GRUNGE_TEXTURE)
-            break;
-        setCursor(Qt::OpenHandCursor);
-
-        if(buttons & Qt::LeftButton)
-        {
-            // Drag image.
-            setCursor(Qt::SizeAllCursor);
-            QVector2D dmouse = QVector2D(-dx*(float(orthographicProjWidth)/width()),dy*(float(orthographicProjHeight)/height()));
-            cornerWeights.setX(cornerWeights.x()-dmouse.x());
-            cornerWeights.setY(cornerWeights.y()-dmouse.y());
-            repaint();
-        }
-        break;
-    default:;
-    }
-
-    if (buttons & Qt::RightButton)
-    {
-        xTranslation += dx*(float(orthographicProjWidth)/width());
-        yTranslation -= dy*(float(orthographicProjHeight)/height());
-        setCursor(Qt::ClosedHandCursor);
-    }
-
-    // Mouse looping in 2D view window.
-    *wrapMouse = (buttons & Qt::RightButton || buttons & Qt::LeftButton );
-
-    updateMousePosition();
-    if(bToggleColorPicking)
-    {
-        setCursor(Qt::UpArrowCursor);
-    }
-
-    update();
-}
-
-void OpenGL2DImageWidget::mousePressEvent(QMouseEvent *event)
-{
-    //OpenGLWidgetBase::mousePressEvent(event);
-    lastCursorPos = event->pos();
-
-    // Reset the mouse handling state with, to avoid a bad state
-    blockMouseMovement = false;
-    mouseUpdateIsQueued = false;
-
-    bSkipProcessing = true;
-    draggingCorner = -1;
-
-    // Change cursor.
-    if (event->buttons() & Qt::RightButton)
-    {
-        setCursor(Qt::ClosedHandCursor);
-    }
-    update();
-
-    // In case of color picking: emit and stop picking
-    if(bToggleColorPicking)
-    {
-        std::vector< unsigned char > pixels( 1 * 1 * 4 );
-        glReadPixels(event->pos().x(), height()-event->pos().y(), 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
-        QVector4D color(pixels[0],pixels[1],pixels[2],pixels[3]);
-        qDebug() << "Picked pixel (" << event->pos().x() << " , " << height()-event->pos().y() << ") with color:" << color;
-
-        QColor qcolor = QColor(pixels[0],pixels[1],pixels[2]);
-        if(ptr_ABColor != NULL)
-            ptr_ABColor->setValue(qcolor);
-        toggleColorPicking(false);
-    }
-}
-
-void OpenGL2DImageWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    setCursor(Qt::OpenHandCursor);
-    draggingCorner = -1;
-    event->accept();
-    bSkipProcessing = true;
-    repaint();
-}
-
-void OpenGL2DImageWidget::toggleColorPicking(bool toggle)
-{
-    bToggleColorPicking = toggle;
-    ptr_ABColor = NULL;
-    if(toggle)
-    {
-        setCursor(Qt::UpArrowCursor);
-    }
-    else
-    {
-        setCursor(Qt::PointingHandCursor);
-    }
-}
-
-void OpenGL2DImageWidget::pickImageColor( QtnPropertyABColor* property)
-{
-    bool toggle = true;
-    bToggleColorPicking = toggle;
-    ptr_ABColor = property;
-    if(toggle)
-    {
-        setCursor(Qt::UpArrowCursor);
-    }
-    else
-    {
-        setCursor(Qt::PointingHandCursor);
-    }
-    repaint();
-}
-
-void OpenGL2DImageWidget::copyRenderToPaintFBO()
-{
-    if (paintFBO) delete paintFBO;
-    paintFBO = createFBO(renderFBO->width(), renderFBO->height());
-    GLCHK( program->setUniformValue("material_id", int(-1)) );
-    copyFBO(renderFBO, paintFBO);
-    bRendering = false;
-}
-
-void OpenGL2DImageWidget::toggleMouseWrap(bool toggle)
-{
-    wrapMouse = toggle;
+    GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
+    GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, src_tex_id) );
+    GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
+    dst->bindDefault();
 }

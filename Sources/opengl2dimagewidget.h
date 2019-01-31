@@ -29,7 +29,7 @@ enum ConversionType
     CONVERT_RESIZE
 };
 
-enum UVManipulationMethods
+enum UVManipulationMethod
 {
     UV_TRANSLATE = 0,
     UV_GRAB_CORNERS,
@@ -47,14 +47,12 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    void cleanup();
-    void setActiveImage(Image *image);
     Image* getActiveImage();
+    void setActiveImage(Image *image);
     void enableShadowRender(bool enable);
-    void setConversionType(ConversionType conversionType);
     ConversionType getConversionType();
+    void setConversionType(ConversionType conversionType);
     void updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4);
-    void render();
 
     Image* targetImageDiffuse;
     Image* targetImageNormal;
@@ -68,7 +66,6 @@ public:
 
 signals:
     void rendered();
-    void readyGL();
     void colorPicked(QVector4D color);
 
 public slots:
@@ -76,7 +73,7 @@ public slots:
     void imageChanged();
     void resetView();
     void selectPerspectiveTransformMethod(int method);
-    void selectUVManipulationMethod(UVManipulationMethods method);
+    void selectUVManipulationMethod(UVManipulationMethod method);
     void updateCornersWeights(float w1, float w2, float w3, float w4);
     void selectSeamlessMode(SeamlessMode mode);
     void toggleColorPicking(bool toggle);
@@ -86,18 +83,15 @@ public slots:
     void toggleMouseWrap(bool toggle);
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void relativeMouseMoveEvent(int dx, int dy, bool *wrapMouse, Qt::MouseButtons buttons);
-    void wheelEvent(QWheelEvent *event);
-    void updateMousePosition();
-    void showEvent(QShowEvent* event);
-
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
+    void showEvent(QShowEvent* event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
-public:
+private:
     void applyNormalFilter(QOpenGLFramebufferObject *inputFBO,
                            QOpenGLFramebufferObject *outputFBO);
     void applyHeightToNormal(QOpenGLFramebufferObject *inputFBO,
@@ -193,14 +187,14 @@ public:
 
     void applyAllUVsTransforms(QOpenGLFramebufferObject *inoutFBO);
 
-    void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
-    void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
-
     void updateProgramUniforms(int step);
 
-private:
+    void updateMousePosition();
+    void render();
     void makeScreenQuad();
     QOpenGLFramebufferObject* createFBO(int width, int height);
+    void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
+    void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
     Image* activeImage;
     QOpenGLShaderProgram *program;
@@ -233,7 +227,7 @@ private:
     ConversionType conversionType;
     QtnPropertyABColor* ptr_ABColor;
     // UV manipulations method.
-    UVManipulationMethods uvManilupationMethod;
+    UVManipulationMethod uvManilupationMethod;
     // OpenGL 330 variables.
     TextureType openGL330ForceTexType;
 
