@@ -140,7 +140,6 @@ public slots:
 private:    
     // Save all textures to given directory.
     bool saveAllImages(const QString &dir);
-    bool checkOpenGL();
 
     Ui::MainWindow *ui;
     OpenGL3DImageWidget *openGL3DImageWidget;
@@ -184,6 +183,8 @@ private:
     DialogShortcuts *dialogShortcuts;
     QSettings defaults;
 };
+
+void displayOpenGLInformation(bool includeExtensions);
 
 // Redirect qDebug() to log file.
 void customMessageHandler(

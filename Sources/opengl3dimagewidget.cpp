@@ -408,13 +408,6 @@ void OpenGL3DImageWidget::initializeGL()
 
     initializeOpenGLFunctions();
 
-    qDebug() << QString("OpenGL version: %1.%2")
-                .arg(context()->format().majorVersion())
-                .arg(context()->format().minorVersion());
-
-    qDebug() << "GLSL version:"
-             << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-
     GLCHK( glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS) );
     makeCurrent();
 

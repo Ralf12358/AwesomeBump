@@ -1818,43 +1818,35 @@ if(!checkOpenGL()){
 }
 */
 
-bool MainWindow::checkOpenGL()
+/*
+void displayOpenGLInformation(bool includeExtensions)
 {
     qDebug() << Q_FUNC_INFO;
 
-    QGLWidget *glWidget = new QGLWidget;
+    qDebug() << QString("OpenGL version: %1.%2")
+                .arg(context()->format().majorVersion())
+                .arg(context()->format().minorVersion());
 
-    QGLContext* glContext = (QGLContext *) glWidget->context();
-    GLCHK( glContext->makeCurrent() );
+    qDebug() << "GL version:"
+             << (const char*)glGetString(GL_VERSION);
+    qDebug() << "GL vendor:"
+             << (const char*)glGetString(GL_VENDOR);
+    qDebug() << "GL renderer:"
+             << (const char*)glGetString(GL_RENDERER);
+    qDebug() << "GLSL version:"
+             << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    int glMajorVersion, glMinorVersion;
+    if (!includeExtensions) return;
 
-    glMajorVersion = glContext->format().majorVersion();
-    glMinorVersion = glContext->format().minorVersion();
-
-    qDebug() << "Running the " + QString(AWESOME_BUMP_VERSION);
-    qDebug() << "Checking OpenGL widget:";
-    qDebug() << "Widget OpenGL:" << QString("%1.%2").arg(glMajorVersion).arg(glMinorVersion);
-    qDebug() << "Context valid:" << glContext->isValid() ;
-    qDebug() << "OpenGL information:" ;
-    qDebug() << "VENDOR:"       << (const char*)glGetString(GL_VENDOR) ;
-    qDebug() << "RENDERER:"     << (const char*)glGetString(GL_RENDERER) ;
-    qDebug() << "VERSION:"      << (const char*)glGetString(GL_VERSION) ;
-    qDebug() << "GLSL VERSION:" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION) ;
-
-    delete glWidget;
-
-    /*
-    Display3DSettings::openGLVersion = GL_MAJOR + (GL_MINOR * 0.1);
-    // Check openGL version.
-    if( glMajorVersion < GL_MAJOR || (glMajorVersion == GL_MAJOR && glMinorVersion < GL_MINOR))
+    GLint numberOfExentsions = 0;
+    GLCHK( glGetIntegerv(GL_NUM_EXTENSIONS, &numberOfExentsions) );
+    qDebug() << numberOfExentsions << " extensions:";
+    for (int i = 0; i < numberOfExentsions; i++)
     {
-        qWarning() << QString("Error: This version of AwesomeBump does not support openGL versions lower than %1.%2 :(").arg(GL_MAJOR).arg(GL_MINOR) ;
-        return false;
+        qDebug() << (const char*)glGetStringi(GL_EXTENSIONS, i);
     }
-    */
-    return true;
 }
+*/
 
 void customMessageHandler(
         QtMsgType type,
