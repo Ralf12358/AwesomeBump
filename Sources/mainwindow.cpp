@@ -14,7 +14,6 @@
 
 #include "opengl3dimagewidget.h"
 #include "opengl2dimagewidget.h"
-#include "openglframebufferobject.h"
 #include "image.h"
 #include "imagewidget.h"
 #include "formmaterialindicesmanager.h"
@@ -1744,7 +1743,7 @@ void MainWindow::loadSettings()
     recentMeshDir = abSettings->recent_mesh_dir;
 
     ui->checkBoxUseLinearTextureInterpolation->setChecked(abSettings->use_texture_interpolation);
-    OpenGLFramebufferObject::bUseLinearInterpolation = ui->checkBoxUseLinearTextureInterpolation->isChecked();
+    Image::bUseLinearInterpolation = ui->checkBoxUseLinearTextureInterpolation->isChecked();
     ui->comboBoxGUIStyle->setCurrentText(abSettings->gui_style);
 
     // UV Settings.

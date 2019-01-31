@@ -1,44 +1,35 @@
 #include "opengl2dimagewidget.h"
 
-#include "openglframebufferobject.h"
 #include "openglerrorcheck.h"
 
 OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    mouseUpdateIsQueued(false),
-    blockMouseMovement(false)
+    averageColorFBO(0), samplerFBO1(0), samplerFBO2(0),
+    auxFBO1(0), auxFBO2(0), auxFBO3(0), auxFBO4(0),
+    paintFBO(0), renderFBO(0),
+    conversionType(CONVERT_NONE), uvManilupationMethod(UV_TRANSLATE),
+    bShadowRender(false), bSkipProcessing(false), fboRatio(1),
+    cornerWeights(QVector4D(0, 0, 0, 0)), draggingCorner(-1),
+    gui_perspective_mode(0), gui_seamless_mode(0),
+    bToggleColorPicking(false), bRendering(false),
+    mouseUpdateIsQueued(false), blockMouseMovement(false), wrapMouse(true)
 {
-    wrapMouse = true;
-    bShadowRender         = false;
-    bSkipProcessing       = false;
-    bRendering            = false;
-    bToggleColorPicking   = false;
-    conversionType        = CONVERT_NONE;
-    uvManilupationMethod  = UV_TRANSLATE;
-    cornerWeights         = QVector4D(0,0,0,0);
-    fboRatio = 1;
-    renderFBO		  = NULL;
-    paintFBO		  = NULL;
-
-    // initialize position of the corners
+    // Initialise position of the corners.
     cornerPositions[0] = QVector2D(-0.0,-0);
     cornerPositions[1] = QVector2D( 1,-0);
     cornerPositions[2] = QVector2D( 1, 1);
     cornerPositions[3] = QVector2D(-0, 1);
-    for(int i = 0 ; i < 4 ; i++)
+    for(int i = 0; i < 4; i++)
     {
         grungeCornerPositions[i] = cornerPositions[i];
     }
-    draggingCorner       = -1;
-    gui_perspective_mode =  0;
-    gui_seamless_mode    =  0;
     setCursor(Qt::OpenHandCursor);
     cornerCursors[0] = QCursor(QPixmap(":/resources/cursors/corner1.png"));
     cornerCursors[1] = QCursor(QPixmap(":/resources/cursors/corner2.png"));
     cornerCursors[2] = QCursor(QPixmap(":/resources/cursors/corner3.png"));
     cornerCursors[3] = QCursor(QPixmap(":/resources/cursors/corner4.png"));
     activeImage = NULL;
-    connect(this,SIGNAL(rendered()),this,SLOT(copyRenderToPaintFBO()));
+    connect(this, SIGNAL (rendered()), this, SLOT(copyRenderToPaintFBO()));
 }
 
 OpenGL2DImageWidget::~OpenGL2DImageWidget()
@@ -152,42 +143,26 @@ void OpenGL2DImageWidget::initializeGL()
     }
 
     qDebug() << "Compiling fragment shader: filters.frag";
-    QOpenGLShader *fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    if (!fshader->compileSourceFile(":/resources/shaders/filters.frag"))
+    QOpenGLShader *fragementShader = new QOpenGLShader(QOpenGLShader::Fragment, this);
+    if (!fragementShader->compileSourceFile(":/resources/shaders/filters.frag"))
     {
-        qDebug() << "Failed to compile filters.vert!";
+        qDebug() << "Failed to compile filters.frag!";
         qDebug() << vertexShader->log();
     }
-/*
-    QFile fFile(":/resources/shaders/filters.frag");
-    fFile.open(QFile::ReadOnly);
-    QTextStream inf(&fFile);
-    QString shaderCode = inf.readAll();
-
-    qDebug() << "Loading filters (vertex shader)";
-    QString preambule = "#version 400 core\n";
-
-    QOpenGLShader *fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    fshader->compileSourceCode(preambule + shaderCode);
-    if (!fshader->log().isEmpty())
-        qDebug() << fshader->log();
-    else
-        qDebug() << "done";
-*/
-    program = new QOpenGLShaderProgram(this);
-    program->addShader(vertexShader);
-    program->addShader(fshader);
-    program->bindAttributeLocation("positionIn", 0);
+    GLCHK( program = new QOpenGLShaderProgram(this) );
+    GLCHK( program->addShader(vertexShader) );
+    GLCHK( program->addShader(fragementShader) );
+    GLCHK( program->bindAttributeLocation("positionIn", 0) );
     GLCHK( program->link() );
     GLCHK( program->bind() );
-    GLCHK( program->setUniformValue("layerA" , 0) );
-    GLCHK( program->setUniformValue("layerB" , 1) );
-    GLCHK( program->setUniformValue("layerC" , 2) );
-    GLCHK( program->setUniformValue("layerD" , 3) );
-    GLCHK( program->setUniformValue("materialTexture" ,10) );
+    GLCHK( program->setUniformValue("layerA", 0) );
+    GLCHK( program->setUniformValue("layerB", 1) );
+    GLCHK( program->setUniformValue("layerC", 2) );
+    GLCHK( program->setUniformValue("layerD", 3) );
+    GLCHK( program->setUniformValue("materialTexture", 10) );
 
     delete vertexShader;
-    delete fshader;
+    delete fragementShader;
 
     GLCHK( subroutines["mode_normal_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_filter") );
     GLCHK( subroutines["mode_color_hue_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_color_hue_filter") );
@@ -227,12 +202,9 @@ void OpenGL2DImageWidget::initializeGL()
 
     makeScreenQuad();
 
-    averageColorFBO = NULL;
-    samplerFBO1     = NULL;
-    samplerFBO2     = NULL;
-    OpenGLFramebufferObject::create(averageColorFBO,256,256);
-    OpenGLFramebufferObject::create(samplerFBO1,1024,1024);
-    OpenGLFramebufferObject::create(samplerFBO2,1024,1024);
+    averageColorFBO = createFBO(256, 256);
+    samplerFBO1     = createFBO(1024, 1024);
+    samplerFBO2     = createFBO(1024, 1024);
 
     auxFBO1 = NULL;
     auxFBO2 = NULL;
@@ -368,29 +340,28 @@ void OpenGL2DImageWidget::render()
         }
 
         // Create or resize when image was changed.
-        OpenGLFramebufferObject::resize(auxFBO1,activeFBO->width(),activeFBO->height());
-        OpenGLFramebufferObject::resize(auxFBO2,activeFBO->width(),activeFBO->height());
-        OpenGLFramebufferObject::resize(auxFBO3,activeFBO->width(),activeFBO->height());
-        OpenGLFramebufferObject::resize(auxFBO4,activeFBO->width(),activeFBO->height());
+        if (auxFBO1) delete auxFBO1;
+        auxFBO1 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO2) delete auxFBO2;
+        auxFBO2 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO3) delete auxFBO3;
+        auxFBO3 = createFBO(activeFBO->width(), activeFBO->height());
+        if (auxFBO4) delete auxFBO4;
+        auxFBO4 = createFBO(activeFBO->width(), activeFBO->height());
+
         // Allocate aditional FBOs when conversion from BaseMap is enabled.
         if(activeImage->getTextureType() == DIFFUSE_TEXTURE && activeImage->bConversionBaseMap)
         {
             for(int i = 0; i < 3 ; i++)
             {
-                OpenGLFramebufferObject::resize(auxFBO0BMLevels[i],activeFBO->width()/pow(2,i+1),activeFBO->height()/pow(2,i+1));
-                OpenGLFramebufferObject::resize(auxFBO1BMLevels[i],activeFBO->width()/pow(2,i+1),activeFBO->height()/pow(2,i+1));
-                OpenGLFramebufferObject::resize(auxFBO2BMLevels[i],activeFBO->width()/pow(2,i+1),activeFBO->height()/pow(2,i+1));
-            }
-        }
-        else
-        {
-            // Delete unnecessary FBOs (I know that this is stupid...)
-            int small_w_h = 1;
-            for(int i = 0; i < 3 ; i++)
-            {
-                OpenGLFramebufferObject::resize(auxFBO0BMLevels[i],small_w_h,small_w_h);
-                OpenGLFramebufferObject::resize(auxFBO1BMLevels[i],small_w_h,small_w_h);
-                OpenGLFramebufferObject::resize(auxFBO2BMLevels[i],small_w_h,small_w_h);
+                int width = activeFBO->width() / pow (2, i + 1);
+                int height = activeFBO->height() / pow (2, i + 1);
+                if (auxFBO0BMLevels[i]) delete auxFBO0BMLevels[i];
+                auxFBO0BMLevels[i] = createFBO(width, height);
+                if (auxFBO1BMLevels[i]) delete auxFBO1BMLevels[i];
+                auxFBO1BMLevels[i] = createFBO(width, height);
+                if (auxFBO2BMLevels[i]) delete auxFBO2BMLevels[i];
+                auxFBO2BMLevels[i] = createFBO(width, height);
             }
         }
 
@@ -881,9 +852,10 @@ void OpenGL2DImageWidget::render()
 
     if(!bShadowRender)
     {
-        GLCHK(OpenGLFramebufferObject::resize(renderFBO,activeFBO->width(),activeFBO->height()));
+        if (renderFBO) delete renderFBO;
+        renderFBO = createFBO(activeFBO->width(), activeFBO->height());
         GLCHK( program->setUniformValue("material_id", int(-1)) );
-        GLCHK(applyNormalFilter(activeFBO,renderFBO));
+        GLCHK(applyNormalFilter(activeFBO, renderFBO));
     }
     emit rendered();
 }
@@ -2489,6 +2461,37 @@ void OpenGL2DImageWidget::makeScreenQuad()
     GLCHK( glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * no_triangles * 3 , indices.constData(), GL_STATIC_DRAW) );
 }
 
+QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
+{
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(TEXTURE_FORMAT);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setMipmap(true);
+
+    QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject(width, height, format);
+
+    GLCHK( glBindTexture(GL_TEXTURE_2D, fbo->texture()) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
+
+    if(Image::bUseLinearInterpolation)
+    {
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+    }
+    else
+    {
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+    }
+
+    float aniso = 0.0f;
+    GLCHK( glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso) );
+    GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
+
+    return fbo;
+}
 
 void OpenGL2DImageWidget::updateMousePosition()
 {
@@ -2819,9 +2822,10 @@ void OpenGL2DImageWidget::pickImageColor( QtnPropertyABColor* property)
 
 void OpenGL2DImageWidget::copyRenderToPaintFBO()
 {
-    GLCHK(OpenGLFramebufferObject::resize(paintFBO,renderFBO->width(),renderFBO->height()));
+    if (paintFBO) delete paintFBO;
+    paintFBO = createFBO(renderFBO->width(), renderFBO->height());
     GLCHK( program->setUniformValue("material_id", int(-1)) );
-    copyFBO(renderFBO,paintFBO);
+    copyFBO(renderFBO, paintFBO);
     bRendering = false;
 }
 

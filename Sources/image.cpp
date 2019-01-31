@@ -4,7 +4,6 @@
 
 #include "opengl2dimagewidget.h"
 #include "openglerrorcheck.h"
-#include "openglframebufferobject.h"
 
 SeamlessMode Image::seamlessMode                 = SEAMLESS_NONE;
 float Image::seamlessSimpleModeRadius            = 0.5;
@@ -18,6 +17,7 @@ bool Image::bConversionBaseMap                   = false;
 bool Image::bConversionBaseMapShowHeightTexture  = false;
 int Image::currentMaterialIndex                  = MATERIALS_DISABLED;
 RandomTilingMode Image::randomTilingMode         = RandomTilingMode();
+bool Image::bUseLinearInterpolation              = true;
 
 Image::Image()
 {
@@ -79,31 +79,14 @@ void Image::init(const QImage& image)
           return;
     }
 
-    if(texture)
-        delete texture;
-    //scr_tex_id = glWidget_ptr->bindTexture(image,GL_TEXTURE_2D);
+    if(texture) delete texture;
+
     texture = new QOpenGLTexture(image);
     textureWidth  = image.width();
     textureHeight = image.height();
     bFirstDraw    = true;
 
-    /*
-    switch(imageType)
-    {
-    case(HEIGHT_TEXTURE):
-    case(OCCLUSION_TEXTURE):
-        GLCHK( OpenGLFramebufferObject::create(fbo, image.width(), image.height(), GL_R16F) );
-        break;
-    default:
-        GLCHK( OpenGLFramebufferObject::create(fbo, image.width(), image.height()) );
-        break;
-    }
-    */
-
-    GLuint internal_format = TEXTURE_FORMAT;
-    if(textureType == HEIGHT_TEXTURE)
-        internal_format = TEXTURE_3DRENDER_FORMAT;
-    GLCHK(OpenGLFramebufferObject::create(fbo , image.width(), image.height(), internal_format));
+    createFBO(image.width(), image.height());
 }
 
 OpenGL2DImageWidget* Image::getOpenGL2DImageWidget()
@@ -135,10 +118,7 @@ void Image::updateTextureFromFBO(QOpenGLFramebufferObject* sourceFBO)
 
 void Image::resizeFBO(int width, int height)
 {
-    GLuint internal_format = TEXTURE_FORMAT;
-    if(textureType == HEIGHT_TEXTURE)
-        internal_format = TEXTURE_3DRENDER_FORMAT;
-    GLCHK( OpenGLFramebufferObject::resize(fbo,width,height,internal_format) );
+    createFBO(width, height);
     bFirstDraw = true;
 }
 
@@ -258,3 +238,37 @@ void Image::setImageName(const QString& newName)
     imageName = newName;
 }
 
+void Image::createFBO(int width, int height)
+{
+    if (fbo) delete fbo;
+
+    GLenum internalFormat = TEXTURE_FORMAT;
+    if(textureType == HEIGHT_TEXTURE)
+        internalFormat = TEXTURE_3DRENDER_FORMAT;
+
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(internalFormat);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setMipmap(true);
+    fbo = new QOpenGLFramebufferObject(width, height, format);
+
+    GLCHK( glBindTexture(GL_TEXTURE_2D, fbo->texture()) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
+    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
+
+    if(bUseLinearInterpolation)
+    {
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+    }
+    else
+    {
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+    }
+
+    float aniso = 0.0f;
+    GLCHK( glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso) );
+    GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
+}

@@ -200,9 +200,11 @@ public:
 
 private:
     void makeScreenQuad();
+    QOpenGLFramebufferObject* createFBO(int width, int height);
 
-    QOpenGLShaderProgram *program;
     Image* activeImage;
+    QOpenGLShaderProgram *program;
+
     // Small FBO used for calculation of average color.
     QOpenGLFramebufferObject *averageColorFBO;
     // FBO with size 1024x1024.
@@ -214,12 +216,10 @@ private:
     QOpenGLFramebufferObject *auxFBO2;
     QOpenGLFramebufferObject *auxFBO3;
     QOpenGLFramebufferObject *auxFBO4;
-
-    // 2 times smaller. 4 and 8
-    QOpenGLFramebufferObject *auxFBO1BMLevels[3];
-    QOpenGLFramebufferObject *auxFBO2BMLevels[3];
-    QOpenGLFramebufferObject *auxFBO0BMLevels[3];
-
+    // 2, 4 and 8 times smaller.
+    QOpenGLFramebufferObject *auxFBO1BMLevels[3]{};
+    QOpenGLFramebufferObject *auxFBO2BMLevels[3]{};
+    QOpenGLFramebufferObject *auxFBO0BMLevels[3]{};
     // Used for painting texture.
     QOpenGLFramebufferObject *paintFBO;
     // Used for rendering to it.
@@ -231,6 +231,12 @@ private:
 
     GLuint vbos[3];
     ConversionType conversionType;
+    QtnPropertyABColor* ptr_ABColor;
+    // UV manipulations method.
+    UVManipulationMethods uvManilupationMethod;
+    // OpenGL 330 variables.
+    TextureType openGL330ForceTexType;
+
     bool bShadowRender;
     // Draw quad but skip all the processing step (using during mouse interaction).
     bool bSkipProcessing;
@@ -261,7 +267,6 @@ private:
     // Position of four corner used to perform perspective transformation of quad.
     QVector2D cornerPositions[4];
     QVector2D grungeCornerPositions[4];
-
     QVector4D cornerWeights;
     // Contains Id of current corner dragged or -1.
     int draggingCorner;
@@ -272,13 +277,6 @@ private:
     int gui_seamless_mode;
 
     bool bToggleColorPicking;
-    QtnPropertyABColor* ptr_ABColor;
-
-    // UV manipulations method.
-    UVManipulationMethods uvManilupationMethod;
-
-    // OpenGL 330 variables.
-    TextureType openGL330ForceTexType;
 
     // Rendering variables
     // Define if OpenGL is currently rendering some textures.

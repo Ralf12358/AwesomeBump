@@ -8,7 +8,6 @@
 #include <QtMath>
 
 #include "opengltexturecube.h"
-#include "openglframebufferobject.h"
 #include "postfixnames.h"
 #include "display3dsettings.h"
 #include "camera.h"

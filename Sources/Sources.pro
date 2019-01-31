@@ -85,7 +85,6 @@ HEADERS = \
     randomtilingmode.h \
     display3dsettings.h \
     basemapconvlevelproperties.h \
-    openglframebufferobject.h \
     opengltexturecube.h \
     utils/mesh.h \
     openglerrorcheck.h \
@@ -123,7 +122,6 @@ SOURCES = \
     randomtilingmode.cpp \
     display3dsettings.cpp \
     basemapconvlevelproperties.cpp \
-    openglframebufferobject.cpp \
     opengltexturecube.cpp \
     utils/mesh.cpp \
     imagewidget.cpp \

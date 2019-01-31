@@ -107,8 +107,11 @@ public:
     static ImageType seamlessContrastImageType;
     static bool bSeamlessTranslationsFirst;
     static int currentMaterialIndex;
+    static bool bUseLinearInterpolation;
 
 private:
+    void createFBO(int width, int height);
+
     QtnPropertySetFormImageProp *properties;
     bool bSkipProcessing;
     // Pointer to the OpenGL 2D Image.
