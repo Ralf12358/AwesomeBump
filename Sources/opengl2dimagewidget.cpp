@@ -2481,6 +2481,8 @@ void OpenGL2DImageWidget::render()
         GLCHK( program->setUniformValue("material_id", int(-1)) );
         GLCHK(applyNormalFilter(activeFBO, renderFBO));
     }
+
+    emit rendered();
 }
 
 void OpenGL2DImageWidget::makeScreenQuad()

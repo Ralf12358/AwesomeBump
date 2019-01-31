@@ -64,6 +64,9 @@ public:
     Image* targetImageGrunge;
     Image* targetImageMaterial;
 
+signals:
+    void rendered();
+
 public slots:
     void resizeFBO(int width, int height);
     void imageChanged();
