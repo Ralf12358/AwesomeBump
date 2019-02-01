@@ -115,7 +115,7 @@ void MainWindow::initialiseWindow()
     openGL2DImageWidget->targetImageRoughness = roughnessImageWidget->getImage();
     openGL2DImageWidget->targetImageMetallic  = metallicImageWidget ->getImage();
     openGL2DImageWidget->targetImageGrunge    = grungeImageWidget   ->getImage();
-    openGL2DImageWidget->targetImageMaterial  = materialManager   ->getImage();
+    openGL2DImageWidget->targetImageMaterial  = materialManager     ->getImage();
 
     // Setup GUI
     qDebug() << "Initialization: GUI setup";
@@ -550,55 +550,55 @@ void MainWindow::checkWarnings()
 void MainWindow::selectDiffuseTab()
 {
     ui->tabWidget->setCurrentIndex(0);
-    updateImage(0);
+    updateImage(DIFFUSE_TEXTURE);
 }
 
 void MainWindow::selectNormalTab()
 {
     ui->tabWidget->setCurrentIndex(1);
-    updateImage(1);
+    updateImage(NORMAL_TEXTURE);
 }
 
 void MainWindow::selectSpecularTab()
 {
     ui->tabWidget->setCurrentIndex(2);
-    updateImage(2);
+    updateImage(SPECULAR_TEXTURE);
 }
 
 void MainWindow::selectHeightTab()
 {
     ui->tabWidget->setCurrentIndex(3);
-    updateImage(3);
+    updateImage(HEIGHT_TEXTURE);
 }
 
 void MainWindow::selectOcclusionTab()
 {
     ui->tabWidget->setCurrentIndex(4);
-    updateImage(4);
+    updateImage(OCCLUSION_TEXTURE);
 }
 
 void MainWindow::selectRoughnessTab()
 {
     ui->tabWidget->setCurrentIndex(5);
-    updateImage(5);
+    updateImage(ROUGHNESS_TEXTURE);
 }
 
 void MainWindow::selectMetallicTab()
 {
     ui->tabWidget->setCurrentIndex(6);
-    updateImage(6);
+    updateImage(METALLIC_TEXTURE);
 }
 
 void MainWindow::selectMaterialsTab()
 {
     ui->tabWidget->setCurrentIndex(7);
-    updateImage(7);
+    updateImage(MATERIAL_TEXTURE);
 }
 
 void MainWindow::selectGrungeTab()
 {
     ui->tabWidget->setCurrentIndex(8);
-    updateImage(8);
+    updateImage(GRUNGE_TEXTURE);
 }
 
 void MainWindow::selectGeneralSettingsTab()
@@ -1052,12 +1052,6 @@ void MainWindow::initializeGL()
 
 void MainWindow::initializeImages()
 {
-    static bool bInitializedFirstDraw = false;
-
-    if(bInitializedFirstDraw) return;
-
-    bInitializedFirstDraw = true;
-
     qDebug() << "MainWindow::Initialization";
     QCoreApplication::processEvents();
 
