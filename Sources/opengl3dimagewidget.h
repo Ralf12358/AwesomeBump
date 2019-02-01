@@ -3,7 +3,6 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 #include <QtMath>
 
@@ -27,7 +26,7 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType type);
+    void setPointerToTexture(QOpenGLTexture *texture, TextureType textureType);
 
 signals:
     void renderGL();
@@ -102,7 +101,7 @@ private:
     QOpenGLShaderProgram *skybox_program;
     QOpenGLShaderProgram *env_program;
 
-    QOpenGLFramebufferObject *fboIdPtrs[8];
+    QOpenGLTexture *textures[8];
 
     bool bToggleDiffuseView;
     bool bToggleSpecularView;

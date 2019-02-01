@@ -98,37 +98,9 @@ QSize OpenGL3DImageWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGL3DImageWidget::setPointerToTexture(QOpenGLFramebufferObject *pointer, TextureType tType)
+void OpenGL3DImageWidget::setPointerToTexture(QOpenGLTexture *texture, TextureType textureType)
 {
-    switch(tType)
-    {
-    case DIFFUSE_TEXTURE:
-        fboIdPtrs[0] = pointer;
-        break;
-    case NORMAL_TEXTURE:
-        fboIdPtrs[1] = pointer;
-        break;
-    case SPECULAR_TEXTURE:
-        fboIdPtrs[2] = pointer;
-        break;
-    case HEIGHT_TEXTURE:
-        fboIdPtrs[3] = pointer;
-        break;
-    case OCCLUSION_TEXTURE:
-        fboIdPtrs[4] = pointer;
-        break;
-    case ROUGHNESS_TEXTURE:
-        fboIdPtrs[5] = pointer;
-        break;
-    case METALLIC_TEXTURE:
-        fboIdPtrs[6] = pointer;
-        break;
-    case MATERIAL_TEXTURE:
-        fboIdPtrs[7] = pointer;
-        break;
-    default:
-        break;
-    }
+    textures[textureType] = texture;
 }
 
 void OpenGL3DImageWidget::show3DGeneralSettingsDialog()
@@ -781,9 +753,9 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("ProjectionMatrix", projectionMatrix);
 
         objectMatrix.setToIdentity();
-        if( fboIdPtrs[0] != NULL)
+        if( textures[0] != NULL)
         {
-            float fboRatio = float((fboIdPtrs[0])->width())/(fboIdPtrs[0])->height();
+            float fboRatio = float((textures[0])->width())/(textures[0])->height();
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
 //        if(mesh->isLoaded())
@@ -859,7 +831,7 @@ void OpenGL3DImageWidget::paintGL()
                 program_ptr->setUniformValue("gui_bMaterialsPreviewEnabled", bool(keyPressed == KEY_SHOW_MATERIALS));
         }
 
-        if(fboIdPtrs[0] != NULL)
+        if(textures[0] != NULL)
         {
             int tindex = 0;
 
@@ -867,7 +839,7 @@ void OpenGL3DImageWidget::paintGL()
             for(; tindex <= MATERIAL_TEXTURE; tindex++)
             {
                 GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-                GLCHK( glBindTexture(GL_TEXTURE_2D, (fboIdPtrs[tindex])->texture()) );
+                GLCHK( glBindTexture(GL_TEXTURE_2D, textures[tindex]->textureId()) );
             }
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
             m_prefiltered_env_map->bind();

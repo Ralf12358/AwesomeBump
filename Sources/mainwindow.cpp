@@ -98,14 +98,14 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGL3DImageWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getFBO(), DIFFUSE_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(normalImageWidget   ->getImage()->getFBO(), NORMAL_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(specularImageWidget ->getImage()->getFBO(), SPECULAR_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(heightImageWidget   ->getImage()->getFBO(), HEIGHT_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(occlusionImageWidget->getImage()->getFBO(), OCCLUSION_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(roughnessImageWidget->getImage()->getFBO(), ROUGHNESS_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(metallicImageWidget ->getImage()->getFBO(), METALLIC_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(materialManager     ->getImage()->getFBO(), MATERIAL_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getTexture(), DIFFUSE_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(normalImageWidget   ->getImage()->getTexture(), NORMAL_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(specularImageWidget ->getImage()->getTexture(), SPECULAR_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(heightImageWidget   ->getImage()->getTexture(), HEIGHT_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(occlusionImageWidget->getImage()->getTexture(), OCCLUSION_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(roughnessImageWidget->getImage()->getTexture(), ROUGHNESS_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(metallicImageWidget ->getImage()->getTexture(), METALLIC_TEXTURE);
+    openGL3DImageWidget->setPointerToTexture(materialManager     ->getImage()->getTexture(), MATERIAL_TEXTURE);
 
     openGL2DImageWidget->targetImageDiffuse   = diffuseImageWidget  ->getImage();
     openGL2DImageWidget->targetImageNormal    = normalImageWidget   ->getImage();
@@ -740,6 +740,9 @@ bool MainWindow::saveAllImages(const QString &dir)
     }
     else // Save as compressed format
     {
+        qDebug() << "Cannot save compressed format!";
+        // This needs to be moved to OpenGL2DImageWidget.
+        /*
         QCoreApplication::processEvents();
         openGL2DImageWidget->makeCurrent();
 
@@ -818,6 +821,7 @@ bool MainWindow::saveAllImages(const QString &dir)
         ui->progressBar->setValue(80);
         ui->labelProgressInfo->setText("Saving diffuse image...");
         normalImageWidget->saveImageToDir(dir,newNormalImage);
+        */
     } // End of save as compressed formats.
 
     QCoreApplication::processEvents();
