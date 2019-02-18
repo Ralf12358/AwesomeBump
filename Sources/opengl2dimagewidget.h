@@ -190,13 +190,13 @@ private:
 
     void updateMousePosition();
     void render();
-    void makeScreenQuad();
     QOpenGLFramebufferObject* createFBO(int width, int height);
     void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
     void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
     Image* activeImage;
     QOpenGLShaderProgram *program;
+    QOpenGLVertexArrayObject *vertexArray;
 
     // Small FBO used for calculation of average color.
     QOpenGLFramebufferObject *averageColorFBO;
@@ -222,7 +222,6 @@ private:
     // All filters in one array.
     std::map<std::string,QOpenGLShaderProgram*> filter_programs;
 
-    GLuint vbos[3];
     ConversionType conversionType;
     QtnPropertyABColor* ptr_ABColor;
     // UV manipulations method.

@@ -60,7 +60,6 @@ OpenGL2DImageWidget::~OpenGL2DImageWidget()
     delete  paintFBO;
     delete renderFBO;
 
-    GLCHK( glDeleteBuffers(sizeof(vbos) / sizeof(GLuint), &vbos[0]) );
     doneCurrent();
 }
 
@@ -231,117 +230,125 @@ void OpenGL2DImageWidget::initializeGL()
     initializeOpenGLFunctions();
 
     QColor clearColor = QColor::fromCmykF(0.79, 0.79, 0.79, 0.0).dark();
-    GLCHK( glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()) );
+    glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
 
     // Use multiple fragment samples to compute the final color of a pixel.
-    GLCHK( glEnable(GL_MULTISAMPLE) );
+    glEnable(GL_MULTISAMPLE);
     // Do depth comparisons and update the depth buffer.
-    GLCHK( glEnable(GL_DEPTH_TEST) );
+    glEnable(GL_DEPTH_TEST);
 
-    QVector<QString> filters_list;
-    filters_list.push_back("mode_normal_filter");
-    filters_list.push_back("mode_height_to_normal");
-    filters_list.push_back("mode_perspective_transform_filter");
-    filters_list.push_back("mode_seamless_linear_filter");
-    filters_list.push_back("mode_seamless_filter");
-    filters_list.push_back("mode_occlusion_filter");
-    filters_list.push_back("mode_normal_to_height");
-    filters_list.push_back("mode_normalize_filter");
-    filters_list.push_back("mode_gauss_filter");
-    filters_list.push_back("mode_gray_scale_filter");
-    filters_list.push_back("mode_invert_components_filter");
-    filters_list.push_back("mode_color_hue_filter");
-    filters_list.push_back("mode_roughness_filter");
-    filters_list.push_back("mode_dgaussians_filter");
-    filters_list.push_back("mode_constrast_filter");
-    filters_list.push_back("mode_height_processing_filter");
-    filters_list.push_back("mode_remove_low_freq_filter");
-    filters_list.push_back("mode_invert_filter");
-    filters_list.push_back("mode_overlay_filter");
-    filters_list.push_back("mode_ao_cancellation_filter");
-    filters_list.push_back("mode_small_details_filter");
-    filters_list.push_back("mode_medium_details_filter");
-    filters_list.push_back("mode_sharpen_blur");
-    filters_list.push_back("mode_normals_step_filter");
-    filters_list.push_back("mode_normal_mixer_filter");
-    filters_list.push_back("mode_sobel_filter");
-    filters_list.push_back("mode_normal_expansion_filter");
-    filters_list.push_back("mode_mix_normal_levels_filter");
-    filters_list.push_back("mode_combine_normal_height_filter");
-    filters_list.push_back("mode_roughness_color_filter");
-    filters_list.push_back("mode_grunge_filter");
-    filters_list.push_back("mode_grunge_randomization_filter");
-    filters_list.push_back("mode_grunge_normal_warp_filter");
-    filters_list.push_back("mode_normal_angle_correction_filter");
-    filters_list.push_back("mode_add_noise_filter");
+    bool successful = true;
+    program = new QOpenGLShaderProgram(this);
+    successful &= program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/shaders/filters.vert");
+    successful &= program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/resources/shaders/filters.frag");
+    program->bindAttributeLocation("positionIn", 0);
+    successful &= program->link();
+    successful &= program->bind();
+    if (!successful) qDebug() << program->log();
 
-    qDebug() << "Compiling vertex shader: filters.vert";
-    QOpenGLShader *vertexShader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    if (!vertexShader->compileSourceFile(":/resources/shaders/filters.vert"))
+    program->setUniformValue("layerA", 0);
+    program->setUniformValue("layerB", 1);
+    program->setUniformValue("layerC", 2);
+    program->setUniformValue("layerD", 3);
+    program->setUniformValue("materialTexture", 10);
+
+    subroutines["mode_normal_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_filter");
+    subroutines["mode_color_hue_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_color_hue_filter");
+    subroutines["mode_overlay_filter"]                 = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_overlay_filter");
+    subroutines["mode_ao_cancellation_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_ao_cancellation_filter");
+    subroutines["mode_invert_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_invert_filter");
+    subroutines["mode_gauss_filter"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_gauss_filter");
+    subroutines["mode_seamless_filter"]                = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_seamless_filter");
+    subroutines["mode_seamless_linear_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_seamless_linear_filter");
+    subroutines["mode_dgaussians_filter"]              = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_dgaussians_filter");
+    subroutines["mode_constrast_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_constrast_filter");
+    subroutines["mode_small_details_filter"]           = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_small_details_filter");
+    subroutines["mode_gray_scale_filter"]              = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_gray_scale_filter");
+    subroutines["mode_medium_details_filter"]          = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_medium_details_filter");
+    subroutines["mode_height_to_normal"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_height_to_normal");
+    subroutines["mode_sharpen_blur"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_sharpen_blur");
+    subroutines["mode_normals_step_filter"]            = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normals_step_filter");
+    subroutines["mode_normal_mixer_filter"]            = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_mixer_filter");
+    subroutines["mode_invert_components_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_invert_components_filter");
+    subroutines["mode_normal_to_height"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_to_height");
+    subroutines["mode_sobel_filter"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_sobel_filter");
+    subroutines["mode_normal_expansion_filter"]        = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_expansion_filter");
+    subroutines["mode_mix_normal_levels_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_mix_normal_levels_filter");
+    subroutines["mode_normalize_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normalize_filter");
+    subroutines["mode_occlusion_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_occlusion_filter");
+    subroutines["mode_combine_normal_height_filter"]   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_combine_normal_height_filter");
+    subroutines["mode_perspective_transform_filter"]   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_perspective_transform_filter");
+    subroutines["mode_height_processing_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_height_processing_filter");
+    subroutines["mode_roughness_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_roughness_filter");
+    subroutines["mode_roughness_color_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_roughness_color_filter");
+    subroutines["mode_remove_low_freq_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_remove_low_freq_filter");
+    subroutines["mode_grunge_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_filter");
+    subroutines["mode_grunge_randomization_filter"]    = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_randomization_filter");
+    subroutines["mode_grunge_normal_warp_filter"]      = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_normal_warp_filter");
+    subroutines["mode_normal_angle_correction_filter"] = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_angle_correction_filter");
+    subroutines["mode_add_noise_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_add_noise_filter");
+
+    // Make Screen Quad
+    int size = 2;
+    float vertexes[3 * size * size];
+    int iter = 0;
+    for (int i = 0; i < size; ++i)
     {
-        qDebug() << "Failed to compile filters.vert!";
-        qDebug() << vertexShader->log();
+        for (int j = 0; j < size; ++j)
+        {
+            float offset = 0.5;
+            float x = i / (size - 1.0);
+            float y = j / (size - 1.0);
+            vertexes[iter * 3 + 0] = x-offset;
+            vertexes[iter * 3 + 1] = y-offset;
+            vertexes[iter * 3 + 2] = 0;
+            iter++;
+        }
     }
 
-    qDebug() << "Compiling fragment shader: filters.frag";
-    QOpenGLShader *fragementShader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    if (!fragementShader->compileSourceFile(":/resources/shaders/filters.frag"))
+    int no_triangles = 2 * (size - 1) * (size - 1);
+    unsigned int indices[no_triangles * 3];
+    iter = 0;
+    for(int i = 0 ; i < size -1 ; i++)
     {
-        qDebug() << "Failed to compile filters.frag!";
-        qDebug() << vertexShader->log();
+        for(int j = 0 ; j < size -1 ; j++)
+        {
+            unsigned int i1 = i +      j      * size;
+            unsigned int i2 = i +     (j + 1) * size;
+            unsigned int i3 = i + 1 +  j      * size;
+            unsigned int i4 = i + 1 + (j + 1) * size;
+            indices[iter++] = (i1);
+            indices[iter++] = (i3);
+            indices[iter++] = (i2);
+            indices[iter++] = (i2);
+            indices[iter++] = (i3);
+            indices[iter++] = (i4);
+        }
     }
-    GLCHK( program = new QOpenGLShaderProgram(this) );
-    GLCHK( program->addShader(vertexShader) );
-    GLCHK( program->addShader(fragementShader) );
-    GLCHK( program->bindAttributeLocation("positionIn", 0) );
-    GLCHK( program->link() );
-    GLCHK( program->bind() );
-    GLCHK( program->setUniformValue("layerA", 0) );
-    GLCHK( program->setUniformValue("layerB", 1) );
-    GLCHK( program->setUniformValue("layerC", 2) );
-    GLCHK( program->setUniformValue("layerD", 3) );
-    GLCHK( program->setUniformValue("materialTexture", 10) );
 
-    delete vertexShader;
-    delete fragementShader;
+    QOpenGLBuffer vertexBuffer(QOpenGLBuffer::VertexBuffer);
+    vertexBuffer.create();
+    vertexBuffer.bind();
+    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vertexBuffer.allocate(vertexes, sizeof(float) * 3 * size * size);
 
-    GLCHK( subroutines["mode_normal_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_filter") );
-    GLCHK( subroutines["mode_color_hue_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_color_hue_filter") );
-    GLCHK( subroutines["mode_overlay_filter"]                 = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_overlay_filter") );
-    GLCHK( subroutines["mode_ao_cancellation_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_ao_cancellation_filter") );
-    GLCHK( subroutines["mode_invert_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_invert_filter") );
-    GLCHK( subroutines["mode_gauss_filter"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_gauss_filter") );
-    GLCHK( subroutines["mode_seamless_filter"]                = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_seamless_filter") );
-    GLCHK( subroutines["mode_seamless_linear_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_seamless_linear_filter") );
-    GLCHK( subroutines["mode_dgaussians_filter"]              = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_dgaussians_filter") );
-    GLCHK( subroutines["mode_constrast_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_constrast_filter") );
-    GLCHK( subroutines["mode_small_details_filter"]           = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_small_details_filter") );
-    GLCHK( subroutines["mode_gray_scale_filter"]              = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_gray_scale_filter") );
-    GLCHK( subroutines["mode_medium_details_filter"]          = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_medium_details_filter") );
-    GLCHK( subroutines["mode_height_to_normal"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_height_to_normal") );
-    GLCHK( subroutines["mode_sharpen_blur"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_sharpen_blur") );
-    GLCHK( subroutines["mode_normals_step_filter"]            = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normals_step_filter") );
-    GLCHK( subroutines["mode_normal_mixer_filter"]            = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_mixer_filter") );
-    GLCHK( subroutines["mode_invert_components_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_invert_components_filter") );
-    GLCHK( subroutines["mode_normal_to_height"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_to_height") );
-    GLCHK( subroutines["mode_sobel_filter"]                   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_sobel_filter") );
-    GLCHK( subroutines["mode_normal_expansion_filter"]        = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_expansion_filter") );
-    GLCHK( subroutines["mode_mix_normal_levels_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_mix_normal_levels_filter") );
-    GLCHK( subroutines["mode_normalize_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normalize_filter") );
-    GLCHK( subroutines["mode_occlusion_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_occlusion_filter") );
-    GLCHK( subroutines["mode_combine_normal_height_filter"]   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_combine_normal_height_filter") );
-    GLCHK( subroutines["mode_perspective_transform_filter"]   = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_perspective_transform_filter") );
-    GLCHK( subroutines["mode_height_processing_filter"]       = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_height_processing_filter" ) );
-    GLCHK( subroutines["mode_roughness_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_roughness_filter" ) );
-    GLCHK( subroutines["mode_roughness_color_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_roughness_color_filter" ) );
-    GLCHK( subroutines["mode_remove_low_freq_filter"]         = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_remove_low_freq_filter" ) );
-    GLCHK( subroutines["mode_grunge_filter"]                  = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_filter" ) );
-    GLCHK( subroutines["mode_grunge_randomization_filter"]    = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_randomization_filter" ) );
-    GLCHK( subroutines["mode_grunge_normal_warp_filter"]      = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_grunge_normal_warp_filter" ) );
-    GLCHK( subroutines["mode_normal_angle_correction_filter"] = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_normal_angle_correction_filter" ) );
-    GLCHK( subroutines["mode_add_noise_filter"]               = glGetSubroutineIndex(program->programId(),GL_FRAGMENT_SHADER,"mode_add_noise_filter" ) );
+    QOpenGLBuffer elementBuffer(QOpenGLBuffer::IndexBuffer);
+    elementBuffer.create();
+    elementBuffer.bind();
+    elementBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    elementBuffer.allocate(indices, sizeof(unsigned int) * no_triangles * 3);
 
-    makeScreenQuad();
+    vertexArray = new QOpenGLVertexArrayObject(this);
+    vertexArray->create();
+    vertexArray->bind();
+    // Assign buffer data to attributes.
+    vertexBuffer.bind();
+    elementBuffer.bind();
+    program->setAttributeBuffer("positionIn", GL_FLOAT, 0, 3, 0);
+    program->enableAttributeArray("positionIn");
+
+    vertexArray->release();
+    program->release();
 
     averageColorFBO = createFBO(256, 256);
     samplerFBO1     = createFBO(1024, 1024);
@@ -350,6 +357,9 @@ void OpenGL2DImageWidget::initializeGL()
 
 void OpenGL2DImageWidget::paintGL()
 {
+    program->bind();
+    vertexArray->bind();
+
     // Perform filters on images and render the final result to renderFBO.
     // Avoid rendering function if there is rendered something already.
     if(!bSkipProcessing && !bRendering)
@@ -374,11 +384,12 @@ void OpenGL2DImageWidget::paintGL()
         GLCHK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
         GLCHK( glDisable(GL_CULL_FACE) );
         GLCHK( glDisable(GL_DEPTH_TEST) );
+
         // Positions.
-        GLCHK( glBindBuffer(GL_ARRAY_BUFFER, vbos[0]) );
-        GLCHK( glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
+        //GLCHK( glBindBuffer(GL_ARRAY_BUFFER, vbos[0]) );
+        //GLCHK( glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
         // Indices
-        GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
+        //GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
 
         GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
 
@@ -400,6 +411,9 @@ void OpenGL2DImageWidget::paintGL()
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
         GLCHK( program->setUniformValue("quad_draw_mode", int(0)) );
     }
+
+    vertexArray->release();
+    program->release();
 }
 
 void OpenGL2DImageWidget::resizeGL(int width, int height)
@@ -1907,13 +1921,16 @@ void OpenGL2DImageWidget::render()
     if (!activeImage)
         return;
 
+    QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
+
     // Since grunge map can be different we need to calculate ratio each time.
-    if (activeImage->getFBO())
+    if (activeFBO)
     {
-        fboRatio = float(activeImage->getFBO()->width())/activeImage->getFBO()->height();
+        fboRatio = float(activeFBO->width())/activeFBO->height();
         orthographicProjHeight = (1+zoom)/windowRatio;
         orthographicProjWidth  = (1+zoom)/fboRatio;
     }
+
     // Do not clear the background during rendering process.
     if(!bShadowRender)
     {
@@ -1922,14 +1939,6 @@ void OpenGL2DImageWidget::render()
 
     GLCHK( glDisable(GL_CULL_FACE) );
     GLCHK( glDisable(GL_DEPTH_TEST) );
-
-    // Positions.
-    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, vbos[0]) );
-    GLCHK( glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(float)*3,(void*)0) );
-    // Indices
-    GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
-
-    QOpenGLFramebufferObject *activeFBO = activeImage->getFBO();
 
     // Images which depend on others will not be affected by UV changes again.
     bool bTransformUVs = true;
@@ -2485,60 +2494,6 @@ void OpenGL2DImageWidget::render()
     emit rendered();
 }
 
-void OpenGL2DImageWidget::makeScreenQuad()
-{
-    int size = 2;
-    QVector<QVector2D> texCoords = QVector<QVector2D>(size*size);
-    QVector<QVector3D> vertices  = QVector<QVector3D>(size*size);
-    int iter = 0;
-    for (int i = 0; i < size; ++i)
-    {
-        for (int j = 0; j < size; ++j)
-        {
-            float offset = 0.5;
-            float x = i/(size-1.0);
-            float y = j/(size-1.0);
-            vertices[iter]  = (QVector3D(x-offset,y-offset,0));
-            texCoords[iter] = (QVector2D(x,y));
-            iter++;
-        }
-    }
-
-    GLCHK( glGenVertexArrays(2, vbos) );
-    GLCHK( glBindVertexArray(vbos[0]) );
-    GLCHK( glEnableVertexAttribArray(vbos[0]) );
-    GLCHK( glVertexAttribPointer(vbos[0], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
-
-    GLCHK( glBindVertexArray(vbos[1]) );
-    GLCHK( glEnableVertexAttribArray(vbos[1]) );
-    GLCHK( glVertexAttribPointer(vbos[1], 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0) );
-
-    GLCHK( glGenBuffers(1, &vbos[2]) );
-    GLCHK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[2]) );
-
-    int no_triangles = 2 * (size - 1) * (size - 1);
-    QVector<GLuint> indices(no_triangles * 3);
-    iter = 0;
-    for(int i = 0 ; i < size -1 ; i++)
-    {
-        for(int j = 0 ; j < size -1 ; j++)
-        {
-            GLuint i1 = i + j*size;
-            GLuint i2 = i + (j+1)*size;
-            GLuint i3 = i+1 + j*size;
-            GLuint i4 = i+1 + (j+1)*size;
-            indices[iter++] = (i1);
-            indices[iter++] = (i3);
-            indices[iter++] = (i2);
-            indices[iter++] = (i2);
-            indices[iter++] = (i3);
-            indices[iter++] = (i4);
-        }
-    }
-
-    GLCHK( glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * no_triangles * 3 , indices.constData(), GL_STATIC_DRAW) );
-}
-
 QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
 {
     QOpenGLFramebufferObjectFormat format;
@@ -2574,15 +2529,7 @@ QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
 void OpenGL2DImageWidget::copyFBO(QOpenGLFramebufferObject *src,
                                 QOpenGLFramebufferObject *dst)
 {
-    GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_normal_filter"]) );
-
-    GLCHK( dst->bind() );
-    GLCHK( glViewport(0,0,dst->width(),dst->height()) );
-    GLCHK( program->setUniformValue("quad_scale", QVector2D(1.0,1.0)) );
-    GLCHK( program->setUniformValue("quad_pos", QVector2D(0.0,0.0)) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, src->texture()) );
-    GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
-    src->bindDefault();
+    copyTex2FBO(src->texture(), dst);
 }
 
 void OpenGL2DImageWidget::copyTex2FBO(GLuint src_tex_id,
