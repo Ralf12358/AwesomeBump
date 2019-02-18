@@ -1,7 +1,7 @@
 #include "mesh.h"
 
 Mesh::Mesh(QString dir, QString name) :
-    mesh_path(name)
+    mesh_path(name), vertexArray(0)
 {
     qDebug() << Q_FUNC_INFO << "Loading new mesh:" << dir + mesh_path ;
 
@@ -197,7 +197,7 @@ Mesh::~Mesh()
     gl_bitangents.clear();
     gl_smoothed_normals.clear();
 
-    if(bLoaded) GLCHK(glDeleteBuffers(6 , mesh_vbos ));
+    if(vertexArray) delete vertexArray;
 }
 
 void Mesh::initializeMesh()
@@ -213,65 +213,55 @@ void Mesh::initializeMesh()
     }
 
     initializeOpenGLFunctions();
-    GLCHK( glGenVertexArrays(6, mesh_vbos) );
 
-    for (int i = 0; i < 6; ++i)
-    {
-        GLCHK( glBindVertexArray(mesh_vbos[i]) );
-        GLCHK( glEnableVertexAttribArray(mesh_vbos[i]) );
-        GLCHK( glVertexAttribPointer(mesh_vbos[i], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
-    }
+    vertexArray = new QOpenGLVertexArrayObject();
+    vertexArray->create();
+    vertexArray->bind();
 
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]) );
-//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_texcoords.size() * sizeof(QVector3D), gl_texcoords.constData(), GL_STATIC_DRAW) );
-//    GLCHK( glEnableVertexAttribArray(1) );
-//    GLCHK( glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    QOpenGLBuffer vertexBuffer(QOpenGLBuffer::VertexBuffer);
+    vertexBuffer.create();
+    vertexBuffer.bind();
+    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vertexBuffer.allocate(gl_vertices.constData(), sizeof(QVector3D) * gl_vertices.size());
 
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]) );
-//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_normals.size() * sizeof(QVector3D), gl_normals.constData(), GL_STATIC_DRAW) );
-//    GLCHK( glEnableVertexAttribArray(2) );
-//    GLCHK( glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    QOpenGLBuffer textureCoordBuffer(QOpenGLBuffer::VertexBuffer);
+    textureCoordBuffer.create();
+    textureCoordBuffer.bind();
+    textureCoordBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    textureCoordBuffer.allocate(gl_texcoords.constData(), sizeof(QVector3D) * gl_texcoords.size());
 
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]) );
-//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_tangents.size() * sizeof(QVector3D), gl_tangents.constData(), GL_STATIC_DRAW) );
-//    GLCHK( glEnableVertexAttribArray(3) );
-//    GLCHK( glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    QOpenGLBuffer normalsBuffer(QOpenGLBuffer::VertexBuffer);
+    normalsBuffer.create();
+    normalsBuffer.bind();
+    normalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    normalsBuffer.allocate(gl_normals.constData(), sizeof(QVector3D) * gl_normals.size());
 
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]) );
-//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_bitangents.size() * sizeof(QVector3D), gl_bitangents.constData(), GL_STATIC_DRAW) );
-//    GLCHK( glEnableVertexAttribArray(4) );
-//    GLCHK( glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    QOpenGLBuffer tangetsBuffer(QOpenGLBuffer::VertexBuffer);
+    tangetsBuffer.create();
+    tangetsBuffer.bind();
+    tangetsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    tangetsBuffer.allocate(gl_tangents.constData(), sizeof(QVector3D) * gl_tangents.size());
 
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]) );
-//    GLCHK( glBufferData(GL_ARRAY_BUFFER, gl_smoothed_normals.size() * sizeof(QVector3D), gl_smoothed_normals.constData(), GL_STATIC_DRAW) );
-//    GLCHK( glEnableVertexAttribArray(5) );
-//    GLCHK( glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    QOpenGLBuffer bitangentsBuffer(QOpenGLBuffer::VertexBuffer);
+    bitangentsBuffer.create();
+    bitangentsBuffer.bind();
+    bitangentsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    bitangentsBuffer.allocate(gl_bitangents.constData(), sizeof(QVector3D) * gl_bitangents.size());
+
+    QOpenGLBuffer smoothedNormalsBuffer(QOpenGLBuffer::VertexBuffer);
+    smoothedNormalsBuffer.create();
+    smoothedNormalsBuffer.bind();
+    smoothedNormalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    smoothedNormalsBuffer.allocate(gl_smoothed_normals.constData(), sizeof(QVector3D) * gl_smoothed_normals.size());
+
+    vertexArray->release();
 }
 
 void Mesh::drawMesh(bool bUseArrays)
 {
     if(bLoaded == false) return;
 
-    for (int i = 0; i < 6; ++i)
-    {
-        GLCHK( glBindVertexArray(mesh_vbos[i]) );
-        GLCHK( glVertexAttribPointer(mesh_vbos[i], 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0) );
-    }
-
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[1]) );
-//    GLCHK( glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
-
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[2]) );
-//    GLCHK( glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
-
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[3]) );
-//    GLCHK( glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
-
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[4]) );
-//    GLCHK( glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
-
-//    GLCHK( glBindBuffer(GL_ARRAY_BUFFER, mesh_vbos[5]) );
-//    GLCHK( glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0) );
+    vertexArray->bind();
 
     if(bUseArrays)
     {
@@ -288,6 +278,8 @@ void Mesh::drawMesh(bool bUseArrays)
         GLCHK( glDrawArrays(GL_PATCHES, 0, gl_vertices.size()) );
 #endif
     }
+
+    vertexArray->release();
 }
 
 bool Mesh::isLoaded()

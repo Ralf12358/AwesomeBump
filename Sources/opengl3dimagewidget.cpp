@@ -78,8 +78,8 @@ OpenGL3DImageWidget::~OpenGL3DImageWidget()
     delete line_program;
     delete skybox_program;
     delete env_program;
-//    delete mesh;
-//    delete skybox_mesh;
+    delete mesh;
+    delete skybox_mesh;
     delete env_mesh;
     delete quad_mesh;
     delete m_env_map;
@@ -661,11 +661,8 @@ void OpenGL3DImageWidget::initializeGL()
     lightDirection.toggleFreeCamera(false);
     lightDirection.radius = 1;
 
-    // We run out of generic vertex attributes.
-    // Need to use the built-in ones.
-    // In the meantime only use two.
-    //mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
-    //skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
+    mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
+    skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
     env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
     quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
 

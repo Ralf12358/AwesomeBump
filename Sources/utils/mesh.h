@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QVector>
 #include <QVector3D>
+#include <QOpenGLVertexArrayObject>
 #include <iostream>
 #include "../openglerrorcheck.h"
 #include "tinyobj/tiny_obj_loader.h"
@@ -42,8 +43,9 @@ private:
     QVector<QVector3D> gl_tangents;
     QVector<QVector3D> gl_bitangents;
 
-    // VBO indices
-    unsigned int mesh_vbos[6];
+    // Vertex Array Object
+    QOpenGLVertexArrayObject *vertexArray;
+
     QString mesh_log;
 };
 
