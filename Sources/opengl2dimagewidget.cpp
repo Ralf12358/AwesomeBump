@@ -316,6 +316,11 @@ void OpenGL2DImageWidget::initializeGL()
         }
     }
 
+    // Create buffers and store state in vertex array object.
+    vertexArray = new QOpenGLVertexArrayObject(this);
+    vertexArray->create();
+    vertexArray->bind();
+
     QOpenGLBuffer vertexBuffer(QOpenGLBuffer::VertexBuffer);
     vertexBuffer.create();
     vertexBuffer.bind();
@@ -328,12 +333,7 @@ void OpenGL2DImageWidget::initializeGL()
     elementBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     elementBuffer.allocate(indices, sizeof(unsigned int) * no_triangles * 3);
 
-    vertexArray = new QOpenGLVertexArrayObject(this);
-    vertexArray->create();
-    vertexArray->bind();
     // Assign buffer data to attributes.
-    vertexBuffer.bind();
-    elementBuffer.bind();
     program->setAttributeBuffer("positionIn", GL_FLOAT, 0, 3, 0);
     program->enableAttributeArray("positionIn");
 
