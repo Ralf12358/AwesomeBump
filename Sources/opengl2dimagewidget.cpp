@@ -409,28 +409,10 @@ void OpenGL2DImageWidget::paintGL()
 void OpenGL2DImageWidget::resizeGL(int width, int height)
 {
     windowRatio = float(width) / height;
-//    if (isValid())
-//    {
-        GLCHK( glViewport(0, 0, width, height) );
-//        if (activeImage && activeImage->getFBO())
-//        {
-            fboRatio = float(activeImage->getFBO()->width()) / activeImage->getFBO()->height();
-            orthographicProjHeight = (1 + zoom) / windowRatio;
-            orthographicProjWidth = (1 + zoom) / fboRatio;
-//        }
-//        else
-//        {
-//            qWarning() << Q_FUNC_INFO;
-//            if (!activeImage)
-//                qWarning() << "  activeImage is null";
-//            else if (!activeImage->getFBO())
-//                qWarning() << "  activeImage->getFBO() is null";
-//        }
-//    }
-//    else
-//    {
-//        qDebug() << Q_FUNC_INFO << "invalid context.";
-//    }
+    GLCHK( glViewport(0, 0, width, height) );
+    fboRatio = float(activeImage->getFBO()->width()) / activeImage->getFBO()->height();
+    orthographicProjHeight = (1 + zoom) / windowRatio;
+    orthographicProjWidth = (1 + zoom) / fboRatio;
 
     resetView();
 }
