@@ -29,7 +29,6 @@ OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     cornerCursors[2] = QCursor(QPixmap(":/resources/cursors/corner3.png"));
     cornerCursors[3] = QCursor(QPixmap(":/resources/cursors/corner4.png"));
     activeImage = NULL;
-    connect(this, SIGNAL (rendered()), this, SLOT(copyRenderToPaintFBO()));
 }
 
 OpenGL2DImageWidget::~OpenGL2DImageWidget()
@@ -207,15 +206,6 @@ void OpenGL2DImageWidget::pickImageColor(QtnPropertyABColor *property)
     ptr_ABColor = property;
     setCursor(Qt::UpArrowCursor);
     repaint();
-}
-
-void OpenGL2DImageWidget::copyRenderToPaintFBO()
-{
-    if (paintFBO) delete paintFBO;
-    paintFBO = createFBO(renderFBO->width(), renderFBO->height());
-    GLCHK( program->setUniformValue("material_id", int(-1)) );
-    copyFBO(renderFBO, paintFBO);
-    bRendering = false;
 }
 
 void OpenGL2DImageWidget::toggleMouseWrap(bool toggle)
@@ -2491,7 +2481,11 @@ void OpenGL2DImageWidget::render()
         GLCHK(applyNormalFilter(activeFBO, renderFBO));
     }
 
-    emit rendered();
+    if (paintFBO) delete paintFBO;
+    paintFBO = createFBO(renderFBO->width(), renderFBO->height());
+    GLCHK( program->setUniformValue("material_id", int(-1)) );
+    copyFBO(renderFBO, paintFBO);
+    bRendering = false;
 }
 
 QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)

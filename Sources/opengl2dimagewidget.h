@@ -64,9 +64,6 @@ public:
     Image* targetImageGrunge;
     Image* targetImageMaterial;
 
-signals:
-    void rendered();
-
 public slots:
     void resizeFBO(int width, int height);
     void imageChanged();
@@ -77,8 +74,6 @@ public slots:
     void selectSeamlessMode(SeamlessMode mode);
     void toggleColorPicking(bool toggle);
     void pickImageColor(QtnPropertyABColor *property);
-    // When image is rendered copy it to paintFBO in order to display result.
-    void copyRenderToPaintFBO();
     void toggleMouseWrap(bool toggle);
 
 protected:
