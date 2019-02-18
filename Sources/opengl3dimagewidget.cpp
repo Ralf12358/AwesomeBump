@@ -638,18 +638,9 @@ void OpenGL3DImageWidget::initializeGL()
     if(vshader != NULL)
         delete vshader;
 
-    //GLCHK( lensFlareColorsTexture = bindTexture(QImage(":/resources/textures/lenscolor.png"),GL_TEXTURE_2D) );
     lensFlareColorsTexture = new QOpenGLTexture(QImage(":/resources/textures/lenscolor.png"));
-    lensFlareColorsTexture->bind();
-    qDebug() << "Loading lens color texture: (id=" << lensFlareColorsTexture->textureId() << ")";
-    //GLCHK( lensDirtTexture = bindTexture(QImage(":/resources/textures/lensdirt.png"),GL_TEXTURE_2D) );
     lensDirtTexture = new QOpenGLTexture(QImage(":/resources/textures/lensdirt.png"));
-    lensDirtTexture->bind();
-    qDebug() << "Loading lens dirt texture: (id=" << lensDirtTexture->textureId() << ")";
-    //GLCHK( lensStarTexture = bindTexture(QImage(":/resources/textures/lensstar.png"),GL_TEXTURE_2D) );
     lensStarTexture = new QOpenGLTexture(QImage(":/resources/textures/lensstar.png"));
-    lensStarTexture->bind();
-    qDebug() << "Loading lens star texture: (id=" << lensStarTexture->textureId() << ")";
 
     camera.position.setZ( -0 );
     camera.toggleFreeCamera(false);
@@ -1350,7 +1341,6 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
     GLCHK( glActiveTexture(GL_TEXTURE2) );
-    //GLCHK( glBindTexture(GL_TEXTURE_2D, lensFlareColorsTexture) );
     lensFlareColorsTexture->bind();
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
@@ -1398,17 +1388,16 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     // Ghost texture.
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
-    GLCHK( glActiveTexture(GL_TEXTURE2) );
     // Dirt texture.
-    //GLCHK( glBindTexture(GL_TEXTURE_2D, lensDirtTexture) );
+    GLCHK( glActiveTexture(GL_TEXTURE2) );
     lensDirtTexture->bind();
-    GLCHK( glActiveTexture(GL_TEXTURE3) );
     // Star texture.
-    //GLCHK( glBindTexture(GL_TEXTURE_2D, lensStarTexture) );
+    GLCHK( glActiveTexture(GL_TEXTURE3) );
     lensStarTexture->bind();
-    GLCHK( glActiveTexture(GL_TEXTURE4) );
     // Exposure reference
+    GLCHK( glActiveTexture(GL_TEXTURE4) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
+
     quad_mesh->drawMesh(true);
     copyTexToFBO(outputFBO->texture(),colorFBO);
     GLCHK( glActiveTexture(GL_TEXTURE0) );

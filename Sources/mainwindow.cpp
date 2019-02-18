@@ -70,7 +70,7 @@ void MainWindow::initialiseWindow()
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
     qDebug() << "Data dir:" << getDataDirectory(RESOURCE_BASE);
 
-    connect(openGL2DImageWidget, SIGNAL (rendered()), this, SLOT (initializeImages()));
+    //connect(openGL2DImageWidget, SIGNAL (rendered()), this, SLOT (initializeImages()));
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
 
