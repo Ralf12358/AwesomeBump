@@ -12,10 +12,10 @@
 
 FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget) :
     QWidget(parent),
-    ui(new Ui::FormMaterialIndicesManager)
+    ui(new Ui::FormMaterialIndicesManager),
+    image(openGL2DImageWidget)
 {
     ui->setupUi(this);
-    image.setOpenGL2DImageWidget(openGL2DImageWidget);
 
     connect(ui->pushButtonOpenMaterialImage, SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonCopyToClipboard, SIGNAL (released()), this, SLOT (copyToClipboard()));

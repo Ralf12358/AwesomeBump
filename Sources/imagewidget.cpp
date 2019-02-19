@@ -15,6 +15,7 @@ QDir* ImageWidget::recentDir;
 
 ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget, TextureType textureType) :
     QWidget(parent),
+    image(openGL2DImageWidget),
     ui(new Ui::ImageWidget)
 {
     ui->setupUi(this);
@@ -27,32 +28,30 @@ ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidg
             SIGNAL (propertyDidChange(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)), this,
             SLOT (propertyChanged(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)));
 
-    QObject::connect(&image.getProperties()->BaseMapToOthers.Convert,
+    connect(&image.getProperties()->BaseMapToOthers.Convert,
                      SIGNAL (click(const QtnPropertyButton*)), this,
                      SLOT (applyBaseConversion(const QtnPropertyButton*)));
 
-    QObject::connect(&image.getProperties()->NormalsMixer.PasteFromClipboard,
+    connect(&image.getProperties()->NormalsMixer.PasteFromClipboard,
                      SIGNAL (click(const QtnPropertyButton*)), this,
                      SLOT (pasteNormalFromClipBoard(const QtnPropertyButton*)));
 
 
-    QObject::connect(&image.getProperties()->BaseMapToOthers.MinColor,
+    connect(&image.getProperties()->BaseMapToOthers.MinColor,
                      SIGNAL (click( QtnPropertyABColor*)), this,
                      SLOT (pickColorFromImage( QtnPropertyABColor*)));
 
-    QObject::connect(&image.getProperties()->BaseMapToOthers.MaxColor,
+    connect(&image.getProperties()->BaseMapToOthers.MaxColor,
                      SIGNAL (click( QtnPropertyABColor*)), this,
                      SLOT (pickColorFromImage( QtnPropertyABColor*)));
 
 
-    QObject::connect(&image.getProperties()->RMFilter.ColorFilter.PickColor,
+    connect(&image.getProperties()->RMFilter.ColorFilter.PickColor,
                      SIGNAL(click( QtnPropertyABColor*)), this,
                      SLOT(pickColorFromImage( QtnPropertyABColor*)));
 
     ui->groupBoxConvertToHeightSettings->hide();
 
-    image.setOpenGL2DImageWidget(openGL2DImageWidget);
-    
     connect(ui->pushButtonOpenImage,          SIGNAL (released()), this, SLOT (open()));
     connect(ui->pushButtonSaveImage,          SIGNAL (released()), this, SLOT (save()));
     connect(ui->pushButtonCopyToClipboard,    SIGNAL (released()), this, SLOT (copyToClipboard()));
@@ -119,11 +118,6 @@ QString ImageWidget::getImageName()
 void ImageWidget::setImageName(const QString& name)
 {
     image.setImageName(name);
-}
-
-void ImageWidget::setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget)
-{
-    image.setOpenGL2DImageWidget(openGL2DImageWidget);
 }
 
 void ImageWidget::setupPropertiesGUI()
@@ -767,8 +761,7 @@ void ImageWidget::applyHeightNormalToOcclusionConversion()
 
 void ImageWidget::showHeightCalculatorDialog()
 {
-    //heightCalculator->setImageSize(imageProp.ref_fbo->width(),imageProp.ref_fbo->height());
-    heightCalculator->setImageSize(image.getFBO()->width(),image.getFBO()->height());
+    heightCalculator->setImageSize(image.width(), image.height());
     unsigned int result = heightCalculator->exec();
     if(result == QDialog::Accepted)
     {

@@ -53,26 +53,23 @@ class OpenGL2DImageWidget;
 class Image
 {
 public:
-    Image();
+    explicit Image(OpenGL2DImageWidget *openGL2DImageWidget = 0);
     ~Image();
 
-    void copySettings(const Image *source);
+    void copySettings(Image *source);
     void setImage(const QImage &image);
-
-    void setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget);
 
     QOpenGLFramebufferObject* getFBO();
     void updateImageFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
-    // Convert FBO image to QImage
     QImage getFBOImage();
 
     QtnPropertySetFormImageProp* getProperties();
     QOpenGLTexture* getTexture();
     TextureType getTextureType();
     void setTextureType(TextureType textureType);
-    int getWidth();
-    int getHeight();
+    int width();
+    int height();
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
     QOpenGLTexture* getNormalMixerInputTexture();
@@ -82,7 +79,7 @@ public:
     void setSkipProcessing(bool skipProcessing);
     bool isFirstDraw();
 
-    BaseMapConvLevelProperties* getBaseMapConvLevelProperties();
+    BaseMapConvLevelProperties *getBaseMapConvLevelProperties();
     float getConversionHNDepth();
     void setConversionHNDepth(float newDepth);
 
@@ -92,7 +89,6 @@ public:
     // Base to others settings
     static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
-
     static SeamlessMode seamlessMode;
     static float seamlessSimpleModeRadius;
     // values: 2 - x repear, 1 - y  repeat, 0 - xy  repeat
@@ -109,8 +105,7 @@ public:
 private:
     void createFBO(int width, int height);
 
-    QtnPropertySetFormImageProp *properties;
-    bool bSkipProcessing;
+    QtnPropertySetFormImageProp properties;
     // Pointer to the OpenGL 2D Image Widget.
     OpenGL2DImageWidget *openGL2DImageWidget;
     // Output image.
@@ -119,18 +114,20 @@ private:
     QOpenGLTexture *texture;
     // Used only by normal texture.
     QOpenGLTexture *normalMixerInputTexture;
-    // The kind of preprocessing that will be applied to the image.
-    TextureType textureType;
+
+    QImage image;
+    QString imageName;
 
     bool bFirstDraw;
+    bool bSkipProcessing;
+
     // Conversion settings
     float conversionHNDepth;
     BaseMapConvLevelProperties baseMapConvLevelProperties[4];
     // Input image type
     ImageType inputImageType;
-
-    QString imageName;
-    QImage image;
+    // The kind of preprocessing that will be applied to the image.
+    TextureType textureType;
 };
 
 #endif // IMAGE_H

@@ -743,7 +743,7 @@ void OpenGL3DImageWidget::paintGL()
         objectMatrix.setToIdentity();
         if(images[0] != NULL)
         {
-            float fboRatio = float(images[0]->getWidth()) / images[0]->getHeight();
+            float fboRatio = float(images[0]->width()) / images[0]->height();
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
         if(mesh->isLoaded())

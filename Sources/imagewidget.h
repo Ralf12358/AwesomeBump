@@ -26,7 +26,6 @@ public:
     void setImage(const QImage& qImage);
     QString getImageName();
     void setImageName(const QString& name);
-    void setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget);
     void setupPropertiesGUI();
     void reloadSettings();
     bool loadFile(const QString &fileName);

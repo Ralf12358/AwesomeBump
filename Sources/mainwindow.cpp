@@ -1016,8 +1016,8 @@ void MainWindow::updateGrungeImage()
 
 void MainWindow::updateImageInformation()
 {
-    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->getFBO()->width());
-    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->getFBO()->height());
+    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->width());
+    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->height());
 }
 
 void MainWindow::initializeGL()
@@ -1203,8 +1203,8 @@ void MainWindow::applyScaleImage()
     QCoreApplication::processEvents();
     float scale_width   = ui->doubleSpinBoxRescaleWidth ->value();
     float scale_height  = ui->doubleSpinBoxRescaleHeight->value();
-    int width  = diffuseImageWidget->getImage()->getWidth() * scale_width;
-    int height = diffuseImageWidget->getImage()->getHeight() * scale_height;
+    int width  = diffuseImageWidget->getImage()->width() * scale_width;
+    int height = diffuseImageWidget->getImage()->height() * scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;

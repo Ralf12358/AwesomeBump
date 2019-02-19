@@ -19,64 +19,38 @@ int Image::currentMaterialIndex                  = MATERIALS_DISABLED;
 RandomTilingMode Image::randomTilingMode         = RandomTilingMode();
 bool Image::bUseLinearInterpolation              = true;
 
-Image::Image()
+Image::Image(OpenGL2DImageWidget *openGL2DImageWidget) :
+    openGL2DImageWidget(openGL2DImageWidget),
+    fbo(0),
+    texture(0),
+    normalMixerInputTexture(0),
+    bFirstDraw(true),
+    bSkipProcessing(false),
+    conversionHNDepth(2.0),
+    inputImageType(INPUT_NONE)
 {
-    bSkipProcessing         = false;
-    properties              = NULL;
-    fbo                     = NULL;
-    normalMixerInputTexture = 0;
-    openGL2DImageWidget     = NULL;
-    bFirstDraw              = true;
-    texture                 = 0;
-    conversionHNDepth       = 2.0;
-    bConversionBaseMap      = false;
-    inputImageType          = INPUT_NONE;
-    seamlessMode            = SEAMLESS_NONE;
-    properties              = new QtnPropertySetFormImageProp;
 }
 
 Image::~Image()
 {
-    if(openGL2DImageWidget != NULL)
-    {
-        qDebug() << Q_FUNC_INFO;
-        openGL2DImageWidget->makeCurrent();
-
-        if(normalMixerInputTexture)
-            delete normalMixerInputTexture;
-        if(texture)
-            delete texture;
-        normalMixerInputTexture = 0;
-        texture = 0;
-        openGL2DImageWidget = NULL;
-        //qDebug() << "p=" << properties;
-        if(properties != NULL ) delete properties;
-        if(fbo        != NULL ) delete fbo;
-        properties = NULL;
-        fbo        = NULL;
-    }
+    if(normalMixerInputTexture) delete normalMixerInputTexture;
+    if(texture) delete texture;
+    if(fbo) delete fbo;
 }
 
-void Image::copySettings(const Image *source)
+void Image::copySettings(Image *source)
 {
     bFirstDraw         = source->bFirstDraw;
     conversionHNDepth  = source->conversionHNDepth;
     bConversionBaseMap = source->bConversionBaseMap;
     inputImageType     = source->inputImageType;
-
-    if(properties != NULL && source->properties != NULL )
-        properties->copyValues(source->properties);
+    properties.copyValues(&source->properties);
 }
 
 void Image::setImage(const QImage& image)
 {
     this->image = image;
     bFirstDraw = true;
-}
-
-void Image::setOpenGL2DImageWidget(OpenGL2DImageWidget* openGL2DImageWidget)
-{
-    this->openGL2DImageWidget = openGL2DImageWidget;
 }
 
 QOpenGLFramebufferObject* Image::getFBO()
@@ -104,7 +78,7 @@ QImage Image::getFBOImage()
 
 QtnPropertySetFormImageProp* Image::getProperties()
 {
-    return properties;
+    return &properties;
 }
 
 QOpenGLTexture* Image::getTexture()
@@ -128,12 +102,12 @@ void Image::setTextureType(TextureType textureType)
     this->textureType = textureType;
 }
 
-int Image::getWidth()
+int Image::width()
 {
     return image.width();
 }
 
-int Image::getHeight()
+int Image::height()
 {
     return image.height();
 }
@@ -155,11 +129,8 @@ QOpenGLTexture* Image::getNormalMixerInputTexture()
 
 void Image::setNormalMixerInputTexture(const QImage& image)
 {
-    if(normalMixerInputTexture)
-        delete normalMixerInputTexture;
+    if(normalMixerInputTexture) delete normalMixerInputTexture;
     normalMixerInputTexture = new QOpenGLTexture(image);
-    openGL2DImageWidget->makeCurrent();
-    normalMixerInputTexture->bind();
 }
 
 bool Image::isSkippingProcessing()
