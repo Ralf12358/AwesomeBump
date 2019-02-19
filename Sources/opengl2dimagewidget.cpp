@@ -1981,7 +1981,6 @@ void OpenGL2DImageWidget::render()
         {
             resetView();
             qDebug() << "Doing first draw of" << PostfixNames::getTextureName(activeImage->getTextureType()) << " texture.";
-            activeImage->setFirstDraw(false);
         }
 
         // Skip all precessing when material tab is selected.
@@ -2126,7 +2125,7 @@ void OpenGL2DImageWidget::render()
                 applyAddNoiseFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
 
-                targetImageHeight->updateTextureFromFBO(activeFBO);
+                targetImageHeight->updateImageFromFBO(activeFBO);
                 if(!targetImageNormal->isSkippingProcessing())
                     bTransformUVs = false;
             }
@@ -2416,7 +2415,7 @@ void OpenGL2DImageWidget::render()
             if(activeImage->getTextureType() == NORMAL_TEXTURE)
             {
                 copyFBO(activeFBO,targetImageNormal->getFBO());
-                targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
+                targetImageNormal->updateImageFromFBO(targetImageNormal->getFBO());
             }
             break;
         case(CONVERT_FROM_N_TO_H):
@@ -2427,22 +2426,22 @@ void OpenGL2DImageWidget::render()
             break;
         case(CONVERT_FROM_D_TO_O):
             copyFBO(activeFBO,targetImageNormal->getFBO());
-            targetImageNormal->updateTextureFromFBO(targetImageNormal->getFBO());
+            targetImageNormal->updateImageFromFBO(targetImageNormal->getFBO());
             copyFBO(auxFBO1,targetImageHeight->getFBO());
-            targetImageHeight->updateTextureFromFBO(targetImageHeight->getFBO());
+            targetImageHeight->updateImageFromFBO(targetImageHeight->getFBO());
             applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateTextureFromFBO(targetImageOcclusion->getFBO());
+            targetImageOcclusion->updateImageFromFBO(targetImageOcclusion->getFBO());
             copyTex2FBO(activeImage->getTexture()->textureId(), targetImageSpecular->getFBO());
-            targetImageSpecular->updateTextureFromFBO(targetImageSpecular->getFBO());
+            targetImageSpecular->updateImageFromFBO(targetImageSpecular->getFBO());
             copyTex2FBO(activeImage->getTexture()->textureId(), targetImageRoughness->getFBO());
-            targetImageRoughness->updateTextureFromFBO(targetImageRoughness->getFBO());
+            targetImageRoughness->updateImageFromFBO(targetImageRoughness->getFBO());
             copyTex2FBO(activeImage->getTexture()->textureId(), targetImageMetallic->getFBO());
-            targetImageMetallic->updateTextureFromFBO(targetImageMetallic->getFBO());
+            targetImageMetallic->updateImageFromFBO(targetImageMetallic->getFBO());
             break;
         case(CONVERT_FROM_HN_TO_OC):
             //copyFBO(activeFBO,targetImageOcclusion->ref_fbo);
             copyFBO(activeFBO,targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateTextureFromFBO(activeFBO);
+            targetImageOcclusion->updateImageFromFBO(activeFBO);
             break;
         default:
             break;

@@ -57,24 +57,22 @@ public:
     ~Image();
 
     void copySettings(const Image *source);
-    void init(const QImage &image);
+    void setImage(const QImage &image);
 
-    OpenGL2DImageWidget* getOpenGL2DImageWidget();
     void setOpenGL2DImageWidget(OpenGL2DImageWidget *openGL2DImageWidget);
 
     QOpenGLFramebufferObject* getFBO();
-    void updateTextureFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
+    void updateImageFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
     void resizeFBO(int width, int height);
     // Convert FBO image to QImage
     QImage getFBOImage();
 
     QtnPropertySetFormImageProp* getProperties();
     QOpenGLTexture* getTexture();
-    void setTexture(const QImage& image);
     TextureType getTextureType();
     void setTextureType(TextureType textureType);
-    int getTextureWidth();
-    int getTextureHeight();
+    int getWidth();
+    int getHeight();
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
     QOpenGLTexture* getNormalMixerInputTexture();
@@ -83,7 +81,6 @@ public:
     bool isSkippingProcessing();
     void setSkipProcessing(bool skipProcessing);
     bool isFirstDraw();
-    void setFirstDraw(bool isFirstDraw);
 
     BaseMapConvLevelProperties* getBaseMapConvLevelProperties();
     float getConversionHNDepth();
@@ -114,20 +111,15 @@ private:
 
     QtnPropertySetFormImageProp *properties;
     bool bSkipProcessing;
-    // Pointer to the OpenGL 2D Image.
+    // Pointer to the OpenGL 2D Image Widget.
     OpenGL2DImageWidget *openGL2DImageWidget;
-    // Output image
+    // Output image.
     QOpenGLFramebufferObject *fbo;
-    // Id of texture loaded from image, from loaded file.
-    //GLuint scr_tex_id;
+    // Texture created from the image.
     QOpenGLTexture *texture;
     // Used only by normal texture.
-    //GLuint normalMixerInputTexId;
     QOpenGLTexture *normalMixerInputTexture;
-    // Width and height of the image loaded from file.
-    int textureWidth;
-    int textureHeight;
-    // This will define what kind of preprocessing will be applied to the image.
+    // The kind of preprocessing that will be applied to the image.
     TextureType textureType;
 
     bool bFirstDraw;
@@ -138,7 +130,7 @@ private:
     ImageType inputImageType;
 
     QString imageName;
-    QImage qImage;
+    QImage image;
 };
 
 #endif // IMAGE_H

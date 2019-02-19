@@ -98,9 +98,9 @@ QSize OpenGL3DImageWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGL3DImageWidget::setPointerToTexture(QOpenGLTexture *texture, TextureType textureType)
+void OpenGL3DImageWidget::setImage(Image *image, TextureType textureType)
 {
-    textures[textureType] = texture;
+    images[textureType] = image;
 }
 
 void OpenGL3DImageWidget::show3DGeneralSettingsDialog()
@@ -700,11 +700,11 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->bind();
 
     objectMatrix.setToIdentity();
-//    if(skybox_mesh->isLoaded())
-//    {
-//        objectMatrix.translate(camera.position);
-//        objectMatrix.scale(150.0);
-//    }
+    if(skybox_mesh->isLoaded())
+    {
+        objectMatrix.translate(camera.position);
+        objectMatrix.scale(150.0);
+    }
     modelViewMatrix = viewMatrix * objectMatrix;
     NormalMatrix    = modelViewMatrix.normalMatrix();
 
@@ -717,7 +717,7 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     m_env_map->bind();
-//    GLCHK( skybox_mesh->drawMesh(true) );
+    GLCHK( skybox_mesh->drawMesh(true) );
 
     // Drawing model
     QOpenGLShaderProgram* program_ptrs[2] = {settingsDialog->currentShaderParser->program,line_program};
@@ -741,17 +741,17 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("ProjectionMatrix", projectionMatrix);
 
         objectMatrix.setToIdentity();
-        if( textures[0] != NULL)
+        if(images[0] != NULL)
         {
-            float fboRatio = float((textures[0])->width())/(textures[0])->height();
+            float fboRatio = float(images[0]->getWidth()) / images[0]->getHeight();
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
-//        if(mesh->isLoaded())
-//        {
+        if(mesh->isLoaded())
+        {
 
-//            objectMatrix.scale(0.5/mesh->radius);
-//            objectMatrix.translate(-mesh->centre_of_mass);
-//        }
+            objectMatrix.scale(0.5/mesh->radius);
+            objectMatrix.translate(-mesh->centre_of_mass);
+        }
         modelViewMatrix = viewMatrix*objectMatrix;
         NormalMatrix = modelViewMatrix.normalMatrix();
         float mesh_scale = 0.5;// /mesh->radius;
@@ -819,7 +819,7 @@ void OpenGL3DImageWidget::paintGL()
                 program_ptr->setUniformValue("gui_bMaterialsPreviewEnabled", bool(keyPressed == KEY_SHOW_MATERIALS));
         }
 
-        if(textures[0] != NULL)
+        if(images[0] != NULL)
         {
             int tindex = 0;
 
@@ -827,7 +827,7 @@ void OpenGL3DImageWidget::paintGL()
             for(; tindex <= MATERIAL_TEXTURE; tindex++)
             {
                 GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-                GLCHK( glBindTexture(GL_TEXTURE_2D, textures[tindex]->textureId()) );
+                GLCHK( glBindTexture(GL_TEXTURE_2D, images[tindex]->getTexture()->textureId()) );
             }
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
             m_prefiltered_env_map->bind();
@@ -835,7 +835,7 @@ void OpenGL3DImageWidget::paintGL()
             tindex++;
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
             m_env_map->bind();
-//            mesh->drawMesh();
+            mesh->drawMesh();
             // Set default active texture.
             GLCHK( glActiveTexture(GL_TEXTURE0) );
         }

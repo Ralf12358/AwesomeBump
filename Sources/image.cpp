@@ -21,18 +21,18 @@ bool Image::bUseLinearInterpolation              = true;
 
 Image::Image()
 {
-    bSkipProcessing       = false;
-    properties            = NULL;
-    fbo                   = NULL;
+    bSkipProcessing         = false;
+    properties              = NULL;
+    fbo                     = NULL;
     normalMixerInputTexture = 0;
-    openGL2DImageWidget          = NULL;
-    bFirstDraw            = true;
-    texture            = 0;
-    conversionHNDepth     = 2.0;
-    bConversionBaseMap    = false;
-    inputImageType        = INPUT_NONE;
-    seamlessMode          = SEAMLESS_NONE;
-    properties            = new QtnPropertySetFormImageProp;
+    openGL2DImageWidget     = NULL;
+    bFirstDraw              = true;
+    texture                 = 0;
+    conversionHNDepth       = 2.0;
+    bConversionBaseMap      = false;
+    inputImageType          = INPUT_NONE;
+    seamlessMode            = SEAMLESS_NONE;
+    properties              = new QtnPropertySetFormImageProp;
 }
 
 Image::~Image()
@@ -68,30 +68,10 @@ void Image::copySettings(const Image *source)
         properties->copyValues(source->properties);
 }
 
-void Image::init(const QImage& image)
+void Image::setImage(const QImage& image)
 {
-    qDebug() << Q_FUNC_INFO;
-
-    if (!openGL2DImageWidget->isValid())
-    {
-          qDebug() << Q_FUNC_INFO << "OpenGL2DImageWidget not initialised.";
-          qImage = image;
-          return;
-    }
-
-    if(texture) delete texture;
-
-    texture = new QOpenGLTexture(image);
-    textureWidth  = image.width();
-    textureHeight = image.height();
-    bFirstDraw    = true;
-
-    createFBO(image.width(), image.height());
-}
-
-OpenGL2DImageWidget* Image::getOpenGL2DImageWidget()
-{
-    return openGL2DImageWidget;
+    this->image = image;
+    bFirstDraw = true;
 }
 
 void Image::setOpenGL2DImageWidget(OpenGL2DImageWidget* openGL2DImageWidget)
@@ -101,25 +81,19 @@ void Image::setOpenGL2DImageWidget(OpenGL2DImageWidget* openGL2DImageWidget)
 
 QOpenGLFramebufferObject* Image::getFBO()
 {
-    if (!fbo)
-        init(qImage);
+    if (!fbo) createFBO(image.width(), image.height());
     return fbo;
 }
 
-void Image::updateTextureFromFBO(QOpenGLFramebufferObject* sourceFBO)
+void Image::updateImageFromFBO(QOpenGLFramebufferObject* sourceFBO)
 {
-    openGL2DImageWidget->makeCurrent();
-    if(texture)
-        delete texture;
-    QImage image = sourceFBO->toImage();
-    //scr_tex_id = glWidget_ptr->bindTexture(image,GL_TEXTURE_2D);
-    texture = new QOpenGLTexture(image);
+    image = sourceFBO->toImage();
+    bFirstDraw = true;
 }
 
 void Image::resizeFBO(int width, int height)
 {
     createFBO(width, height);
-    bFirstDraw = true;
 }
 
 QImage Image::getFBOImage()
@@ -135,18 +109,13 @@ QtnPropertySetFormImageProp* Image::getProperties()
 
 QOpenGLTexture* Image::getTexture()
 {
-    if (!texture)
-        init(qImage);
+    if (bFirstDraw)
+    {
+        if(texture) delete texture;
+        texture = new QOpenGLTexture(image);
+        bFirstDraw = false;
+    }
     return texture;
-}
-
-void Image::setTexture(const QImage& image)
-{
-    if(texture)
-        delete texture;
-    texture = new QOpenGLTexture(image);
-    openGL2DImageWidget->makeCurrent();
-    texture->bind();
 }
 
 TextureType Image::getTextureType()
@@ -159,14 +128,14 @@ void Image::setTextureType(TextureType textureType)
     this->textureType = textureType;
 }
 
-int Image::getTextureWidth()
+int Image::getWidth()
 {
-    return textureWidth;
+    return image.width();
 }
 
-int Image::getTextureHeight()
+int Image::getHeight()
 {
-    return textureHeight;
+    return image.height();
 }
 
 ImageType Image::getInputImageType()
@@ -206,11 +175,6 @@ void Image::setSkipProcessing(bool skipProcessing)
 bool Image::isFirstDraw()
 {
     return bFirstDraw;
-}
-
-void Image::setFirstDraw(bool isFirstDraw)
-{
-    bFirstDraw = isFirstDraw;
 }
 
 BaseMapConvLevelProperties* Image::getBaseMapConvLevelProperties()

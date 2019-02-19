@@ -108,7 +108,7 @@ Image* ImageWidget::getImage()
 
 void ImageWidget::setImage(const QImage& qImage)
 {
-    image.init(qImage);
+    image.setImage(qImage);
 }
 
 QString ImageWidget::getImageName()
@@ -388,7 +388,7 @@ bool ImageWidget::loadFile(const QString &fileName)
 
         image.getImageName() = fileInfo.baseName();
         (*recentDir).setPath(fileName);
-        image.init(qImage);
+        image.setImage(qImage);
 
         emit imageLoaded(qImage.width(), qImage.height());
         if(image.getTextureType() == GRUNGE_TEXTURE)
@@ -819,7 +819,7 @@ bool ImageWidget::saveFile(const QString &fileName)
 void ImageWidget::pasteImageFromClipboard(const QImage& qImage)
 {
     image.setImageName("clipboard_image");
-    image.init(qImage);
+    image.setImage(qImage);
     emit imageLoaded(qImage.width(), qImage.height());
     if(image.getTextureType() == GRUNGE_TEXTURE)
         emit imageChanged();

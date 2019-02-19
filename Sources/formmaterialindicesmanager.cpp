@@ -55,7 +55,7 @@ void FormMaterialIndicesManager::setImage(const QImage& qImage)
     int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(qImage))
     {
-        image.init(qImage);
+        image.setImage(qImage);
         emit materialChanged();
     }
 
@@ -228,7 +228,7 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     if(updateMaterials(qImage))
     {
         //image = _image;
-        image.init(qImage);
+        image.setImage(qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());
@@ -246,7 +246,7 @@ void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& qImage)
     int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(qImage))
     {
-        image.init(qImage);
+        image.setImage(qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());

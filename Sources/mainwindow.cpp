@@ -70,7 +70,6 @@ void MainWindow::initialiseWindow()
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
     qDebug() << "Data dir:" << getDataDirectory(RESOURCE_BASE);
 
-    //connect(openGL2DImageWidget, SIGNAL (rendered()), this, SLOT (initializeImages()));
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");
 
@@ -98,14 +97,14 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[6] = metallicImageWidget;
 
     // Set pointers to 3D view (used to bindTextures).
-    openGL3DImageWidget->setPointerToTexture(diffuseImageWidget  ->getImage()->getTexture(), DIFFUSE_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(normalImageWidget   ->getImage()->getTexture(), NORMAL_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(specularImageWidget ->getImage()->getTexture(), SPECULAR_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(heightImageWidget   ->getImage()->getTexture(), HEIGHT_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(occlusionImageWidget->getImage()->getTexture(), OCCLUSION_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(roughnessImageWidget->getImage()->getTexture(), ROUGHNESS_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(metallicImageWidget ->getImage()->getTexture(), METALLIC_TEXTURE);
-    openGL3DImageWidget->setPointerToTexture(materialManager     ->getImage()->getTexture(), MATERIAL_TEXTURE);
+    openGL3DImageWidget->setImage(diffuseImageWidget  ->getImage(), DIFFUSE_TEXTURE);
+    openGL3DImageWidget->setImage(normalImageWidget   ->getImage(), NORMAL_TEXTURE);
+    openGL3DImageWidget->setImage(specularImageWidget ->getImage(), SPECULAR_TEXTURE);
+    openGL3DImageWidget->setImage(heightImageWidget   ->getImage(), HEIGHT_TEXTURE);
+    openGL3DImageWidget->setImage(occlusionImageWidget->getImage(), OCCLUSION_TEXTURE);
+    openGL3DImageWidget->setImage(roughnessImageWidget->getImage(), ROUGHNESS_TEXTURE);
+    openGL3DImageWidget->setImage(metallicImageWidget ->getImage(), METALLIC_TEXTURE);
+    openGL3DImageWidget->setImage(materialManager     ->getImage(), MATERIAL_TEXTURE);
 
     openGL2DImageWidget->targetImageDiffuse   = diffuseImageWidget  ->getImage();
     openGL2DImageWidget->targetImageNormal    = normalImageWidget   ->getImage();
@@ -1204,8 +1203,8 @@ void MainWindow::applyScaleImage()
     QCoreApplication::processEvents();
     float scale_width   = ui->doubleSpinBoxRescaleWidth ->value();
     float scale_height  = ui->doubleSpinBoxRescaleHeight->value();
-    int width  = diffuseImageWidget->getImage()->getTextureWidth() * scale_width;
-    int height = diffuseImageWidget->getImage()->getTextureHeight() * scale_height;
+    int width  = diffuseImageWidget->getImage()->getWidth() * scale_width;
+    int height = diffuseImageWidget->getImage()->getHeight() * scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;

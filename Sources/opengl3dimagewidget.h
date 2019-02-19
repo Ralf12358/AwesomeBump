@@ -6,6 +6,7 @@
 #include <QOpenGLTexture>
 #include <QtMath>
 
+#include "image.h"
 #include "opengltexturecube.h"
 #include "postfixnames.h"
 #include "display3dsettings.h"
@@ -26,7 +27,7 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void setPointerToTexture(QOpenGLTexture *texture, TextureType textureType);
+    void setImage(Image *image, TextureType textureType);
 
 signals:
     void renderGL();
@@ -101,7 +102,7 @@ private:
     QOpenGLShaderProgram *skybox_program;
     QOpenGLShaderProgram *env_program;
 
-    QOpenGLTexture *textures[8];
+    Image * images[8];
 
     bool bToggleDiffuseView;
     bool bToggleSpecularView;
@@ -171,9 +172,6 @@ private:
 
     QVector<GLuint> attachments;
 
-//    GLuint lensFlareColorsTexture;
-//    GLuint lensDirtTexture;
-//    GLuint lensStarTexture;
     QOpenGLTexture *lensFlareColorsTexture;
     QOpenGLTexture *lensDirtTexture;
     QOpenGLTexture *lensStarTexture;
