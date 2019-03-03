@@ -29,7 +29,7 @@ Bin/AwesomeBump
 
 *.suo
 *.user
-AwesomeBump.pro.user
+AwesomeBump.pro.user*
 
 *.sln.docstates
 build/Makefile
