@@ -2,157 +2,72 @@
 
 #include "openglerrorcheck.h"
 
-OpenGLTextureCube::OpenGLTextureCube(int size) : m_texture(0), m_failed(false)
+OpenGLTextureCube::OpenGLTextureCube(int size)
 {
     initializeOpenGLFunctions();
-    fbo = 0;
-    GLCHK( glGenTextures(1, &m_texture) );
 
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
-
-    for (int i = 0; i < 6; ++i)
-        GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, size, size, 0,
-                     GL_BGRA, GL_UNSIGNED_BYTE, 0) );
-
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
-    //GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) );
-    //GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE) );
-    //GLCHK( glGenerateMipmap(GL_TEXTURE_CUBE_MAP) );
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
-
-    // from http://stackoverflow.com/questions/462721/rendering-to-cube-map
-    // framebuffer object
-    GLCHK( glGenFramebuffers   (1, &fbo) );
-    GLCHK( glBindFramebuffer   (GL_FRAMEBUFFER, fbo) );
-    GLCHK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0) );
-    GLCHK( glDrawBuffer        (GL_COLOR_ATTACHMENT0) );
-
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        GLCHK( glDeleteFramebuffers(1, &fbo) );
-        fbo = 0;
-    }
-    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER,0) );
+    createTexture(size);
 }
 
-OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size) : m_texture(0), m_failed(false)
+OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size)
 {
     initializeOpenGLFunctions();
-    fbo = 0;
-    glGenTextures(1, &m_texture);
 
-    // TODO: Add error handling.
-
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
-
-    int index = 0;
-    foreach (QString file, fileNames) {
-        QImage image(file);
-        if (image.isNull()) {
-            m_failed = true;
-            break;
-        }
-
-        image = image.convertToFormat(QImage::Format_ARGB32);
-
-        //qDebug() << "Image size:" << image.width() << "x" << image.height();
+    QImage image[6];
+    int images = 0;
+    for (int i = 0; i < 6; i++)
+    {
+        ++images;
+        image[i] = QImage(fileNames[i]);
+        //image[i] = image[i].convertToFormat(QImage::Format_ARGB32);
         if (size <= 0)
-            size = image.width();
-        if (size != image.width() || size != image.height())
-            image = image.scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
-        // Works on x86, so probably works on all little-endian systems.
-        // Does it work on big-endian systems?
-        GLCHK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 4, image.width(), image.height(), 0,
-                           GL_BGRA, GL_UNSIGNED_BYTE, image.bits()) );
-
-        if (++index == 6)
-            break;
+            size = image[i].width();
+        if (image[i].width() != size || image[i].height() != size)
+            image[i] = image[i].scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
 
-    // Clear remaining faces.
-    while (index < 6) {
-        GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, GL_RGB, size, size, 0,
-                           GL_BGRA, GL_UNSIGNED_BYTE, 0) );
-        ++index;
-    }
+    createTexture(size);
 
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) );
-    GLCHK( glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE) );
-    GLCHK( glGenerateMipmap(GL_TEXTURE_CUBE_MAP) );
-
-
-    // get number of mip maps
-    if ( (numMipmaps = textureCalcLevels(GL_TEXTURE_CUBE_MAP_POSITIVE_X)) == -1 ) {
-        int max_level;
-        glGetTexParameteriv( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, &max_level );
-        numMipmaps = 1 + floor(log2(size > max_level?size:max_level) );
-    }
-
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
-    qDebug() << "Generated number of mipmaps:" << numMipmaps;
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveX, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[0].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeX, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[1].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveY, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[2].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeY, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[3].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveZ, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[4].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeZ, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[5].bits());
 }
 
 OpenGLTextureCube::~OpenGLTextureCube()
 {
-    GLCHK( glDeleteTextures(1, &m_texture) );
-    if(fbo)
-        GLCHK( glDeleteFramebuffers(1, &fbo) );
+    delete texture;
 }
 
 void OpenGLTextureCube::bind()
 {
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
-    GLCHK( glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS) );
+    texture->bind();
 }
-
-void OpenGLTextureCube::bindFBO(){
-    GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, fbo) );
-    GLCHK( glDrawBuffer(GL_COLOR_ATTACHMENT0) );
-}
-
 
 void OpenGLTextureCube::unbind()
 {
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
-    GLCHK( glDisable(GL_TEXTURE_CUBE_MAP) );
+    texture->release();
 }
 
-bool OpenGLTextureCube::failed() const
+bool OpenGLTextureCube::isCreated() const
 {
-    return m_failed;
+    return texture->isCreated();
 }
 
-void OpenGLTextureCube::load(int size, int face, QRgb *data)
+int OpenGLTextureCube::mipLevels()
 {
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture) );
-    GLCHK( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 4, size, size, 0,
-                 GL_BGRA, GL_UNSIGNED_BYTE, data) );
-    GLCHK( glBindTexture(GL_TEXTURE_CUBE_MAP, 0) );
+    return texture->mipLevels();
 }
 
-int OpenGLTextureCube::textureCalcLevels(GLenum target)
+void OpenGLTextureCube::createTexture(int size)
 {
-    int max_level;
-    GLCHK( glGetTexParameteriv( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, &max_level) );
-    int max_mipmap = -1;
-    for ( int i = 0; i < max_level; ++i ) {
-        int width;
-        GLCHK( glGetTexLevelParameteriv( target, i, GL_TEXTURE_WIDTH, &width) );
-        if ( 0 == width || GL_INVALID_VALUE == width) {
-            max_mipmap = i - 1;
-            break;
-        }
-    }
-    return max_mipmap;
+    texture = new QOpenGLTexture(QOpenGLTexture::TargetCubeMap);
+    texture->setSize(size, size);
+    texture->setFormat(QOpenGLTexture::RGB32F);
+    texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+    texture->setMipLevels(floor(log2(size)));
+    texture->allocateStorage();
 }

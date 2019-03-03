@@ -1,10 +1,11 @@
 #ifndef OPENGLTEXTURECUBE_H
 #define OPENGLTEXTURECUBE_H
 
-#include <QOpenGLExtraFunctions>
+#include <QOpenGLFunctions>
+#include <QOpenGLTexture>
 #include <QRgb>
 
-class OpenGLTextureCube : protected QOpenGLExtraFunctions
+class OpenGLTextureCube : protected QOpenGLFunctions
 {
 public:
     explicit OpenGLTextureCube(int size);
@@ -12,18 +13,14 @@ public:
     virtual ~OpenGLTextureCube();
 
     void bind();
-    void bindFBO();
     void unbind();
-    bool failed() const;
-    void load(int size, int face, QRgb *data);
-    int textureCalcLevels(GLenum target);
+    bool isCreated() const;
+    int mipLevels();
 
-    int numMipmaps;
+private:
+    void createTexture(int size);
 
-protected:
-    GLuint m_texture;
-    GLuint fbo;
-    bool m_failed;
+    QOpenGLTexture *texture;
 };
 
 #endif // OPENGLTEXTURECUBE_H
