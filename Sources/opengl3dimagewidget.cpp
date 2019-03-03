@@ -268,7 +268,7 @@ void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
         delete m_env_map;
     m_env_map = new OpenGLTextureCube(list);
 
-    if(m_env_map->failed())
+    if(!m_env_map->isCreated())
     {
         qWarning() << "Cannot load cube map: check if images listed above exist.";
     }
@@ -787,7 +787,7 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("gui_LightPower", display3Dparameters.lightPower);
         program_ptr->setUniformValue("gui_LightRadius", display3Dparameters.lightRadius);
         // Number of mipmaps.
-        program_ptr->setUniformValue("num_mipmaps", m_env_map->numMipmaps);
+        program_ptr->setUniformValue("num_mipmaps", m_env_map->mipLevels());
         // 3D settings.
         program_ptr->setUniformValue("gui_bUseCullFace", display3Dparameters.bUseCullFace);
         program_ptr->setUniformValue("gui_bUseSimplePBR", display3Dparameters.bUseSimplePBR);
@@ -1445,7 +1445,7 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
 
     // Drawing env - one pass method
     env_program->bind();
-    m_prefiltered_env_map->bindFBO();
+    //m_prefiltered_env_map->bindFBO();
     GLCHK( glViewport(0, 0, 512, 512) );
 
     objectMatrix.setToIdentity();
