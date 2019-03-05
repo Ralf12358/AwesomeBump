@@ -223,36 +223,48 @@ void Mesh::initializeMesh()
     vertexBuffer.bind();
     vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     vertexBuffer.allocate(gl_vertices.constData(), sizeof(QVector3D) * gl_vertices.size());
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(0);
 
     QOpenGLBuffer textureCoordBuffer(QOpenGLBuffer::VertexBuffer);
     textureCoordBuffer.create();
     textureCoordBuffer.bind();
     textureCoordBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     textureCoordBuffer.allocate(gl_texcoords.constData(), sizeof(QVector3D) * gl_texcoords.size());
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(1);
 
     QOpenGLBuffer normalsBuffer(QOpenGLBuffer::VertexBuffer);
     normalsBuffer.create();
     normalsBuffer.bind();
     normalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     normalsBuffer.allocate(gl_normals.constData(), sizeof(QVector3D) * gl_normals.size());
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(2);
 
     QOpenGLBuffer tangetsBuffer(QOpenGLBuffer::VertexBuffer);
     tangetsBuffer.create();
     tangetsBuffer.bind();
     tangetsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     tangetsBuffer.allocate(gl_tangents.constData(), sizeof(QVector3D) * gl_tangents.size());
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(3);
 
     QOpenGLBuffer bitangentsBuffer(QOpenGLBuffer::VertexBuffer);
     bitangentsBuffer.create();
     bitangentsBuffer.bind();
     bitangentsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     bitangentsBuffer.allocate(gl_bitangents.constData(), sizeof(QVector3D) * gl_bitangents.size());
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(4);
 
     QOpenGLBuffer smoothedNormalsBuffer(QOpenGLBuffer::VertexBuffer);
     smoothedNormalsBuffer.create();
     smoothedNormalsBuffer.bind();
     smoothedNormalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     smoothedNormalsBuffer.allocate(gl_smoothed_normals.constData(), sizeof(QVector3D) * gl_smoothed_normals.size());
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(5);
 
     vertexArray->release();
 }
