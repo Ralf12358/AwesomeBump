@@ -30,7 +30,6 @@ public:
     void setImage(Image *image, TextureType textureType);
 
 signals:
-    void renderGL();
     void readyGL();
     // Emit material index color.
     void materialColorPicked(QColor);

@@ -884,8 +884,6 @@ void OpenGL3DImageWidget::paintGL()
     }
 
     filter_program->release();
-
-    emit renderGL();
 }
 
 void OpenGL3DImageWidget::resizeGL(int width, int height)
