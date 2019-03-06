@@ -144,10 +144,8 @@ private:
     // One trinagle used for calculation of prefiltered environment map.
     Mesh* env_mesh;
 
-    // Orginal cube map.
-    OpenGLTextureCube* m_env_map;
-    // Filtered lambertian cube map.
-    OpenGLTextureCube* m_prefiltered_env_map;
+    // Skybox texture.
+    OpenGLTextureCube* skyBoxTextureCube;
     // Control calculating diffuse environment map.
     bool bDiffuseMapBaked;
 

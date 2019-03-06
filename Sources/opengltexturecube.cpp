@@ -2,13 +2,6 @@
 
 #include "openglerrorcheck.h"
 
-OpenGLTextureCube::OpenGLTextureCube(int size)
-{
-    initializeOpenGLFunctions();
-
-    createTexture(size);
-}
-
 OpenGLTextureCube::OpenGLTextureCube(const QStringList& fileNames, int size)
 {
     initializeOpenGLFunctions();

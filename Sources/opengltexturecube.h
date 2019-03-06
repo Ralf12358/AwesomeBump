@@ -8,7 +8,6 @@
 class OpenGLTextureCube : protected QOpenGLFunctions
 {
 public:
-    explicit OpenGLTextureCube(int size);
     explicit OpenGLTextureCube(const QStringList& fileNames, int size = 0);
     virtual ~OpenGLTextureCube();
 

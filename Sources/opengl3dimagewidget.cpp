@@ -29,7 +29,7 @@ OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
     bToggleRoughnessView    = true;
     bToggleMetallicView     = true;
 
-    m_env_map               = NULL;
+    skyBoxTextureCube               = NULL;
 
     setCursor(Qt::PointingHandCursor);
     lightCursor = QCursor(QPixmap(":/resources/cursors/lightCursor.png"));
@@ -82,8 +82,7 @@ OpenGL3DImageWidget::~OpenGL3DImageWidget()
     delete skybox_mesh;
     delete env_mesh;
     delete quad_mesh;
-    delete m_env_map;
-    delete m_prefiltered_env_map;
+    delete skyBoxTextureCube;
 
     doneCurrent();
 }
@@ -264,11 +263,11 @@ void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
     qDebug() << "Reading new cube map:" << list;
     bDiffuseMapBaked = false;
 
-    if(m_env_map != NULL)
-        delete m_env_map;
-    m_env_map = new OpenGLTextureCube(list);
+    if(skyBoxTextureCube != NULL)
+        delete skyBoxTextureCube;
+    skyBoxTextureCube = new OpenGLTextureCube(list);
 
-    if(!m_env_map->isCreated())
+    if(!skyBoxTextureCube->isCreated())
     {
         qWarning() << "Cannot load cube map: check if images listed above exist.";
     }
@@ -657,8 +656,7 @@ void OpenGL3DImageWidget::initializeGL()
     env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
     quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
 
-    m_env_map = new OpenGLTextureCube(512);
-    m_prefiltered_env_map = new OpenGLTextureCube(512);
+    chooseSkyBox("1SaintLazarusChurch", true);
 
     resizeFBOs();
     emit readyGL();
@@ -716,7 +714,7 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->setUniformValue("ModelMatrix", objectMatrix);
     skybox_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
-    m_env_map->bind();
+    skyBoxTextureCube->bind();
     GLCHK( skybox_mesh->drawMesh(true) );
 
     // Drawing model
@@ -787,7 +785,7 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("gui_LightPower", display3Dparameters.lightPower);
         program_ptr->setUniformValue("gui_LightRadius", display3Dparameters.lightRadius);
         // Number of mipmaps.
-        program_ptr->setUniformValue("num_mipmaps", m_env_map->mipLevels());
+        program_ptr->setUniformValue("num_mipmaps", skyBoxTextureCube->mipLevels());
         // 3D settings.
         program_ptr->setUniformValue("gui_bUseCullFace", display3Dparameters.bUseCullFace);
         program_ptr->setUniformValue("gui_bUseSimplePBR", display3Dparameters.bUseSimplePBR);
@@ -830,11 +828,10 @@ void OpenGL3DImageWidget::paintGL()
                 GLCHK( glBindTexture(GL_TEXTURE_2D, images[tindex]->getTexture()->textureId()) );
             }
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-            m_prefiltered_env_map->bind();
 
             tindex++;
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-            m_env_map->bind();
+            skyBoxTextureCube->bind();
             mesh->drawMesh();
             // Set default active texture.
             GLCHK( glActiveTexture(GL_TEXTURE0) );
@@ -1458,7 +1455,7 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
     env_program->setUniformValue("ModelMatrix",      objectMatrix);
     env_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
-    m_env_map->bind();
+    skyBoxTextureCube->bind();
     env_mesh->drawMesh(true);
 
     GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
