@@ -4,8 +4,8 @@
 #include <QDialog>
 #include <QDebug>
 #include <QFile>
-#include <QtnProperty/Core/Property.h>
 
+#include "Property.h"
 #include "Filters3D.peg.h"
 #include "utils/glslshaderparser.h"
 #include "utils/glslparsedshadercontainer.h"

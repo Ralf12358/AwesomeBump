@@ -68,7 +68,6 @@ void MainWindow::initialiseWindow()
 
     qDebug() << "Starting application:";
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
-    qDebug() << "Data dir:" << getDataDirectory(RESOURCE_BASE);
 
     qDebug() << "Initialization: Build image properties";
     INIT_PROGRESS(10, "Build image properties");

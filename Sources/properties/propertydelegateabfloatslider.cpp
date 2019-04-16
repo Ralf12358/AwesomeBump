@@ -1,7 +1,7 @@
-#include <QtnProperty/PropertyWidget/Delegates/PropertyDelegateFactory.h>
-#include <QtnProperty/PropertyWidget/Delegates/Utils/PropertyDelegateSliderBox.h>
-#include <QtnProperty/Core/Core/PropertyFloat.h>
-#include <QtnProperty/Core/Core/PropertyInt.h>
+#include "Delegates/PropertyDelegateFactory.h"
+#include "Delegates/Utils/PropertyDelegateSliderBox.h"
+#include "Core/PropertyFloat.h"
+#include "Core/PropertyInt.h"
 
 void regABSliderDelegates()
 {

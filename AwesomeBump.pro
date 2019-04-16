@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
-CONFIG += ordered
-SUBDIRS += Sources
+
+SUBDIRS += QtnProperty\
+           Sources
+Sources.depends = QtnProperty

@@ -5,8 +5,8 @@
 #include <QImage>
 #include <QString>
 
+#include "Property.h"
 #include "opengl2dimagewidget.h"
-#include "PropertyBase.h"
 #include "dialogheightcalculator.h"
 
 namespace Ui

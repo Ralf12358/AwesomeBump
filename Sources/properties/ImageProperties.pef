@@ -1,5 +1,5 @@
-#include "Core/PropertyCore.h"
-#include "Core/PropertyGUI.h"
+#include "PropertyCore.h"
+#include "PropertyGUI.h"
 #include "PropertyABColor.h"
 
 #include_cpp <QFileDialog>
@@ -395,7 +395,8 @@ property_set GrungeMapProperty{
 
        delegate List
        {
-           items = init_grunge_maps();
+            items = QStringList() << "one" << "two" << "three" << "four";
+           //items = init_grunge_maps();
        }
     }
     Bool RandomTranslations {
