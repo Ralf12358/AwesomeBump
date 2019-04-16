@@ -1,7 +1,7 @@
 #include <QGLWidget>
 #include <QtOpenGL>
 #include <QDebug>
-#include "contextwidget.h"
+#include "utils/contextinfo/contextwidget.h"
 #include "allaboutdialog.h"
 #include "ui_allaboutdialog.h"
 

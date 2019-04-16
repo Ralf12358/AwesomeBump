@@ -9,8 +9,6 @@ VERSION = 6.0.0
 CONFIG  += c++11
 QT      += opengl widgets
 
-INCLUDEPATH += utils utils/contextinfo
-
 # Windows requires including opengl library.
 win32{
     msvc: LIBS += Opengl32.lib
