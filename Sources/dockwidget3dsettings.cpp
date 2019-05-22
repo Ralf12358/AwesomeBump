@@ -138,8 +138,3 @@ void DockWidget3DSettings::loadSettings(QtnPropertySetAwesomeBump* settings)
     ui->comboBoxPerformanceNoTessSub->setCurrentIndex(settings->noTessSubdivision);
     updateSettings();
 }
-
-//QSize DockWidget3DSettings::sizeHint() const
-//{
-//    return QSize(200, 60);
-//}

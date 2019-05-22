@@ -3,7 +3,6 @@
 #include <QDebug>
 
 #include "opengl2dimagewidget.h"
-#include "openglerrorcheck.h"
 
 SeamlessMode Image::seamlessMode                 = SEAMLESS_NONE;
 float Image::seamlessSimpleModeRadius            = 0.5;
@@ -187,23 +186,24 @@ void Image::createFBO(int width, int height)
     format.setMipmap(true);
     fbo = new QOpenGLFramebufferObject(width, height, format);
 
-    GLCHK( glBindTexture(GL_TEXTURE_2D, fbo->texture()) );
-    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
-    GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
+    QOpenGLFunctions *f = openGL2DImageWidget->context()->functions();
+    f->glBindTexture(GL_TEXTURE_2D, fbo->texture());
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     if(bUseLinearInterpolation)
     {
-        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
-        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     else
     {
-        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
-        GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
 
     float aniso = 0.0f;
-    GLCHK( glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso) );
-    GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
+    f->glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 }

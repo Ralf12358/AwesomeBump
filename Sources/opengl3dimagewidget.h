@@ -17,7 +17,7 @@
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
-class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
+class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
 

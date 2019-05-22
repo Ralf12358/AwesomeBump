@@ -31,11 +31,16 @@ AllAboutDialog::AllAboutDialog(QWidget *parent, QGLWidget *surface) :
         gl->deleteLater(); qDebug() << ctx;
     }
 
-    GLfloat GL_MaxAnisotropy = 0; glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &GL_MaxAnisotropy);
+    QOpenGLFunctions *f = ctx->functions();
+
+    GLfloat GL_MaxAnisotropy = 0; f->glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &GL_MaxAnisotropy);
 
     QString Anisotropic = GL_MaxAnisotropy>0 ? tr("supported (max %1)").arg(GL_MaxAnisotropy) : tr("Not supported");
     QString VersionFormat = tr("OpenGL Version %1\nGLSL Version %2\n%3 - %4\n\n");
-    QString Version = VersionFormat.arg(QString((const char*)glGetString(GL_VERSION)), QString((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)), QString((const char*)glGetString(GL_RENDERER)), QString((const char*)glGetString(GL_VENDOR)));
+    QString Version = VersionFormat.arg(QString((const char*)f->glGetString(GL_VERSION)),
+                                        QString((const char*)f->glGetString(GL_SHADING_LANGUAGE_VERSION)),
+                                        QString((const char*)f->glGetString(GL_RENDERER)),
+                                        QString((const char*)f->glGetString(GL_VENDOR)));
     QString BuffersFormat = tr("Color Buffer: %1 bits %2\nDepth Buffer: %4 bits\nStencil Buffer: %5 bits\nAnisotropy: %6\n\n");
     QString Buffers = BuffersFormat.arg(
                 QString::number(ctx->format().redBufferSize() + ctx->format().greenBufferSize() + ctx->format().blueBufferSize() + ctx->format().alphaBufferSize()),
@@ -47,7 +52,6 @@ AllAboutDialog::AllAboutDialog(QWidget *parent, QGLWidget *surface) :
 
     QString ExtensionsFormat = tr("Features:\n  - Multitexture: %1\n  - Shaders: %2\n  - Buffers: %3\n  - Framebuffers: %4\n  - BlendColor: %5\n  - BlendEquation: %6\n  - BlendEquationSeparate: %7\n  - BlendSubtract: %8\n  - CompressedTextures: %9\n  - Multisample: %10\n  - StencilSeparate: %11\n  - NPOTTextures: %12\n  - NPOTTextureRepeat: %13\n  - FixedFunctionPipeline: %14");
 
-    QOpenGLFunctions *f = ctx->functions();
     QString Extensions = ExtensionsFormat
             .arg(f->hasOpenGLFeature(QOpenGLFunctions::Multitexture))
             .arg(f->hasOpenGLFeature(QOpenGLFunctions::Shaders))

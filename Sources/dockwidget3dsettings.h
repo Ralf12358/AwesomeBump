@@ -39,7 +39,6 @@ public slots:
 private:
     OpenGL3DImageWidget *ptr_glWidget;
     Ui::DockWidget3DSettings *ui;
-//    QSize sizeHint() const;
 };
 
 #endif // DOCKWIDGET3DSETTINGS_H
