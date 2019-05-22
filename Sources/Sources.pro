@@ -1,10 +1,10 @@
-include(../QtnProperty/QtnProperty.pri)
-include(../QtnProperty/PEG.pri)
-
 TEMPLATE = app
 TARGET = AwesomeBump
 DESTDIR = $$PWD/../Bin
 VERSION = 6.0.0
+
+include(../QtnProperty/QtnProperty.pri)
+include(../QtnProperty/PEG.pri)
 
 CONFIG  += c++11
 QT      += opengl widgets
