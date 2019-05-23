@@ -2,7 +2,7 @@
 #define OPENGL3DIMAGEWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
+#include <QOpenGLFunctions_4_0_Core>
 #include <QOpenGLTexture>
 #include <QtMath>
 
@@ -17,7 +17,7 @@
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
-class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
+class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
 {
     Q_OBJECT
 

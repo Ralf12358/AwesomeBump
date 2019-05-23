@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define	MESH_H
 
-#include <QOpenGLFunctions_4_5_Core>
+#include <QOpenGLFunctions_4_0_Core>
 #include <QtOpenGL>
 #include <QString>
 #include <QDebug>
@@ -12,7 +12,7 @@
 #include "../openglerrorcheck.h"
 #include "tinyobj/tiny_obj_loader.h"
 
-class Mesh : public QOpenGLFunctions_4_5_Core
+class Mesh : public QOpenGLFunctions_4_0_Core
 {
 public:
     Mesh(QString dir, QString name);

@@ -2,7 +2,7 @@
 #define OPENGL2DIMAGEWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_5_Core>
+#include <QOpenGLFunctions_4_0_Core>
 #include <QtOpenGL>
 #include "image.h"
 #include <math.h>
@@ -36,7 +36,7 @@ enum UVManipulationMethod
     UV_SCALE_XY
 };
 
-class OpenGL2DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
+class OpenGL2DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
 {
     Q_OBJECT
 

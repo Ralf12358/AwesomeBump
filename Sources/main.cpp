@@ -7,7 +7,7 @@
 
 #define SplashImage ":/resources/logo/splash.png"
 #define GL_MAJOR 4
-#define GL_MINOR 5
+#define GL_MINOR 0
 #define VERSION_STRING "6.0"
 #define RESOURCE_BASE "./"
 
