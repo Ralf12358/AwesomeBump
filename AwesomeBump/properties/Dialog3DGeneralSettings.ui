@@ -72,7 +72,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../content.qrc">
+        <iconset resource="../resources.qrc">
          <normaloff>:/resources/actions/recompileShader.png</normaloff>:/resources/actions/recompileShader.png</iconset>
        </property>
        <property name="iconSize">
@@ -139,7 +139,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../content.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

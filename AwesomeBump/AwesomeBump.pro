@@ -109,7 +109,8 @@ FORMS += \
     mainwindow.ui \
     properties/Dialog3DGeneralSettings.ui
 
-RESOURCES += content.qrc
+RESOURCES += \
+    resources.qrc
 
 RC_FILE = resources/icon.rc
 ICON = resources/icons/icon.icns

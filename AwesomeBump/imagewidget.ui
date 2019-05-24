@@ -113,7 +113,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="content.qrc">
+        <iconset resource="resources.qrc">
          <normaloff>:/resources/actions/open.png</normaloff>:/resources/actions/open.png</iconset>
        </property>
        <property name="iconSize">
@@ -139,7 +139,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="content.qrc">
+        <iconset resource="resources.qrc">
          <normaloff>:/resources/actions/save.png</normaloff>:/resources/actions/save.png</iconset>
        </property>
        <property name="iconSize">
@@ -178,7 +178,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="content.qrc">
+        <iconset resource="resources.qrc">
          <normaloff>:/resources/actions/pasteFromCB.png</normaloff>:/resources/actions/pasteFromCB.png</iconset>
        </property>
        <property name="iconSize">
@@ -201,7 +201,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="content.qrc">
+        <iconset resource="resources.qrc">
          <normaloff>:/resources/actions/copyToCB.png</normaloff>:/resources/actions/copyToCB.png</iconset>
        </property>
        <property name="iconSize">
@@ -687,7 +687,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="content.qrc">
+             <iconset resource="resources.qrc">
               <normaloff>:/resources/actions/settings3d.png</normaloff>:/resources/actions/settings3d.png</iconset>
             </property>
             <property name="iconSize">
@@ -972,7 +972,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="content.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections>
   <connection>
