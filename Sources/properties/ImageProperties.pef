@@ -6,7 +6,6 @@
 #include_cpp "propertyconstructor.h"
 #include_cpp "../postfixnames.h"
 
-
 enum COLOR
 {
     red (1, "red"),
@@ -16,459 +15,474 @@ enum COLOR
 
 enum COLOR_FILTER
 {
-    None(1, "None"),
-    Noise(2, "Noise Filter"),
-    Color(3, "Color Filter")
+    None (1, "None"),
+    Noise (2, "Noise Filter"),
+    Color (3, "Color Filter")
 }
 
 enum COLOR_FILTER_METHOD
 {
-    Angle1(1, "Angle based #1"),
-    Angle2(2, "Angle based #2"),
-    Distance(3, "Distance based")
+    Angle1 (1, "Angle based #1"),
+    Angle2 (2, "Angle based #2"),
+    Distance (3, "Distance based")
 }
 
 enum SHADINGMODEL
 {
-        pbr(0, "PBR shading"),
-        bumpMapping(1, "Bump mapping")
+    pbr (0, "PBR shading"),
+    bumpMapping (1, "Bump mapping")
 }
-
 
 enum BASEMAPDETAIL
 {
-        Small(0, "Small"),
-        Medium(1, "Medium"),
-        Big(2, "Big"),
-        Huge(3, "Huge")
+    Small (0, "Small"),
+    Medium (1, "Medium"),
+    Big (2, "Big"),
+    Huge (3, "Huge")
 }
 
 enum BLENDINGMODE
 {
-  blendNormal(0, "Normal"),
-  blendMultiply(1, "Multiply"),
-  blendAdd(2, "Add"),
-  blendSubtract(3, "Subtract"),
-  blendDifference(4, "Difference"),
-  blendDivide(5, "Divide"),
-  blendScreen(6, "Screen"),
-  blendOverlay(7, "Overlay"),
-  blendDodge(8, "Dodge"),
-  blendBurn(9, "Burn"),
-  blendDarkenOnly(10, "Darken Only"),
-  blendLightenOnly(11, "Lighten Only")
+    blendNormal (0, "Normal"),
+    blendMultiply (1, "Multiply"),
+    blendAdd (2, "Add"),
+    blendSubtract (3, "Subtract"),
+    blendDifference (4, "Difference"),
+    blendDivide (5, "Divide"),
+    blendScreen (6, "Screen"),
+    blendOverlay (7, "Overlay"),
+    blendDodge (8, "Dodge"),
+    blendBurn (9, "Burn"),
+    blendDarkenOnly (10, "Darken Only"),
+    blendLightenOnly (11, "Lighten Only")
 }
 
 enum INPUTIMAGE
 {
-  inputCurrent(0, "Current image"),
-  inputHeightInput(1, "Height (Input)"),
-  inputHeightOutput(2, "Height (Output)")
+    inputCurrent (0, "Current image"),
+    inputHeightInput (1, "Height (Input)"),
+    inputHeightOutput (2, "Height (Output)")
 }
 
-property_set ColorComponentsProperty{
-displayName = "Color components";
-Bool InvertAll {
-        description = "Invert all components";
+property_set ColorComponentsProperty
+{
+    displayName = "Color components";
+    Bool InvertAll
+    {
         displayName = "Invert all";
-        value=false;
-
+        description = "Invert all components";
+        value = false;
         slot propertyDidChange
         {
             InvertRed.setValue(InvertAll.value());
             InvertBlue.setValue(InvertAll.value());
             InvertGreen.setValue(InvertAll.value());
         }
-}
-
-Bool InvertRed {
-        description = "Invert Red";
+    }
+    Bool InvertRed
+    {
         displayName = "Invert Red";
-        value=false;
-}
-
-
-
-Bool InvertBlue {
-        description = "Invert Blue";
+        description = "Invert Red";
+        value = false;
+    }
+    Bool InvertBlue
+    {
         displayName = "Invert Blue";
-        value=false;
-}
-
-Bool InvertGreen {
-        description = "Invert Green";
+        description = "Invert Blue";
+        value = false;
+    }
+    Bool InvertGreen
+    {
         displayName = "Invert Green";
-        value=false;
+        description = "Invert Green";
+        value = false;
+    }
 }
 
-} // end of color property
-
-
-
-property_set GrayScaleProperty{
-
-    description = "Gray scale filter. Final color is computed as a weighted average: C=wr*R+wg*G+wb*B";
+property_set GrayScaleProperty
+{
     displayName = "Gray scale filter";
-
-    Bool EnableGrayScale {
-           description = "Enable gray scale filter";
-           displayName = "Enable";
-           value=false;
-
-           slot propertyDidChange
-           {
-               GrayScaleR.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
-               GrayScaleG.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
-               GrayScaleB.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
-           }
+    description = "Gray scale filter. Final color is computed as a weighted average: C=wr*R+wg*G+wb*B";
+    Bool EnableGrayScale
+    {
+        displayName = "Enable";
+        description = "Enable gray scale filter";
+        value = false;
+        slot propertyDidChange
+        {
+            GrayScaleR.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
+            GrayScaleG.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
+            GrayScaleB.switchState(QtnPropertyStateInvisible, !EnableGrayScale);
+        }
     }
-
-    Float GrayScaleR {
-            description = "Set value of weight for the Red component.";
-            displayName = "Red";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.333f;
+    Float GrayScaleR
+    {
+        displayName = "Red";
+        description = "Set value of weight for the Red component.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.333f;
     }
-    Float GrayScaleG {
-            description = "Set value of weight for the Green component.";
-            displayName = "Green";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.333f;
+    Float GrayScaleG
+    {
+        displayName = "Green";
+        description = "Set value of weight for the Green component.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.333f;
     }
-    Float GrayScaleB {
-            description = "Set value of weight for the Blue component.";
-            displayName = "Blue";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.333f;
+    Float GrayScaleB
+    {
+        displayName = "Blue";
+        description = "Set value of weight for the Blue component.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.333f;
     }
-
 }
 
-property_set RemoveShadingProperty{
-    description = "Remove dark regions from image.";
+property_set RemoveShadingProperty
+{
     displayName = "Remove shading";
-    Int RemoveShadingByGaussian {
-            description = "The number of iterations to be performed.";
-            displayName = "Num. iterations.";
-            minValue=0;
-            maxValue=100;
-            stepValue=1;
-            value=0.0;
+    description = "Remove dark regions from image.";
+    Int RemoveShadingByGaussian
+    {
+        displayName = "Iterations.";
+        description = "The number of iterations to be performed.";
+        minValue = 0.0f;
+        maxValue = 100;
+        stepValue = 1;
+        value = 0;
     }
-    Float AOCancellation {
-            description = "Remove dark regions using calculated AO map.";
-            displayName = "AO cancellation";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float AOCancellation
+    {
+        displayName = "AO cancellation";
+        description = "Remove dark regions using calculated AO map.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float LowFrequencyFilterBlending {
-            description = "Low Frequency Even filter weight. If 0 the effect is disabled.";
-            displayName = "LFE: Weight";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float LowFrequencyFilterBlending
+    {
+        displayName = "LFE: Weight";
+        description = "Low Frequency Even filter weight. If 0 the effect is disabled.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float LowFrequencyFilterRadius {
-            description = "Set the mask radius: larger values remove lower frequencies, lower values - higher frequencies. This tool is a analogical to Low Frequency Even GIMP plugin.";
-            displayName = "LFE: Radius";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float LowFrequencyFilterRadius
+    {
+        displayName = "LFE: Radius";
+        description = "Set the mask radius: larger values remove lower frequencies, lower values - higher frequencies. This tool is a analogical to Low Frequency Even GIMP plugin.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
 }
 
-
-
-property_set ColorLevelsProperty{
-    description = "Sets the minimum and maximum values for pixels components.";
+property_set ColorLevelsProperty
+{
     displayName = "Levels";
-    Bool EnableNormalization {
-           description = "Enable color normalization. If enabled, then pixel color is clamped by min/max values and then scaled with formula (color-min)/(max-min), otherwise only clamping is performed.";
-           displayName = "Levels";
-           value=false;
+    description = "Sets the minimum and maximum values for pixels components.";
+    Bool EnableNormalization
+    {
+        displayName = "Normalization";
+        description = "Enable color normalization. If enabled, then pixel color is clamped by min/max values and then scaled with formula (color-min)/(max-min), otherwise only clamping is performed.";
+        value = false;
     }
-    Float MinValue {
-            description = "Set minimum value for RGB components.";
-            displayName = "Min. value";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float MinValue
+    {
+        displayName = "Minimum";
+        description = "Set minimum value for RGB components.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float MaxValue {
-            description = "Set maximum value for RGB components.";
-            displayName = "Max. value";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=1.0f;
+    Float MaxValue
+    {
+        displayName = "Maximum";
+        description = "Set maximum value for RGB components.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 1.0f;
     }
-    Float DetailsRadius {
-            description = "This parameter helps to restore some of the details from clamped colors in the image. This tool works if Min. Value is greater than 0 or Max. Value is smaller than 1.";
-            displayName = "Details";
-            minValue=0;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-
+    Float DetailsRadius
+    {
+        displayName = "Details Radius";
+        description = "This parameter helps to restore some of the details from clamped colors in the image. This tool works if Min. Value is greater than 0 or Max. Value is smaller than 1.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float Offset {
-            description = "Shifts current color by constant number.";
-            displayName = "Offset";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float Offset
+    {
+        displayName = "Offset";
+        description = "Shifts current color by constant number.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-
 }
 
 // Number of iterations during conversion from Normal to Height
-property_set NormalHeightConvProperty{
-    Int NoiseLevel{
+property_set NormalHeightConvProperty
+{
+    Int NoiseLevel
+    {
         value = 0;
     }
-    Int Huge{
+    Int Huge
+    {
         value = 35;
     }
-    Int VeryLarge{
+    Int VeryLarge
+    {
         value = 30;
     }
-    Int Large{
+    Int Large
+    {
         value = 25;
     }
-    Int Medium{
+    Int Medium
+    {
         value = 20;
     }
-    Int Small{
+    Int Small
+    {
         value = 15;
     }
-    Int VerySmall{
+    Int VerySmall
+    {
         value = 10;
     }
 }
 
-
-property_set SurfaceDetailsProperty{
-
-    Bool EnableSurfaceDetails {
-           description = "Applies difference of gaussian filter (gimp DOG filter). This tool can be used to generated Specular, Roughness or Metallic maps.";
-           displayName = "Enable";
-           value=false;
-           slot propertyDidChange
-           {
-                WeightA.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
-                WeightB.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
-                Radius.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
-                Contrast.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
-                Amplifier.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
-           }
-    }
-    Float WeightA {
-            description = "Radius of the first gaussian";
-            displayName = "Radius A";
-            minValue=0;
-            maxValue=40.0f;
-            stepValue=0.1f;
-            value=0.0f;
-    }
-    Float WeightB {
-            description = "Radius of the second gaussian";
-            displayName = "Radius B";
-            minValue=0;
-            maxValue=40.0f;
-            stepValue=0.1f;
-            value=30.0f;
-    }
-    Int Radius {
-            description = "Maximal blur radius. Usually it is greater than Radius A and Weight B. But here you can choose any value.";
-            displayName = "Max. radius";
-            minValue=0;
-            maxValue=40;
-            stepValue=1;
-            value=30;            
-    }
-    Float Contrast {
-            description = "It changes the contrast of the image.";
-            displayName = "Contrast";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-    Float Amplifier {
-            description = "Scale the current value of the color by a number Scale";
-            displayName = "Amplifier";
-            minValue=-10.0f;
-            maxValue=10.0f;
-            stepValue=0.1f;
-            value=1.0f;
-    }
-}
-
-// ambient occlusion settings
-property_set AOProperty{
-
-    Int NumIters {
-            description = "Radius of the mask. Large number will lead to poor performance. For small images (about 1024x1024) this should not be a problem, but for larger you should use this parameter carefully.";
-            displayName = "Radius";
-            minValue=0;
-            maxValue=50;
-            stepValue=1;
-            value=10;
-    }
-    Float Intensity {
-            displayName = "Intensity";
-            description = "Intensity of the AO effect.";
-            minValue=0;
-            maxValue=5.0f;
-            stepValue=0.01f;
-            value=0.5f;
-    }
-    Float Bias {
-            displayName = "Bias";
-            description = "This is another parameter which allows you to control the contrast of the image.";
-            minValue=-4.0f;
-            maxValue=4.0f;
-            stepValue=0.01f;
-            value=-1.5f;
-    }
-    Float Depth {
-            description = "It changes the scale of the effect. ";
-            displayName = "Depth";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.2f;
-    }
-}
-
-
-property_set GrungeMapProperty{
-
-    Float OverallWeight {            
-            description = "Set common blending weight factor for all textures blending. If zero the effect is disabled.";
-            displayName = "Grunge weight";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-    Int Randomize {
-            description = "When 0 - uses orginal image, otherwise generate random seamless image.";
-            displayName = "Randomize";
-            minValue=0;
-            maxValue=100;
-            stepValue=1;
-            value=0;
-    }
-    Float Scale {
-            description = "It scales the UVs of generated image. Value 1 is neutral.";
-            displayName = "Scale";
-            minValue=0.0f;
-            maxValue=4.0f;
-            stepValue=0.01f;
-            value=1.0f;
-    }
-    Float NormalWarp {
-            description = "Warps grunge texture pixels along normals of normal texture.";
-            displayName = "Normal warp";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-    QString Patterns{
-       description = "<p>Load predefined grunge map from list. <span style='font-weight:600;'>Note</span> that predefined grunge textures are located in <span style='font-weight:600;'>Core/2D/grunge</span> folder. You can paste there your own images in oder to make your own list of grunge images.</p>";
-       displayName = "Patterns";
-       value = first_grunge_map();
-
-       delegate List
-       {
-            items = QStringList() << "one" << "two" << "three" << "four";
-           //items = init_grunge_maps();
-       }
-    }
-    Bool RandomTranslations {
-            description = "Add random translations when randomization is enabled. ";
-            displayName = "Rand. Translations";
-            value=false;
-    }
-    Bool ReplotAll {
-            description = "Compute all the texture is one of the Grunge parameters was changed. For large images this will slow down the program. Otherwise each time you change something here you have to click Replot All to apply these changes to other textures.";
-            displayName = "Replot All";
-            value=false;
-    }
-}
-
-
-
-
-property_set GrungeOnImageProperty{
-
-    Enum BlendingMode
+property_set SurfaceDetailsProperty
+{
+    Bool EnableSurfaceDetails
     {
-
-      displayName = "Blending mode";
-      description = "Blending modes are same as in GIMP program.";
-      enumInfo = &BLENDINGMODE::info();
-      value = BLENDINGMODE::blendNormal;
-    }
-
-    Float ImageWeight {
-            description = "Choose image weight";
-            displayName = "Image weight";
-
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.5f;
-            state = QtnPropertyStateInvisible;
-    }
-    Float GrungeWeight {
-            description = "Choose grunge texture weight";
-            displayName = "Grunge weight";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-
-}
-
-property_set NormalsMixerProperty{
-
-    Bool EnableMixer
-    {
-
-      description = "It allows to blend normal compoments between current normal image and another one.";
-      displayName = "Enable";
-      value = false;
+        displayName = "Enable";
+        description = "Applies difference of gaussian filter (gimp DOG filter). This tool can be used to generated Specular, Roughness or Metallic maps.";
+        value = false;
         slot propertyDidChange
         {
-             NormalImage.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             PasteFromClipboard.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             Depth.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             Scale.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             Angle.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             PosX.switchState(QtnPropertyStateInvisible, !EnableMixer);
-             PosY.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            WeightA.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
+            WeightB.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
+            Radius.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
+            Contrast.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
+            Amplifier.switchState(QtnPropertyStateInvisible, !EnableSurfaceDetails);
+        }
+    }
+    Float WeightA
+    {
+        displayName = "Radius A";
+        description = "Radius of the first gaussian";
+        minValue = 0.0f;
+        maxValue = 40.0f;
+        stepValue = 0.1f;
+        value = 0.0f;
+    }
+    Float WeightB
+    {
+        displayName = "Radius B";
+        description = "Radius of the second gaussian";
+        minValue = 0.0f;
+        maxValue = 40.0f;
+        stepValue = 0.1f;
+        value = 30.0f;
+    }
+    Int Radius
+    {
+        displayName = "Maximum radius";
+        description = "Maximal blur radius. Usually it is greater than Radius A and Weight B. But here you can choose any value.";
+        minValue = 0;
+        maxValue = 40;
+        stepValue = 1;
+        value = 30;
+    }
+    Float Contrast
+    {
+        displayName = "Contrast";
+        description = "It changes the contrast of the image.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+    }
+    Float Amplifier
+    {
+        displayName = "Amplifier";
+        description = "Scale the current value of the color by a number Scale";
+        minValue = -10.0f;
+        maxValue = 10.0f;
+        stepValue = 0.1f;
+        value = 1.0f;
+    }
+}
 
+// Ambient occlusion settings
+property_set AOProperty
+{
+    Int NumIters
+    {
+        displayName = "Radius";
+        description = "Radius of the mask. Large number will lead to poor performance. For small images (about 1024x1024) this should not be a problem, but for larger you should use this parameter carefully.";
+        minValue = 0;
+        maxValue = 50;
+        stepValue = 1;
+        value = 10;
+    }
+    Float Intensity
+    {
+        displayName = "Intensity";
+        description = "Intensity of the AO effect.";
+        minValue = 0.0f;
+        maxValue = 5.0f;
+        stepValue = 0.01f;
+        value = 0.5f;
+    }
+    Float Bias
+    {
+        displayName = "Bias";
+        description = "This is another parameter which allows you to control the contrast of the image.";
+        minValue = -4.0f;
+        maxValue = 4.0f;
+        stepValue = 0.01f;
+        value = -1.5f;
+    }
+    Float Depth
+    {
+        displayName = "Depth";
+        description = "It changes the scale of the effect. ";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.2f;
+    }
+}
+
+property_set GrungeMapProperty
+{
+    Float OverallWeight
+    {
+        displayName = "Grunge weight";
+        description = "Set common blending weight factor for all textures blending. If zero the effect is disabled.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+    }
+    Int Randomize
+    {
+        displayName = "Randomize";
+        description = "When 0 - uses orginal image, otherwise generate random seamless image.";
+        minValue = 0;
+        maxValue = 100;
+        stepValue = 1;
+        value = 0;
+    }
+    Float Scale
+    {
+        displayName = "Scale";
+        description = "It scales the UVs of generated image. Value 1 is neutral.";
+        minValue = 0.0f;
+        maxValue = 4.0f;
+        stepValue = 0.01f;
+        value = 1.0f;
+    }
+    Float NormalWarp
+    {
+        displayName = "Normal warp";
+        description = "Warps grunge texture pixels along normals of normal texture.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+    }
+    QString Patterns
+    {
+        displayName = "Patterns";
+        description = "<p>Load predefined grunge map from list. <span style='font-weight:600;'>Note</span> that predefined grunge textures are located in <span style='font-weight:600;'>Core/2D/grunge</span> folder. You can paste there your own images in oder to make your own list of grunge images.</p>";
+        value = first_grunge_map();
+        delegate List
+        {
+            items = init_grunge_maps();
+        }
+    }
+    Bool RandomTranslations
+    {
+        displayName = "Random Translations";
+        description = "Add random translations when randomization is enabled. ";
+        value = false;
+    }
+    Bool ReplotAll
+    {
+        displayName = "Replot All";
+        description = "Compute all the texture is one of the Grunge parameters was changed. For large images this will slow down the program. Otherwise each time you change something here you have to click Replot All to apply these changes to other textures.";
+        value = false;
+    }
+}
+
+property_set GrungeOnImageProperty
+{
+    Enum BlendingMode
+    {
+        displayName = "Blending mode";
+        description = "Blending modes are same as in GIMP program.";
+        enumInfo = &BLENDINGMODE::info();
+        value = BLENDINGMODE::blendNormal;
+    }
+    Float ImageWeight
+    {
+        displayName = "Image weight";
+        description = "Choose image weight";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.5f;
+        state = QtnPropertyStateInvisible;
+    }
+    Float GrungeWeight
+    {
+        displayName = "Grunge weight";
+        description = "Choose grunge texture weight";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+    }
+}
+
+property_set NormalsMixerProperty
+{
+    Bool EnableMixer
+    {
+        displayName = "Enable";
+        description = "It allows to blend normal compoments between current normal image and another one.";
+        value = false;
+        slot propertyDidChange
+        {
+            NormalImage.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            PasteFromClipboard.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            Depth.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            Scale.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            Angle.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            PosX.switchState(QtnPropertyStateInvisible, !EnableMixer);
+            PosY.switchState(QtnPropertyStateInvisible, !EnableMixer);
         }
     }
     QString NormalImage
     {
-
         displayName = "Image path";
         description = "Click and open the normal image.";
         value = "";
@@ -480,600 +494,613 @@ property_set NormalsMixerProperty{
             nameFilters = QStringList() << "All Images (*.png *.jpg  *.tga *.jpeg *.bmp  *.tif);; Images (*.png);; Images (*.jpg);; Images (*.tga);; Images (*.jpeg);; Images (*.bmp);; Images (*.tif);; All files (*.*)";
         }
     }
-
     Button PasteFromClipboard
     {
-       displayName = "Paste from Clipboard";
-       description = "Paste from Clipboard";
-
-       delegate { title = "Paste from Clipboard"; }
+        displayName = "Paste from Clipboard";
+        description = "Paste from Clipboard";
+        delegate
+        {
+            title = "Paste from Clipboard";
+        }
     }
-
-    Float Depth {
-            displayName = "Weight";
-            description = "If Weight is equal to zero, the image is not affected. For greater values the linear mixing is applied between original normal map and seleted.";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float Depth
+    {
+        displayName = "Weight";
+        description = "If Weight is equal to zero, the image is not affected. For greater values the linear mixing is applied between original normal map and seleted.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float Scale{
-            description = "Loaded texture UV scale factor.";
-            displayName = "Scale";
-            minValue=0.0f;
-            maxValue=5.0f;
-            stepValue=0.01f;
-            value=1.0f;
+    Float Scale
+    {
+        displayName = "Scale";
+        description = "Loaded texture UV scale factor.";
+        minValue = 0.0f;
+        maxValue = 5.0f;
+        stepValue = 0.01f;
+        value = 1.0f;
     }
-    Float Angle{
-            description = "Rotates the normal map by angle";
-            displayName = "Angle";
-            minValue=0.0f;
-            maxValue=360.0f;
-            stepValue=1.0f;
-            value=0.0f;
+    Float Angle
+    {
+        displayName = "Angle";
+        description = "Rotates the normal map by angle";
+        minValue = 0.0f;
+        maxValue = 360.0f;
+        stepValue = 1.0f;
+        value = 0.0f;
     }
-    Float PosX{
-            description = "Shifts the image in X direction.";
-            displayName = "X position";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float PosX
+    {
+        displayName = "X position";
+        description = "Shifts the image in X direction.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float PosY{
-            description = "Shifts the image in Y direction.";
-            displayName = "Y position";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float PosY
+    {
+        displayName = "Y position";
+        description = "Shifts the image in Y direction.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
 }
 
 property_set ConvertsionBaseMapLevelProperty
 {
-
-
-    Float PreSmoothRadius{
-            description = "Apply presmoothing of the diffuse image.";
-            displayName = "Blur radius";
-            minValue=0.0f;
-            maxValue=10.0f;
-            stepValue=1.0f;
-            value=0.0f;
+    Float PreSmoothRadius
+    {
+        displayName = "Blur radius";
+        description = "Apply presmoothing of the diffuse image.";
+        minValue = 0.0f;
+        maxValue = 10.0f;
+        stepValue = 1.0f;
+        value = 0.0f;
     }
-    Float FilterRadius{
-            description = "Radius of blur operation for generated normal texture.";
-            displayName = "Normal blur";
-            minValue=0.0f;
-            maxValue=10.0f;
-            stepValue=1.0f;
-            value=0.0f;
+    Float FilterRadius
+    {
+        displayName = "Normal blur";
+        description = "Radius of blur operation for generated normal texture.";
+        minValue = 0.0f;
+        maxValue = 10.0f;
+        stepValue=1.0f;
+        value = 0.0f;
     }
-    Int NumIters{
-            description = "Number of iterations for Normal Blur operation. If zero pure Sobel operator is used.";
-            displayName = "Num. repeats";
-            minValue=0;
-            maxValue=20;
-            stepValue=1;
-            value=1;
+    Int NumIters
+    {
+        displayName = "Iterations";
+        description = "Number of iterations for Normal Blur operation. If zero pure Sobel operator is used.";
+        minValue = 0;
+        maxValue = 20;
+        stepValue = 1;
+        value = 1;
     }
-    Float Amplitude{
-            description = "Set the amplitude of the normals. Sometimes very small value of the amplitude parameter helps to obtain better image. Don't worry if the image you see is totally blue. You can change the normal step parameter after conversion in the normal tab.";
-            displayName = "Scale";
-            minValue=-10.0f;
-            maxValue=10.0f;
-            stepValue=0.1f;
-            value=-1.0f;
+    Float Amplitude
+    {
+        displayName = "Amplitude";
+        description = "Set the amplitude of the normals. Sometimes very small value of the amplitude parameter helps to obtain better image. Don't worry if the image you see is totally blue. You can change the normal step parameter after conversion in the normal tab.";
+        minValue = -10.0f;
+        maxValue = 10.0f;
+        stepValue = 0.1f;
+        value = -1.0f;
     }
-    Float Flatness{
-            description = "Makes rounded shapes more flaten. If 0 the image is not affected.";
-            displayName = "Flatness";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float Flatness
+    {
+        displayName = "Flatness";
+        description = "Makes rounded shapes more flaten. If 0 the image is not affected.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float Edges{
-            description = "Set the blending with the non processed normal image (ie. base image after sobel operator applied). This parameter changes the weight of the blending on edges. ";
-            displayName = "Edges";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float Edges
+    {
+        displayName = "Edges";
+        description = "Set the blending with the non processed normal image (ie. base image after sobel operator applied). This parameter changes the weight of the blending on edges. ";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float Blending{
-            description = "Set the blending with the non processed normal image (ie. base image after sobel operator applied) but here standart mixing is applied.";
-            displayName = "Blending";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.5f;
+    Float Blending
+    {
+        displayName = "Blending";
+        description = "Set the blending with the non processed normal image (ie. base image after sobel operator applied) but here standart mixing is applied.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.5f;
     }
 }
 
-property_set BaseMapToOthersProperty{
-    description = "Enable this tool to convert current Diffuse image to other textures. Remember to disable it each time you do not want to use it.";
+property_set BaseMapToOthersProperty
+{
     displayName = "Convert Diffuse to Other";
+    description = "Enable this tool to convert current Diffuse image to other textures. Remember to disable it each time you do not want to use it.";
     Bool EnableConversion
     {
-            description = "Enable conversion. If enabled, you have to click Convert button to generate all the textures.";
-            displayName = "Enable preview";
-            value = false;
-            slot propertyDidChange
-            {
-                ImageDetails.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                //CurrentLevel.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                EnableHeightPreview.switchState(QtnPropertyStateInvisible, !EnableConversion);
-
-                WeightSmall.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                WeightMedium.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                WeightBig.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                WeightHuge.switchState(QtnPropertyStateInvisible, !EnableConversion);
-
-                AngleWeight.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                AngleCorrection.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                MinColor.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                MaxColor.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                ColorBalance.switchState(QtnPropertyStateInvisible, !EnableConversion);
-                Convert.switchState(QtnPropertyStateInvisible, !EnableConversion);
-            }
+        description = "Enable conversion. If enabled, you have to click Convert button to generate all the textures.";
+        displayName = "Enable preview";
+        value = false;
+        slot propertyDidChange
+        {
+            ImageDetails.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            EnableHeightPreview.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            WeightSmall.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            WeightMedium.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            WeightBig.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            WeightHuge.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            AngleWeight.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            AngleCorrection.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            MinColor.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            MaxColor.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            ColorBalance.switchState(QtnPropertyStateInvisible, !EnableConversion);
+            Convert.switchState(QtnPropertyStateInvisible, !EnableConversion);
+        }
     }
     Bool EnableHeightPreview
     {
-            displayName = "Preview Height";
-            description = "Show height texture instead of normal texture. Calculation of height texture is quite demanding so this option is not suggested for large images.";
-            value = false;
+        displayName = "Preview Height";
+        description = "Show height texture instead of normal texture. Calculation of height texture is quite demanding so this option is not suggested for large images.";
+        value = false;
     }
-
-    Float WeightSmall{
-            description = "Weight of Small details. Change Details size to change settings for Small details.";
-            displayName = "Small details";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=1.0f;
+    Float WeightSmall
+    {
+        displayName = "Small details";
+        description = "Weight of Small details. Change Details size to change settings for Small details.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 1.0f;
     }
-    Float WeightMedium{
-            description = "Weight of Medium details. Change Details size to change settings for Medium details.";
-            displayName = "Medium details";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float WeightMedium
+    {
+        displayName = "Medium details";
+        description = "Weight of Medium details. Change Details size to change settings for Medium details.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float WeightBig{
-            description = "Weight of Big details. Change Details size to change settings for Big details.";
-            displayName = "Big details";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float WeightBig
+    {
+        displayName = "Big details";
+        description = "Weight of Big details. Change Details size to change settings for Big details.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float WeightHuge{
-            description = "Weight of Huge details. Change Details size to change settings for Huge details.";
-            displayName = "Huge details";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
+    Float WeightHuge
+    {
+        displayName = "Huge details";
+        description = "Weight of Huge details. Change Details size to change settings for Huge details.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-
     Enum ImageDetails
     {
-            displayName = "Details size";
-            description = "Select from the list to edit conversion parameters for different details size. For example, small means high frequency details. Big and Huge details settings are usefull for large images i.e. bigger than 2048x2048.";
-            enumInfo = &BASEMAPDETAIL::info();
-            value    = BASEMAPDETAIL::Small;
-            slot propertyDidChange
+        displayName = "Details size";
+        description = "Select from the list to edit conversion parameters for different details size. For example, small means high frequency details. Big and Huge details settings are usefull for large images i.e. bigger than 2048x2048.";
+        enumInfo = &BASEMAPDETAIL::info();
+        value    = BASEMAPDETAIL::Small;
+        slot propertyDidChange
+        {
+            switch (ImageDetails)
             {
-                switch(ImageDetails){
-                    case(BASEMAPDETAIL::Small):
-                        LevelSmall.switchState(QtnPropertyStateInvisible, !true || !EnableConversion);
-                        LevelMedium.switchState(QtnPropertyStateInvisible,  true);
-                        LevelBig.switchState(QtnPropertyStateInvisible,  true);
-                        LevelHuge.switchState(QtnPropertyStateInvisible,  true);
-                    break;
-                    case(BASEMAPDETAIL::Medium):
-                        LevelSmall.switchState(QtnPropertyStateInvisible, true);
-                        LevelMedium.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
-                        LevelBig.switchState(QtnPropertyStateInvisible,  true);
-                        LevelHuge.switchState(QtnPropertyStateInvisible,  true);
-                    break;
-                    case(BASEMAPDETAIL::Big):
-                        LevelSmall.switchState(QtnPropertyStateInvisible, true);
-                        LevelMedium.switchState(QtnPropertyStateInvisible,  true);
-                        LevelBig.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
-                        LevelHuge.switchState(QtnPropertyStateInvisible,  true);
-                    break;
-                    case(BASEMAPDETAIL::Huge):
-                        LevelSmall.switchState(QtnPropertyStateInvisible, true);
-                        LevelMedium.switchState(QtnPropertyStateInvisible,  true);
-                        LevelBig.switchState(QtnPropertyStateInvisible,  true);
-                        LevelHuge.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
-                    break;
-                }
+            case (BASEMAPDETAIL::Small):
+                LevelSmall.switchState(QtnPropertyStateInvisible, !true || !EnableConversion);
+                LevelMedium.switchState(QtnPropertyStateInvisible,  true);
+                LevelBig.switchState(QtnPropertyStateInvisible,  true);
+                LevelHuge.switchState(QtnPropertyStateInvisible,  true);
+                break;
+            case (BASEMAPDETAIL::Medium):
+                LevelSmall.switchState(QtnPropertyStateInvisible, true);
+                LevelMedium.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
+                LevelBig.switchState(QtnPropertyStateInvisible,  true);
+                LevelHuge.switchState(QtnPropertyStateInvisible,  true);
+                break;
+            case (BASEMAPDETAIL::Big):
+                LevelSmall.switchState(QtnPropertyStateInvisible, true);
+                LevelMedium.switchState(QtnPropertyStateInvisible,  true);
+                LevelBig.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
+                LevelHuge.switchState(QtnPropertyStateInvisible,  true);
+                break;
+            case (BASEMAPDETAIL::Huge):
+                LevelSmall.switchState(QtnPropertyStateInvisible, true);
+                LevelMedium.switchState(QtnPropertyStateInvisible,  true);
+                LevelBig.switchState(QtnPropertyStateInvisible,  true);
+                LevelHuge.switchState(QtnPropertyStateInvisible,  !true || !EnableConversion);
+                break;
             }
+        }
     }
-
     extern property_set ConvertsionBaseMapLevelProperty LevelSmall
     {
-            displayName = "Small details";
-            description = "Small details";
-            state = QtnPropertyStateInvisible;
+        displayName = "Small details";
+        description = "Small details";
+        state = QtnPropertyStateInvisible;
     }
     extern property_set ConvertsionBaseMapLevelProperty LevelMedium
     {
-            displayName = "Medium details";
-            description = "Medium details";
-            state = QtnPropertyStateInvisible;
+        displayName = "Medium details";
+        description = "Medium details";
+        state = QtnPropertyStateInvisible;
     }
     extern property_set ConvertsionBaseMapLevelProperty LevelBig
     {
-            displayName = "Big details";
-            description = "Big details";
-            state = QtnPropertyStateInvisible;
+        displayName = "Big details";
+        description = "Big details";
+        state = QtnPropertyStateInvisible;
     }
     extern property_set ConvertsionBaseMapLevelProperty LevelHuge
     {
-            displayName = "Huge details";
-            description = "Huge details";
-            state = QtnPropertyStateInvisible;
+        displayName = "Huge details";
+        description = "Huge details";
+        state = QtnPropertyStateInvisible;
     }
-    Float AngleWeight{
-            displayName = "AC: Weight";
-            description = "Angle Correction (AC) weight parameter. If 0 the image is not affected. if > 0 it rotates the component of normal map by AC: Light Angle in order to compensate the effect of directional lightning present in the image.";
-            minValue=-5.0f;
-            maxValue=5.0f;
-            stepValue=0.1f;
-            value=0.0f;        
+    Float AngleWeight
+    {
+        displayName = "AC: Weight";
+        description = "Angle Correction (AC) weight parameter. If 0 the image is not affected. if > 0 it rotates the component of normal map by AC: Light Angle in order to compensate the effect of directional lightning present in the image.";
+        minValue = -5.0f;
+        maxValue = 5.0f;
+        stepValue = 0.1f;
+        value = 0.0f;
     }
-
-    Float AngleCorrection{
-            displayName = "AC: Light angle";
-            description = "Points the direction of the which cause the shadows in the image. It does not affect the texture if AC: Weight is equal to 0.";
-            minValue=0.0f;
-            maxValue=360.0f;
-            stepValue=1.0f;
-            value=0.0f;
+    Float AngleCorrection
+    {
+        displayName = "AC: Light angle";
+        description = "Points the direction of the which cause the shadows in the image. It does not affect the texture if AC: Weight is equal to 0.";
+        minValue = 0.0f;
+        maxValue = 360.0f;
+        stepValue=1.0f;
+        value = 0.0f;
     }
-
-    Float ColorBalance{
-            description = "Color Balance (CB) tool, uses selected colors (Min. and Max. parameters) to force height texture to be zero around Min. Color and one around Max. Color. If Weight is equal to zero the image is not affected by CB tool.";
-            displayName = "CB: Weight";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-
+    Float ColorBalance
+    {
+        displayName = "CB: Weight";
+        description = "Color Balance (CB) tool, uses selected colors (Min. and Max. parameters) to force height texture to be zero around Min. Color and one around Max. Color. If Weight is equal to zero the image is not affected by CB tool.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
     ABColor MinColor
     {
-        description = "Select the color which can be interpreted as the minumum height (elevation) in the image.";
         displayName = "CB: Min.";
+        description = "Select the color which can be interpreted as the minumum height (elevation) in the image.";
         value = QColor(0, 0, 0);
-        resetCallback = [this](QtnPropertyBase&){
+        resetCallback = [this](QtnPropertyBase&)
+        {
             MinColor = Qt::black;
         };
-        delegate { rgbSubItems = true; }
+        delegate
+        {
+            rgbSubItems = true;
+        }
     }
     ABColor MaxColor
     {
-        description = "Select the color which can be interpreted as the maximum height (elevation) in the image.";
         displayName = "CB: Max.";
+        description = "Select the color which can be interpreted as the maximum height (elevation) in the image.";
         value = QColor(255, 255, 255);
-        resetCallback = [this](QtnPropertyBase&){
+        resetCallback = [this](QtnPropertyBase&)
+        {
             MaxColor = Qt::white;
         };
-        delegate { rgbSubItems = true; }
+        delegate
+        {
+            rgbSubItems = true;
+        }
     }
-
     Button Convert
     {
-       description = "Create all the textures based on current diffuse image.";
-       delegate { title = "Convert"; }
+        description = "Create all the textures based on current diffuse image.";
+        delegate
+        {
+            title = "Convert";
+        }
     }
 }
 
-property_set RMColorFilterProperty{
+property_set RMColorFilterProperty
+{
     Bool InvertColors
     {
-            description = "Invert Colors";
-            displayName = "Invert color";
-            value = false;
+        displayName = "Invert color";
+        description = "Invert Colors";
+        value = false;
     }
     ABColor PickColor
     {
         displayName = "Pick Color";
         description = "Pick pixel from the image. Selected color is then used to affect Roughness/Metallic texture.";
         value = QColor(0, 0, 0);
-        resetCallback = [this](QtnPropertyBase&){
+        resetCallback = [this](QtnPropertyBase&)
+        {
             PickColor = Qt::black;
         };
-        delegate { rgbSubItems = true; }
+        delegate
+        {
+            rgbSubItems = true;
+        }
     }
     Enum Method
     {
-
-            description = "Choose between available color comparison methods.";
-            displayName = "Method";
-            enumInfo = &COLOR_FILTER_METHOD::info();
-            value    = COLOR_FILTER_METHOD::Distance;
+        displayName = "Method";
+        description = "Choose between available color comparison methods.";
+        enumInfo = &COLOR_FILTER_METHOD::info();
+        value = COLOR_FILTER_METHOD::Distance;
     }
-
-    Float Bias{
-            description = "Offset pixel color before comparison test.";
-            displayName = "Bias";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=-0.2f;
+    Float Bias
+    {
+        displayName = "Bias";
+        description = "Offset pixel color before comparison test.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = -0.2f;
     }
-
-    Float Amplifier{
-            description = "Amplify the effect";
-            displayName = "Amplifier";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.1f;
+    Float Amplifier
+    {
+        displayName = "Amplifier";
+        description = "Amplify the effect";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.1f;
     }
-
-    Float Offset{
-            description = "Shift obtained image by a constant number.";
-            displayName = "Offset";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-}
-
-property_set RMNoiseFilterProperty{
-
-    Float Depth{
-            description = "Changes range of the effect.";
-            displayName = "Depth";
-            minValue=0.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.2f;
-    }
-
-    Float Treshold{
-            description = "It sets the cutoff level of roughness. Lower values will lead to higher rgouhness level.";
-            displayName = "Treshold";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.0f;
-    }
-
-    Float Amplifier{
-            description = "Amplifies the effect.";
-            displayName = "Amplifier";
-            minValue=-1.0f;
-            maxValue=1.0f;
-            stepValue=0.01f;
-            value=0.1f;
+    Float Offset
+    {
+        displayName = "Offset";
+        description = "Shift obtained image by a constant number.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
 }
 
+property_set RMNoiseFilterProperty
+{
+    Float Depth
+    {
+        displayName = "Depth";
+        description = "Changes range of the effect.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.2f;
+    }
+    Float Treshold
+    {
+        displayName = "Treshold";
+        description = "It sets the cutoff level of roughness. Lower values will lead to higher rgouhness level.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+    }
+    Float Amplifier
+    {
+        displayName = "Amplifier";
+        description = "Amplifies the effect.";
+        minValue = -1.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.1f;
+    }
+}
 
-property_set RMFilterProperty{
-
+property_set RMFilterProperty
+{
     Enum Filter
     {
-            description = "Choose filter type";
-            displayName = "Filter";
-            enumInfo = &COLOR_FILTER::info();
-            value    = COLOR_FILTER::None;
-
-            slot propertyDidChange
+        displayName = "Filter";
+        description = "Choose filter type";
+        enumInfo = &COLOR_FILTER::info();
+        value = COLOR_FILTER::None;
+        slot propertyDidChange
+        {
+            switch(Filter)
             {
-                switch(Filter){
-                    case(COLOR_FILTER::None):
-                        NoiseFilter.switchState(QtnPropertyStateInvisible,  true);
-                        ColorFilter.switchState(QtnPropertyStateInvisible,  true);
-                    break;
-                    case(COLOR_FILTER::Noise):
-                        NoiseFilter.switchState(QtnPropertyStateInvisible, !true);
-                        ColorFilter.switchState(QtnPropertyStateInvisible,  true);
-                    break;
-                    case(COLOR_FILTER::Color):
-                        NoiseFilter.switchState(QtnPropertyStateInvisible, true);
-                        ColorFilter.switchState(QtnPropertyStateInvisible, !true);
-                    break;
-                }
+            case (COLOR_FILTER::None):
+                NoiseFilter.switchState(QtnPropertyStateInvisible,  true);
+                ColorFilter.switchState(QtnPropertyStateInvisible,  true);
+                break;
+            case (COLOR_FILTER::Noise):
+                NoiseFilter.switchState(QtnPropertyStateInvisible, !true);
+                ColorFilter.switchState(QtnPropertyStateInvisible,  true);
+                break;
+            case (COLOR_FILTER::Color):
+                NoiseFilter.switchState(QtnPropertyStateInvisible, true);
+                ColorFilter.switchState(QtnPropertyStateInvisible, !true);
+                break;
             }
+        }
     }
-
     extern property_set RMNoiseFilterProperty NoiseFilter
     {
-            description = "Noise Filter: Calculates the noise in the image and as a result flat areas become dark.";
-            displayName = "Noise Filter";
-            state = QtnPropertyStateInvisible;
+        displayName = "Noise Filter";
+        description = "Noise Filter: Calculates the noise in the image and as a result flat areas become dark.";
+        state = QtnPropertyStateInvisible;
     }
     extern property_set RMColorFilterProperty ColorFilter
     {
-            description = "Color Filter: Estimate Roughness/Metallic based on selected pixel color";
-            displayName = "Color Filter";
-            state = QtnPropertyStateInvisible;
+        displayName = "Color Filter";
+        description = "Color Filter: Estimate Roughness/Metallic based on selected pixel color";
+        state = QtnPropertyStateInvisible;
     }
-
 }
 
 property_set BasicProperty
 {
     extern property_set GrayScaleProperty GrayScale
     {
-        description = "Gray scale";
         displayName = "Gray Scale";
+        description = "Gray scale";
         state = QtnPropertyStateInvisible;
     }
 
     extern property_set ColorComponentsProperty ColorComponents
     {
-        description = "Components";
         displayName = "Components";
+        description = "Components";
         state = QtnPropertyStateCollapsed;
     }
-
-
-    Float ColorHue {
-            description = "Change color hue";
-            displayName = "Hue";
-            minValue=0;
-            maxValue=1.f;
-            stepValue=0.01f;
-            value=0;
-            state = QtnPropertyStateInvisible;
+    Float ColorHue
+    {
+        displayName = "Hue";
+        description = "Change color hue";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
+        state = QtnPropertyStateInvisible;
     }
-
-
-    Int EnhanceDetails {
-            description = "Enhance colors";
-            displayName = "Enhance details";
-            minValue=0;
-            maxValue=10;
-            stepValue=1;
-            value=0;
+    Int EnhanceDetails
+    {
+        displayName = "Enhance details";
+        description = "Enhance colors";
+        minValue = 0;
+        maxValue = 10;
+        stepValue = 1;
+        value = 0;
     }
-    Float SmallDetails {            
-            displayName = "Small details";
-            description = "Enhance small details. This option is connected with <span 	style=\" font-weight:600;\">Depth</span> scroll bar. </p><p>Note that if <span style=\" font-	weight:600;\">Depth</span> scroll bar is set to zero, this parameter does not affect the image.</p>";
-            minValue=0;
-            maxValue=1.f;
-            stepValue=0.01f;
-            value=0;
+    Float SmallDetails
+    {
+        displayName = "Small details";
+        description = "Enhance small details. This option is connected with <span 	style=\" font-weight:600;\">Depth</span> scroll bar. </p><p>Note that if <span style=\" font-	weight:600;\">Depth</span> scroll bar is set to zero, this parameter does not affect the image.</p>";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-    Float MediumDetails {        
-            displayName = "Medium details";
-            description = "The same as above.";
-            minValue=0;
-            maxValue=1.f;
-            stepValue=0.01f;
-            value=0;
+    Float MediumDetails {
+        displayName = "Medium details";
+        description = "The same as above.";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.0f;
     }
-
-    Float DetailDepth {        
-            displayName = "Details depth";
-            description = "<p>It changes the depth of the <span style=\" font-weight:600;	\">Small details</span> and <span style=\" font-weight:600;\">Medium details</span> effect.</p>";
-            minValue=0;
-            maxValue=1.f;
-            stepValue=0.01f;
-            value=0.1f;
+    Float DetailDepth
+    {
+        displayName = "Details depth";
+        description = "<p>It changes the depth of the <span style=\" font-weight:600;	\">Small details</span> and <span style=\" font-weight:600;\">Medium details</span> effect.</p>";
+        minValue = 0.0f;
+        maxValue = 1.0f;
+        stepValue = 0.01f;
+        value = 0.1f;
     }
-
-    Int SharpenBlur {            
-            displayName = "Sharpen/Blur";
-            description = "<p>Smooth or sharpen the image (it uses the gaussian 	distribution  in both cases).</p>";
-            minValue=-20;
-            maxValue=20;
-            stepValue=1;
-            value=0;
+    Int SharpenBlur
+    {
+        displayName = "Sharpen/Blur";
+        description = "<p>Smooth or sharpen the image (it uses the gaussian 	distribution  in both cases).</p>";
+        minValue = -20;
+        maxValue = 20;
+        stepValue = 1;
+        value = 0;
     }
-    Float NormalsStep {
-            displayName = "Normal step";
-            description = "It changes the steepness of the normal image. For example 1 means that the image is not changed. 0 means that the image is completely flat.";
-            minValue=-5.0f;
-            maxValue=5.0f;
-            stepValue=0.05f;
-            value=1.0f;
-            state = QtnPropertyStateInvisible;
+    Float NormalsStep
+    {
+        displayName = "Normal step";
+        description = "It changes the steepness of the normal image. For example 1 means that the image is not changed. 0 means that the image is completely flat.";
+        minValue = -5.0f;
+        maxValue = 5.0f;
+        stepValue = 0.05f;
+        value = 1.0f;
+        state = QtnPropertyStateInvisible;
     }
-
-} // end of BasicProperty
+}
 
 property_set FormImageProp
 {
-    Int ImageType {
-           description = "ImageTyp";        
-           value = MAX_TEXTURES_TYPE;
-           state = QtnPropertyStateInvisible;
-
+    Int ImageType
+    {
+        description = "ImageTyp";
+        value = MAX_TEXTURES_TYPE;
+        state = QtnPropertyStateInvisible;
     }
     extern property_set GrungeOnImageProperty GrungeOnImage
     {
-        description = "Grunge settings";
         displayName = "Grunge";
+        description = "Grunge settings";
         state = QtnPropertyStateInvisible;
     }
     extern property_set GrungeMapProperty Grunge
     {
-        description = "Grunge";
         displayName = "Grunge";
+        description = "Grunge";
         state = QtnPropertyStateInvisible;
     }
     extern property_set BasicProperty Basic
     {
-        description = "Basic";
         displayName = "Basic";
+        description = "Basic";
         state = QtnPropertyStateInvisible;
     }
-
-    Bool EnableRemoveShading {
-           description = "Enable filter";
-           displayName = "Remove Shading";
-           value=false;
-           state = QtnPropertyStateInvisible;
-
-           slot propertyDidChange
-           {
-               RemoveShading.switchState(QtnPropertyStateInvisible, !EnableRemoveShading);
-           }
+    Bool EnableRemoveShading
+    {
+        displayName = "Remove Shading";
+        description = "Enable filter";
+        value = false;
+        state = QtnPropertyStateInvisible;
+        slot propertyDidChange
+        {
+            RemoveShading.switchState(QtnPropertyStateInvisible, !EnableRemoveShading);
+        }
     }
     extern property_set RemoveShadingProperty RemoveShading
     {
-        description = "";
         displayName = "Remove Shading";
         state = QtnPropertyStateInvisible;
     }
     extern property_set ColorLevelsProperty ColorLevels
     {
-        description = "Color levels ";
         displayName = "Color levels";
+        description = "Color levels";
         state = QtnPropertyStateInvisible;
     }
-
-
     extern property_set SurfaceDetailsProperty SurfaceDetails
     {
-        description = "Surface details tools";
         displayName = "Surface details";
+        description = "Surface details tools";
         state = QtnPropertyStateInvisible;
     }
-
-
     extern property_set AOProperty AO
     {
-        description = "Ambient occlusion";
         displayName = "Ambient Occlusion";
+        description = "Ambient occlusion";
         state = QtnPropertyStateInvisible;
     }
-
     extern property_set NormalsMixerProperty NormalsMixer
     {
-        description = "Normal mixer";
         displayName = "Normal Mixer";
+        description = "Normal mixer";
         state = QtnPropertyStateInvisible;
     }
-
     extern property_set BaseMapToOthersProperty BaseMapToOthers
     {
-        description = "Convert to other images";
         displayName = "Diffuse to Others";
+        description = "Convert to other images";
         state = QtnPropertyStateInvisible;
     }
     extern property_set RMFilterProperty RMFilter
     {
-        description = "Roughness/Mettalic processing";
         displayName = "Surface Filter";
+        description = "Roughness/Mettalic processing";
         state = QtnPropertyStateInvisible;
     }
-
-    extern property_set NormalHeightConvProperty NormalHeightConv{
+    extern property_set NormalHeightConvProperty NormalHeightConv
+    {
         state = QtnPropertyStateInvisible;
     }
 }
@@ -1081,147 +1108,190 @@ property_set FormImageProp
 // Collect all settings in one place to save them into file
 property_set AwesomeBump
 {
-    QString presetName{
+    QString presetName
+    {
         value = "Default";
     }
-    QString settings_name{
+    QString settings_name
+    {
         value = "Default";
     }
-    QString settings_description{
+    QString settings_description
+    {
         value = "...";
     }
-    QString settings_path{
+    QString settings_path
+    {
         value = "";
     }
-
-    Int d_win_w{
+    Int d_win_w
+    {
         value = 800;
     }
-    Int d_win_h{
+    Int d_win_h
+    {
         value = 600;
     }
-    Int tab_win_w{
+    Int tab_win_w
+    {
         value = 200;
     }
-    Int tab_win_h{
+    Int tab_win_h
+    {
         value = 600;
     }
-    QString d_postfix{
+    QString d_postfix
+    {
         value = "_d";
     }
-    QString n_postfix{
+    QString n_postfix
+    {
         value = "_n";
     }
-    QString s_postfix{
+    QString s_postfix
+    {
         value = "_s";
     }
-    QString h_postfix{
+    QString h_postfix
+    {
         value = "_h";
     }
-    QString o_postfix{
+    QString o_postfix
+    {
         value = "_o";
     }
-    QString m_postfix{
+    QString m_postfix
+    {
         value = "_m";
     }
-    QString r_postfix{
+    QString r_postfix
+    {
         value = "_r";
     }
-    QString recent_dir{
+    QString recent_dir
+    {
         value = "";
     }
-    QString recent_mesh_dir{
+    QString recent_mesh_dir
+    {
         value = "";
     }
-    Bool use_texture_interpolation{
+    Bool use_texture_interpolation
+    {
         value = true;
     }
-    QString gui_style{
+    QString gui_style
+    {
         value = "default";
     }
-    Int uv_tiling_type{
+    Int uv_tiling_type
+    {
         value = 0;
     }
-    Int uv_tiling_radius{
+    Int uv_tiling_radius
+    {
         value = 50;
     }
-    Bool uv_tiling_mirror_x{
+    Bool uv_tiling_mirror_x
+    {
         value = false;
     }
-    Bool uv_tiling_mirror_y{
+    Bool uv_tiling_mirror_y
+    {
         value = false;
     }
-    Bool uv_tiling_mirror_xy{
+    Bool uv_tiling_mirror_xy
+    {
         value = true;
     }
-    Int uv_tiling_random_inner_radius{
+    Int uv_tiling_random_inner_radius
+    {
         value = 50;
     }
-    Int uv_tiling_random_outer_radius{
+    Int uv_tiling_random_outer_radius
+    {
         value = 50;
     }
-    Int uv_tiling_random_rotate{
+    Int uv_tiling_random_rotate
+    {
         value = 0;
     }
-    Bool uv_tiling_simple_dir_xy{
+    Bool uv_tiling_simple_dir_xy
+    {
         value = true;
     }
-    Bool uv_tiling_simple_dir_x{
+    Bool uv_tiling_simple_dir_x
+    {
         value = false;
     }
-    Bool uv_tiling_simple_dir_y{
+    Bool uv_tiling_simple_dir_y
+    {
         value = false;
     }
-    Bool uv_translations_first{
+    Bool uv_translations_first
+    {
         value = true;
     }
-    Float uv_contrast_strength{
+    Float uv_contrast_strength
+    {
         value = 0.0;
     }
-    Float uv_contrast_power{
+    Float uv_contrast_power
+    {
         value = 0.0;
     }
-    Int uv_contrast_input_image{
+    Int uv_contrast_input_image
+    {
         value = 0;
     }
-    Int mouse_sensitivity{
+    Int mouse_sensitivity
+    {
         value = 50;
     }
-    Int font_size{
+    Int font_size
+    {
         value = 10;
     }
-    QColor slider_font_color{
+    QColor slider_font_color
+    {
         value = QColor(0,0,0);
     }
-    Bool mouse_loop{
+    Bool mouse_loop
+    {
         value = true;
     }
-
-    Float depth_3d{
+    Float depth_3d
+    {
         value = 0.25;
     }
-    Bool bUseCullFace{
+    Bool bUseCullFace
+    {
         value = false;
     }
-    Bool bUseSimplePBR{
+    Bool bUseSimplePBR
+    {
         value = false;
     }
-    Bool bBloomEffect{
+    Bool bBloomEffect
+    {
         value = true;
     }
-    Bool bDofEffect{
+    Bool bDofEffect
+    {
         value = true;
     }
-    Bool bLensFlaresEffect{
+    Bool bLensFlaresEffect
+    {
         value = true;
     }
-    Int noPBRRays{
+    Int noPBRRays
+    {
         value = 5;
     }
-    Int noTessSubdivision{
+    Int noTessSubdivision
+    {
         value = 8;
     }
-
     extern property_set FormImageProp Diffuse;
     extern property_set FormImageProp Specular;
     extern property_set FormImageProp Normal;
