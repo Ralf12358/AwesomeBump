@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS += QtnProperty\
-           Sources
-Sources.depends = QtnProperty
+SUBDIRS += \
+	AwesomeBump \
+	QtnProperty\
+           
+AwesomeBump.depends = QtnProperty
