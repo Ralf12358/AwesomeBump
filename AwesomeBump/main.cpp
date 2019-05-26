@@ -5,11 +5,9 @@
 #include "mainwindow.h"
 #include "splashscreen.h"
 
-#define SplashImage ":/resources/logo/splash.png"
 #define GL_MAJOR 4
 #define GL_MINOR 0
 #define VERSION_STRING "6.0"
-#define RESOURCE_BASE "./"
 
 // Register delegates.
 extern void regABSliderDelegates();
@@ -24,7 +22,7 @@ int main(int argc, char *argv[])
 
     // Create splash screen.
     SplashScreen splashScreen(&app);
-    QPixmap splashScreenPixMap = QPixmap(SplashImage);
+    QPixmap splashScreenPixMap = QPixmap(":/resources/logo/splash.png");
     // Resize splash screen to 1/4 of the screen.
     QSize splashScreenSize = splashScreenPixMap.size() *
             float(QApplication::desktop()->screenGeometry().width()) / 4.0 /
@@ -33,27 +31,6 @@ int main(int argc, char *argv[])
     splashScreen.setPixmap(splashScreenPixMap.scaled(splashScreenSize));
     splashScreen.setMessage(VERSION_STRING "|Starting ...");
     splashScreen.show(); app.processEvents();
-
-    // Check for resource directory.
-    QString resourceDirectory = getDataDirectory(RESOURCE_BASE);
-    if (!QFileInfo(resourceDirectory + "Configs").isDir() ||
-            !QFileInfo(resourceDirectory + "Core").isDir())
-    {
-#ifdef Q_OS_MAC
-        return QMessageBox::critical(
-                    0,
-                    "Missing runtime files",
-                    QString("Missing runtime files\n\n"
-                            "Cannot find runtime assets required to run the application (resource path: %1).").arg(resDir)
-                    );
-#else
-        return QMessageBox::critical(
-                    0,
-                    "Missing runtime files",
-                    QString("Cannot find runtime assets required to run the application (resource path: %1).").arg(resourceDirectory)
-                    );
-#endif
-    }
 
     // Choose proper GUI style from config.ini file.
     QSettings settings("config.ini", QSettings::IniFormat);

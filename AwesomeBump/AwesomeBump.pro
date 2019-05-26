@@ -48,7 +48,7 @@ HEADERS = \
     utils/mesh.h \
     utils/contextinfo/contextwidget.h \
     utils/contextinfo/renderwindow.h \
-    utils/tinyobj/tiny_obj_loader.h
+    utils/objloader.h
 
 SOURCES = \
     allaboutdialog.cpp \
@@ -84,7 +84,7 @@ SOURCES = \
     utils/mesh.cpp \
     utils/contextinfo/contextwidget.cpp \
     utils/contextinfo/renderwindow.cpp \
-    utils/tinyobj/tiny_obj_loader.cc
+    utils/objloader.cpp
 
 PEG_SOURCES += \
     properties/Filter3DBloom.pef \
@@ -112,10 +112,5 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-RC_FILE = resources/icon.rc
-ICON = resources/icons/icon.icns
-
-DISTFILES += \
-    resources/quad.obj
-
-DEFINES += RESOURCE_BASE=\\\"./\\\"
+win32: RC_ICONS = resources/icons/icon.ico
+macx: ICON = resources/icons/icon.icns

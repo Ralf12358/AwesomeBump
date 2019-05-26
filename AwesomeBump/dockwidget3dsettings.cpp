@@ -45,10 +45,9 @@ DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGL3DImageWidget*
 
     // Load cubemap folders.
     qDebug() << "Loading cubemaps folders:";
-    QDir currentDir(getDataDirectory(QString(RESOURCE_BASE) + "Core/2D/skyboxes"));
+    QDir currentDir(":/resources/skyboxes");
     currentDir.setFilter(QDir::Dirs);
     QStringList entries = currentDir.entryList();
-    qDebug() << "Looking for enviromental maps in Core/2D/skyboxes:";
 
     for( QStringList::ConstIterator entry=entries.begin(); entry!=entries.end(); ++entry )
     {

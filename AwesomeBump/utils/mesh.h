@@ -10,7 +10,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <iostream>
 #include "../openglerrorcheck.h"
-#include "tinyobj/tiny_obj_loader.h"
+
+#include "objloader.h"
 
 class Mesh : public QOpenGLFunctions_4_0_Core
 {

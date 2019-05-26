@@ -27,8 +27,6 @@
     emit initProgress(p); \
     emit initMessage(m);
 
-extern QString getDataDirectory(const QString& resource);
-
 // Compressed texture type.
 enum CompressedFromTypes
 {
@@ -1887,21 +1885,4 @@ void customMessageHandler(
 
     QTextStream logFileStream(&logFile);
     logFileStream << errorMessage << endl;
-}
-
-QString getDataDirectory(const QString& resource)
-{
-    if (resource.startsWith(":"))
-        return resource;
-
-    QString fpath = QApplication::applicationDirPath();
-#if defined(Q_OS_MAC)
-    fpath += "/../../../"+resource;
-#elif defined(Q_OS_WIN32)
-    fpath = resource;
-#else
-    fpath = resource;
-#endif
-
-    return fpath;
 }

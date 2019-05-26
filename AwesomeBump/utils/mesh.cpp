@@ -8,19 +8,15 @@ Mesh::Mesh(QString dir, QString name) :
     mesh_log = QString("");
     bLoaded = false;
 
-    std::string inputfile = (dir + mesh_path).toStdString();
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string err = tinyobj::LoadObj(shapes, materials, inputfile.c_str());
+    QFile inputfile(dir + mesh_path);
+    if (!inputfile.open(QIODevice::ReadOnly | QIODevice::Text))
+        qDebug() << Q_FUNC_INFO << "Could not open: " << dir + mesh_path ;
 
-    if (!err.empty())
-    {
-        qDebug() << Q_FUNC_INFO << "Loading mesh file failed:" << dir + mesh_path ;
-        mesh_log += "Loading mesh file failed:" + dir + mesh_path + "\n";
-        return;
-    }
+    QVector<Shape> shapes;
+    QVector<Material> materials;
+    LoadObject(shapes, materials, inputfile);
 
-    if(shapes.size() == 0)
+    if(shapes.length() == 0)
     {
         qDebug() << "Woops:: This model has no shapes, so it cannot be loaded." ;
         mesh_log += "Woops:: This model has no shapes, so it cannot be loaded.\n";
@@ -34,7 +30,7 @@ Mesh::Mesh(QString dir, QString name) :
     //qDebug() << "List of problematic shapes:";
     //mesh_log += "List of problematic shapes:\n";
 
-    for (size_t i = 0; i < shapes.size(); i++)
+    for (int i = 0; i < shapes.size(); i++)
     {
         bool problemWith[3] = {false, false, false};
         if(shapes[i].mesh.texcoords.size() == 0)
@@ -62,7 +58,7 @@ Mesh::Mesh(QString dir, QString name) :
                         QString(problemWith[0] ? " positions " : "");
                 QString message = "[" +
                         QString::number(i+1) + "] " +
-                        QString(shapes[i].name.c_str()) +
+                        QString(shapes[i].name) +
                         " has no: " + doesNotHave;
                 qDebug() << message;
                 mesh_log += message + "\n";
@@ -71,7 +67,7 @@ Mesh::Mesh(QString dir, QString name) :
             continue;
         }
 
-        for (size_t f = 0; f < shapes[i].mesh.indices.size() / 3; f++)
+        for (int f = 0; f < shapes[i].mesh.indices.size() / 3; f++)
         {
             for(size_t d = 0 ; d < 3 ; d++)
             {

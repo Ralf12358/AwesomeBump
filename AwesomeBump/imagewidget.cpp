@@ -784,7 +784,7 @@ void ImageWidget::toggleGrungeImageSettingsGroup(bool toggle)
 
 void ImageWidget::loadPredefinedGrunge(QString image)
 {
-    loadFile(QString(RESOURCE_BASE) + "Core/2D/grunge/" + image);
+    loadFile(":/resources/grunge/" + image);
 }
 
 bool ImageWidget::saveFile(const QString &fileName)

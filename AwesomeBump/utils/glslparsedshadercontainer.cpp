@@ -8,15 +8,15 @@ extern QString getDataDirectory(const QString& base);
 
 GLSLParsedShaderContainer::GLSLParsedShaderContainer()
 {
-    qDebug() << "Parsing shaders in Core/Render folder:";
+    qDebug() << "Parsing shaders";
 
-    QDir currentDir(getDataDirectory(QString(RESOURCE_BASE) + "Core/Render"));
+    QDir currentDir(":/resources/renderers");
     currentDir.setFilter(QDir::Files);
     QStringList entries = currentDir.entryList();
 
     for(QStringList::ConstIterator entry=entries.begin(); entry!=entries.end(); ++entry)
     {
-        QString filename = "Core/Render/" + *entry;
+        QString filename = ":/resources/renderers/" + *entry;
         qDebug() << "Parsing:" << filename;
         GLSLShaderParser *parser = new GLSLShaderParser;
         parser->parseShader(filename);

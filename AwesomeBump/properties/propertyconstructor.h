@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <QString>
+#include <QDir>
 
 extern QString getDataDirectory(const QString& resource);
 
@@ -13,7 +14,7 @@ QStringList init_grunge_maps(){
     //               Loading grunge maps folders
     // ------------------------------------------------------- //
     qDebug() << "Loading grunge maps:";
-    QDir currentDir(QString(RESOURCE_BASE) + "Core/2D/grunge");
+    QDir currentDir(QString(":/resources/grunge"));
     currentDir.setFilter(QDir::Files);
     QStringList entries = currentDir.entryList();
     QStringList grungeMaps;
@@ -28,7 +29,7 @@ QStringList init_grunge_maps(){
 }
 
 QString first_grunge_map(){
-    QDir currentDir(QString(RESOURCE_BASE) + "Core/2D/grunge");
+    QDir currentDir(":/resources/grunge");
     currentDir.setFilter(QDir::Files);
     QStringList entries = currentDir.entryList();
     QStringList grungeMaps;

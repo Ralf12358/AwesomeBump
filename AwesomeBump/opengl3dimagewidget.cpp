@@ -208,7 +208,7 @@ bool OpenGL3DImageWidget::loadMeshFile(const QString &fileName, bool bAddExtensi
     Mesh* new_mesh;
     if(bAddExtension)
     {
-        new_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/",fileName+QString(".obj"));
+        new_mesh = new Mesh(QString("Core/3D/"), fileName+QString(".obj"));
     }
     else
     {
@@ -246,19 +246,19 @@ bool OpenGL3DImageWidget::loadMeshFile(const QString &fileName, bool bAddExtensi
 
 void OpenGL3DImageWidget::chooseMeshFile(const QString &fileName)
 {
-    loadMeshFile(fileName,true);
+    loadMeshFile(":/resources/meshes/" + fileName + ".obj", true);
 }
 
 void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
 {
     QStringList list;
     makeCurrent();
-    list << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posx.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negx.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posy.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negy.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/posz.jpg"
-         << QString(RESOURCE_BASE) + "Core/2D/skyboxes/" + cubeMapName + "/negz.jpg";
+    list << QString(":/resources/skyboxes/" + cubeMapName + "/posx.jpg")
+         << QString(":/resources/skyboxes/" + cubeMapName + "/negx.jpg")
+         << QString(":/resources/skyboxes/" + cubeMapName + "/posy.jpg")
+         << QString(":/resources/skyboxes/" + cubeMapName + "/negy.jpg")
+         << QString(":/resources/skyboxes/" + cubeMapName + "/posz.jpg")
+         << QString(":/resources/skyboxes/" + cubeMapName + "/negz.jpg");
 
     qDebug() << "Reading new cube map:" << list;
     bDiffuseMapBaked = false;
@@ -651,10 +651,10 @@ void OpenGL3DImageWidget::initializeGL()
     lightDirection.toggleFreeCamera(false);
     lightDirection.radius = 1;
 
-    mesh        = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","Cube.obj");
-    skybox_mesh = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube.obj");
-    env_mesh    = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","sky_cube_env.obj");
-    quad_mesh   = new Mesh(QString(RESOURCE_BASE) + "Core/3D/","quad.obj");
+    mesh        = new Mesh(QString(":/resources/meshes/"),"Cube.obj");
+    skybox_mesh = new Mesh(QString(":/resources/meshes/"),"sky_cube.obj");
+    env_mesh    = new Mesh(QString(":/resources/meshes/"),"sky_cube_env.obj");
+    quad_mesh   = new Mesh(QString(":/resources/meshes/"),"quad.obj");
 
     chooseSkyBox("1SaintLazarusChurch", true);
 
