@@ -11,7 +11,7 @@
 #include "postfixnames.h"
 #include "display3dsettings.h"
 #include "camera.h"
-#include "utils/mesh.h"
+#include "mesh.h"
 #include "properties/Dialog3DGeneralSettings.h"
 #include "utils/glslshaderparser.h"
 
@@ -50,9 +50,9 @@ public slots:
     void toggleMouseWrap(bool toggle);
 
     // Mesh functions.
-    void loadMeshFromFile();//opens file dialog
-    bool loadMeshFile(const QString &fileName,bool bAddExtension = false);
-    void chooseMeshFile(const QString &fileName);
+    void loadMeshFromFile();
+    bool loadMeshFile(const QString& fileName);
+    void chooseMeshFile(const QString& fileName);
 
     // PBR functions.
     void chooseSkyBox(QString cubeMapName, bool bFirstTime = false);
@@ -179,9 +179,6 @@ private:
     Qt::Key keyPressed;
     QCursor centerCamCursor;
     bool wrapMouse;
-
-public:
-    static QDir* recentMeshDir;
 };
 
 #endif // OPENGL3DIMAGEWIDGET_H

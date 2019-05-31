@@ -30,6 +30,7 @@ HEADERS = \
     image.h \
     imagewidget.h \
     mainwindow.h \
+    mesh.h \
     opengl2dimagewidget.h \
     opengl3dimagewidget.h \
     openglerrorcheck.h \
@@ -45,10 +46,8 @@ HEADERS = \
     utils/DebugMetricsMonitor.h \
     utils/glslparsedshadercontainer.h \
     utils/glslshaderparser.h \
-    utils/mesh.h \
     utils/contextinfo/contextwidget.h \
-    utils/contextinfo/renderwindow.h \
-    utils/objloader.h
+    utils/contextinfo/renderwindow.h
 
 SOURCES = \
     allaboutdialog.cpp \
@@ -67,6 +66,7 @@ SOURCES = \
     imagewidget.cpp \
     main.cpp \
     mainwindow.cpp \
+    mesh.cpp \
     opengl2dimagewidget.cpp \
     opengl3dimagewidget.cpp \
     opengltexturecube.cpp \
@@ -81,10 +81,8 @@ SOURCES = \
     utils/DebugMetricsMonitor.cpp \
     utils/glslparsedshadercontainer.cpp \
     utils/glslshaderparser.cpp \
-    utils/mesh.cpp \
     utils/contextinfo/contextwidget.cpp \
-    utils/contextinfo/renderwindow.cpp \
-    utils/objloader.cpp
+    utils/contextinfo/renderwindow.cpp
 
 PEG_SOURCES += \
     properties/Filter3DBloom.pef \

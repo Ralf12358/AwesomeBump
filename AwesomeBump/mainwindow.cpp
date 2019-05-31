@@ -39,8 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     bSaveCheckedImages(false),
     bSaveCompressedFormImages(false)
-  //    recentDir(NULL),
-  //    recentMeshDir(NULL)
 {
     ui->setupUi(this);
 
@@ -48,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
     statusLabel = new QLabel("GPU memory status: n/a");
 
     ImageWidget::recentDir = &recentDir;
-    OpenGL3DImageWidget::recentMeshDir = &recentMeshDir;
 
 #ifdef Q_OS_MAC
     if(!statusLabel->testAttribute(Qt::WA_MacNormalSize))

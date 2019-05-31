@@ -3,11 +3,10 @@
 #include <QColor>
 #include <QtWidgets>
 #include <QtOpenGL>
-#include <math.h>
+#include <QtMath>
 
 #include "image.h"
-
-QDir* OpenGL3DImageWidget::recentMeshDir = NULL;
+#include "openglerrorcheck.h"
 
 OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -185,16 +184,13 @@ void OpenGL3DImageWidget::toggleMouseWrap(bool toggle)
 
 void OpenGL3DImageWidget::loadMeshFromFile()
 {
-    QStringList picturesLocations;
-    if(recentMeshDir == NULL )
-        picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    else
-        picturesLocations << recentMeshDir->absolutePath();
+    QString meshPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
+    if (meshPath.isEmpty()) meshPath = QDir::currentPath();
 
     QFileDialog dialog(
                 this,
                 tr("Open Mesh File"),
-                picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.first(),
+                meshPath,
                 tr("OBJ file format (*.obj *.OBJ );;"));
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
@@ -202,51 +198,33 @@ void OpenGL3DImageWidget::loadMeshFromFile()
     {}
 }
 
-bool OpenGL3DImageWidget::loadMeshFile(const QString &fileName, bool bAddExtension)
+bool OpenGL3DImageWidget::loadMeshFile(const QString& fileName)
 {
     // Load new mesh.
-    Mesh* new_mesh;
-    if(bAddExtension)
-    {
-        new_mesh = new Mesh(QString("Core/3D/"), fileName+QString(".obj"));
-    }
-    else
-    {
-        new_mesh = new Mesh(QString(""),fileName);
-    }
+    Mesh* newMesh = new Mesh(fileName);
 
-    if(new_mesh->isLoaded())
+    if(newMesh->isLoaded())
     {
-        if(mesh != NULL)
-            delete mesh;
-        mesh = new_mesh;
-        recentMeshDir->setPath(fileName);
-        if( new_mesh->getMeshLog() != QString("")  )
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Warning! There were some problems during model loading.");
-            msgBox.setInformativeText("Loader message:\n"+new_mesh->getMeshLog());
-            msgBox.setStandardButtons(QMessageBox::Cancel);
-            msgBox.exec();
-        }
+        if(mesh != NULL) delete mesh;
+        mesh = newMesh;
     }
     else
     {
         QMessageBox msgBox;
-        msgBox.setText("Error! Cannot load given model.");
-        msgBox.setInformativeText("Sorry, but the loaded mesh is incorrect.\nLoader message:\n"+new_mesh->getMeshLog());
+        msgBox.setText("Unable to load object file!");
+        msgBox.setInformativeText("There was a problem loading the object file.\n"
+                "Loader message:\n" + newMesh->getMeshLog());
         msgBox.setStandardButtons(QMessageBox::Cancel);
         msgBox.exec();
-        delete new_mesh;
+        delete newMesh;
     }
 
     update();
     return true;
 }
-
-void OpenGL3DImageWidget::chooseMeshFile(const QString &fileName)
+void OpenGL3DImageWidget::chooseMeshFile(const QString& fileName)
 {
-    loadMeshFile(":/resources/meshes/" + fileName + ".obj", true);
+    loadMeshFile(":/resources/meshes/" + fileName + ".obj");
 }
 
 void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
@@ -651,10 +629,10 @@ void OpenGL3DImageWidget::initializeGL()
     lightDirection.toggleFreeCamera(false);
     lightDirection.radius = 1;
 
-    mesh        = new Mesh(QString(":/resources/meshes/"),"Cube.obj");
-    skybox_mesh = new Mesh(QString(":/resources/meshes/"),"sky_cube.obj");
-    env_mesh    = new Mesh(QString(":/resources/meshes/"),"sky_cube_env.obj");
-    quad_mesh   = new Mesh(QString(":/resources/meshes/"),"quad.obj");
+    mesh        = new Mesh(":/resources/meshes/Cube.obj");
+    skybox_mesh = new Mesh(":/resources/meshes/sky_cube.obj");
+    env_mesh    = new Mesh(":/resources/meshes/sky_cube_env.obj");
+    quad_mesh   = new Mesh(":/resources/meshes/quad.obj");
 
     chooseSkyBox("1SaintLazarusChurch", true);
 
@@ -715,7 +693,7 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     skyBoxTextureCube->bind();
-    GLCHK( skybox_mesh->drawMesh(true) );
+    GLCHK( skybox_mesh->drawMesh() );
 
     // Drawing model
     QOpenGLShaderProgram* program_ptrs[2] = {settingsDialog->currentShaderParser->program,line_program};
@@ -747,8 +725,8 @@ void OpenGL3DImageWidget::paintGL()
         if(mesh->isLoaded())
         {
 
-            objectMatrix.scale(0.5/mesh->radius);
-            objectMatrix.translate(-mesh->centre_of_mass);
+            objectMatrix.scale(0.5/mesh->getRadius());
+            objectMatrix.translate(-mesh->getCentreOfMass());
         }
         modelViewMatrix = viewMatrix*objectMatrix;
         NormalMatrix = modelViewMatrix.normalMatrix();
@@ -832,7 +810,7 @@ void OpenGL3DImageWidget::paintGL()
             tindex++;
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
             skyBoxTextureCube->bind();
-            mesh->drawMesh();
+            mesh->drawMesh(true);
             // Set default active texture.
             GLCHK( glActiveTexture(GL_TEXTURE0) );
         }
@@ -1008,7 +986,7 @@ void OpenGL3DImageWidget::dropEvent(QDropEvent *event)
     QString localPath = droppedUrls[i].toLocalFile();
     QFileInfo fileInfo(localPath);
 
-    loadMeshFile(fileInfo.absoluteFilePath(),false);
+    loadMeshFile(fileInfo.absoluteFilePath());
 
     event->acceptProposedAction();
 }
@@ -1099,7 +1077,7 @@ void OpenGL3DImageWidget::applyNormalFilter(GLuint input_tex)
     filter_program->setUniformValue("quad_pos"  , QVector2D(0.0,0.0));
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
 }
 
 void OpenGL3DImageWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject* dst)
@@ -1112,7 +1090,7 @@ void OpenGL3DImageWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject
     filter_program->setUniformValue("quad_pos",   QVector2D(0.0,0.0));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, input_tex);
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     dst->bindDefault();
 }
 
@@ -1134,14 +1112,14 @@ void OpenGL3DImageWidget::applyGaussFilter(
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
     auxFBO->bind();
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     auxFBO->bindDefault();
 
     outputFBO->bind();
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     filter_program->setUniformValue("gui_gauss_mode", 1);
     GLCHK( glBindTexture(GL_TEXTURE_2D, auxFBO->texture()) );
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     outputFBO->bindDefault();
 }
 
@@ -1177,7 +1155,7 @@ void OpenGL3DImageWidget::applyDofFilter(
     GLCHK( glBindTexture(GL_TEXTURE_2D, getAttachedTexture(2)) );
 
     outputFBO->bind();
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     outputFBO->bindDefault();
 
     copyTexToFBO(outputFBO->texture(),colorFBO);
@@ -1222,7 +1200,7 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[2]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE4) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
@@ -1254,7 +1232,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     outputFBO->bindDefault();
 
     // Caclulate averaged luminance of image.
@@ -1267,7 +1245,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
         GLCHK( glActiveTexture(GL_TEXTURE0) );
         GLCHK( glBindTexture(GL_TEXTURE_2D, averagedTexID) );
 
-        quad_mesh->drawMesh(true);
+        quad_mesh->drawMesh();
         averagedTexID = toneMipmaps[i]->texture();
     }
 
@@ -1283,7 +1261,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     outputFBO->bindDefault();
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 
@@ -1323,7 +1301,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
 
     // Create ghosts and halos.
 
@@ -1343,7 +1321,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
 
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT) );
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT) );
     outputFBO->bindDefault();
@@ -1393,7 +1371,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glActiveTexture(GL_TEXTURE4) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
 
-    quad_mesh->drawMesh(true);
+    quad_mesh->drawMesh();
     copyTexToFBO(outputFBO->texture(),colorFBO);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
@@ -1456,7 +1434,7 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
     env_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     skyBoxTextureCube->bind();
-    env_mesh->drawMesh(true);
+    env_mesh->drawMesh();
 
     GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
     GLCHK( glViewport(0, 0, width(), height()) );

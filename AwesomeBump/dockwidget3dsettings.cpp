@@ -1,6 +1,8 @@
 #include "dockwidget3dsettings.h"
 #include "ui_dockwidget3dsettings.h"
 
+#include <QDir>
+
 extern QString getDataDirectory(const QString& resource);
 
 DockWidget3DSettings::DockWidget3DSettings(QWidget *parent, OpenGL3DImageWidget* ptr_gl) :
