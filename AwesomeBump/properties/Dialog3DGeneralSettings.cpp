@@ -32,21 +32,15 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
             SIGNAL (propertyDidChange(const QtnPropertyBase*, const QtnPropertyBase*, QtnPropertyChangeReason)),
             this, SLOT (propertyChanged(const QtnPropertyBase*, const QtnPropertyBase*, QtnPropertyChangeReason)));
 
-    // Parse and create list of avaiable shaders in Render folder.
-    parsedShaderContainer = new GLSLParsedShaderContainer;
-
     // Create list of available shaders.
     QStringList shaderList;
-    for(int i = 0 ; i < parsedShaderContainer->glslParsedShaders.size(); i++)
-    {
-        shaderList << parsedShaderContainer->glslParsedShaders.at(i)->shaderBaseName;
-    }
+    shaderList << "AwesomeBump";
     ui->comboBoxShadersList->addItems(shaderList);
 
     // Setup pointer and comboBox
     int lastIndex = filters3DProperties->ParsedShader.LastShaderIndex.value();
     ui->comboBoxShadersList->setCurrentIndex(lastIndex);
-    currentShaderParser = parsedShaderContainer->glslParsedShaders[lastIndex];
+    currentShaderParser = new GLSLShaderParser;
 
     connect(ui->comboBoxShadersList, SIGNAL (currentIndexChanged(int)), this, SLOT (shaderChanged(int)));
 }
@@ -54,7 +48,7 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
 Dialog3DGeneralSettings::~Dialog3DGeneralSettings()
 {
     delete filters3DProperties;
-    delete parsedShaderContainer;
+    delete currentShaderParser;
     delete ui;
 }
 
@@ -111,9 +105,8 @@ void Dialog3DGeneralSettings::recompileCustomShader()
     emit signalRecompileCustomShader();
 }
 
-void Dialog3DGeneralSettings::shaderChanged(int index)
+void Dialog3DGeneralSettings::shaderChanged(int)
 {
-    currentShaderParser = parsedShaderContainer->glslParsedShaders[index];
     updateParsedShaders();
     emit signalPropertyChanged();
 }

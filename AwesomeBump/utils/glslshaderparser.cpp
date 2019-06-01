@@ -10,9 +10,10 @@
 
 #include "openglerrorcheck.h"
 
-GLSLShaderParser::GLSLShaderParser()
+GLSLShaderParser::GLSLShaderParser() :
+    program(0)
 {
-    GLSLShaderParser::program = NULL;
+    parseShader(":/resources/shaders/awesombump.frag");
 }
 
 GLSLShaderParser::~GLSLShaderParser()

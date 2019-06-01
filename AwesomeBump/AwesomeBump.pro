@@ -39,7 +39,6 @@ HEADERS = \
     properties/PropertyABColor.h \
     properties/propertyconstructor.h \
     properties/PropertyDelegateABColor.h \
-    utils/glslparsedshadercontainer.h \
     utils/glslshaderparser.h
 
 SOURCES = \
@@ -67,7 +66,6 @@ SOURCES = \
     properties/PropertyABColor.cpp \
     properties/PropertyDelegateABColor.cpp \
     properties/propertydelegateabfloatslider.cpp \
-    utils/glslparsedshadercontainer.cpp \
     utils/glslshaderparser.cpp
 
 PEG_SOURCES += \
