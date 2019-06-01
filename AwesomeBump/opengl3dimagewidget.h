@@ -8,7 +8,6 @@
 
 #include "image.h"
 #include "opengltexturecube.h"
-#include "postfixnames.h"
 #include "display3dsettings.h"
 #include "camera.h"
 #include "mesh.h"

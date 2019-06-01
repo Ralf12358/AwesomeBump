@@ -4,7 +4,6 @@
 
 #include_cpp <QFileDialog>
 #include_cpp "propertyconstructor.h"
-#include_cpp "../postfixnames.h"
 
 enum COLOR
 {
@@ -1026,7 +1025,7 @@ property_set FormImageProp
     Int ImageType
     {
         description = "ImageTyp";
-        value = MAX_TEXTURES_TYPE;
+        value = 10;
         state = QtnPropertyStateInvisible;
     }
     extern property_set GrungeOnImageProperty GrungeOnImage

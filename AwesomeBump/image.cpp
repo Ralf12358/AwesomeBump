@@ -20,6 +20,15 @@ float Image::randomCommonPhase                  = 0.0;
 float Image::randomInnerRadius                  = 0.2;
 float Image::randomOuterRadius                  = 0.4;
 
+QString  Image::diffuseName   = "_d";
+QString  Image::normalName    = "_n";
+QString  Image::specularName  = "_s";
+QString  Image::heightName    = "_h";
+QString  Image::occlusionName = "_o";
+QString  Image::roughnessName = "_r";
+QString  Image::metallicName  = "_m";
+QString  Image::outputFormat  = ".png";
+
 void Image::randomize()
 {
     static int seed = 312;
@@ -115,6 +124,74 @@ QOpenGLTexture* Image::getTexture()
 TextureType Image::getTextureType()
 {
     return textureType;
+}
+
+QString Image::getTextureName()
+{
+    switch(textureType)
+    {
+    case(DIFFUSE_TEXTURE):
+        return "diffuse";
+        break;
+    case(NORMAL_TEXTURE):
+        return "normal";
+        break;
+    case(SPECULAR_TEXTURE):
+        return "specular";
+        break;
+    case(HEIGHT_TEXTURE):
+        return "height";
+        break;
+    case(OCCLUSION_TEXTURE):
+        return "occlusion";
+        break;
+    case(ROUGHNESS_TEXTURE):
+        return "roughness";
+        break;
+    case(METALLIC_TEXTURE):
+        return "metallic";
+        break;
+    case(MATERIAL_TEXTURE):
+        return "material";
+    case(GRUNGE_TEXTURE):
+        return "grunge";
+        break;
+    default:
+        return "default-diffuse";
+        break;
+    }
+}
+
+
+QString Image::getTextureSuffix()
+{
+    switch(textureType)
+    {
+    case(DIFFUSE_TEXTURE):
+        return diffuseName;
+        break;
+    case(NORMAL_TEXTURE):
+        return normalName;
+        break;
+    case(SPECULAR_TEXTURE):
+        return specularName;
+        break;
+    case(HEIGHT_TEXTURE):
+        return heightName;
+        break;
+    case(OCCLUSION_TEXTURE):
+        return occlusionName;
+        break;
+    case(ROUGHNESS_TEXTURE):
+        return roughnessName;
+        break;
+    case(METALLIC_TEXTURE) :
+        return metallicName;
+        break;
+    default:
+        return diffuseName;
+        break;
+    }
 }
 
 void Image::setTextureType(TextureType textureType)

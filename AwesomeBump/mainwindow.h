@@ -7,7 +7,6 @@
 
 #include "opengl3dimagewidget.h"
 #include "opengl2dimagewidget.h"
-#include "postfixnames.h"
 #include "properties/ImageProperties.peg.h"
 
 #ifdef Q_OS_MAC

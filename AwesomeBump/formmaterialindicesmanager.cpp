@@ -317,7 +317,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(image.getTextureType()) +
+                    image.getTextureName() +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
@@ -328,7 +328,7 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 void FormMaterialIndicesManager::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(image.getTextureType()) +
+                image.getTextureName() +
                 " copied to clipboard.";
 
     QApplication::processEvents();

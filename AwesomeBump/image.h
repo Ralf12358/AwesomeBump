@@ -6,7 +6,6 @@
 #include <QOpenGLTexture>
 
 #include "properties/ImageProperties.peg.h"
-#include "postfixnames.h"
 #include "basemapconvlevelproperties.h"
 
 #define TEXTURE_3DRENDER_FORMAT GL_RGB16F
@@ -38,6 +37,20 @@ enum ImageType
     INPUT_FROM_HO_NO
 };
 
+enum TextureType
+{
+    DIFFUSE_TEXTURE = 0,
+    NORMAL_TEXTURE ,
+    SPECULAR_TEXTURE,
+    HEIGHT_TEXTURE,
+    OCCLUSION_TEXTURE,
+    ROUGHNESS_TEXTURE,
+    METALLIC_TEXTURE,
+    MATERIAL_TEXTURE,
+    GRUNGE_TEXTURE,
+    MAX_TEXTURES_TYPE
+};
+
 // Methods of making the texture seamless.
 enum SeamlessMode
 {
@@ -66,6 +79,8 @@ public:
     QtnPropertySetFormImageProp* getProperties();
     QOpenGLTexture* getTexture();
     TextureType getTextureType();
+    QString getTextureName();
+    QString getTextureSuffix();
     void setTextureType(TextureType textureType);
     int width();
     int height();
@@ -105,6 +120,15 @@ public:
     static bool bSeamlessTranslationsFirst;
     static int currentMaterialIndex;
     static bool bUseLinearInterpolation;
+
+    static QString diffuseName;
+    static QString normalName;
+    static QString specularName;
+    static QString heightName;
+    static QString occlusionName;
+    static QString roughnessName;
+    static QString metallicName;
+    static QString outputFormat;
 
 private:
     void createFBO(int width, int height);

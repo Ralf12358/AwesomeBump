@@ -1593,13 +1593,13 @@ void MainWindow::saveSettings()
     abSettings->recent_dir      = recentDir.absolutePath();
     abSettings->recent_mesh_dir = recentMeshDir.absolutePath();
 
-    PostfixNames::diffuseName   = ui->lineEditPostfixDiffuse->text();
-    PostfixNames::normalName    = ui->lineEditPostfixNormal->text();
-    PostfixNames::specularName  = ui->lineEditPostfixSpecular->text();
-    PostfixNames::heightName    = ui->lineEditPostfixHeight->text();
-    PostfixNames::occlusionName = ui->lineEditPostfixOcclusion->text();
-    PostfixNames::roughnessName = ui->lineEditPostfixRoughness->text();
-    PostfixNames::metallicName  = ui->lineEditPostfixMetallic->text();
+    Image::diffuseName   = ui->lineEditPostfixDiffuse->text();
+    Image::normalName    = ui->lineEditPostfixNormal->text();
+    Image::specularName  = ui->lineEditPostfixSpecular->text();
+    Image::heightName    = ui->lineEditPostfixHeight->text();
+    Image::occlusionName = ui->lineEditPostfixOcclusion->text();
+    Image::roughnessName = ui->lineEditPostfixRoughness->text();
+    Image::metallicName  = ui->lineEditPostfixMetallic->text();
 
     abSettings->d_postfix=ui->lineEditPostfixDiffuse->text();
     abSettings->d_postfix=ui->lineEditPostfixDiffuse->text();
@@ -1670,7 +1670,7 @@ void MainWindow::changeGUIFontSize(int value)
 
 void MainWindow::setOutputFormat(int)
 {
-    PostfixNames::outputFormat = ui->comboBoxImageOutputFormat->currentText();
+    Image::outputFormat = ui->comboBoxImageOutputFormat->currentText();
 }
 
 void MainWindow::loadSettings()
@@ -1712,23 +1712,23 @@ void MainWindow::loadSettings()
         ui->tabWidget->resize(abSettings->tab_win_w,abSettings->tab_win_h);
     }
 
-    PostfixNames::diffuseName   = abSettings->d_postfix;
-    PostfixNames::normalName    = abSettings->n_postfix;
-    PostfixNames::specularName  = abSettings->s_postfix;
-    PostfixNames::heightName    = abSettings->h_postfix;
-    PostfixNames::occlusionName = abSettings->o_postfix;
-    PostfixNames::roughnessName = abSettings->m_postfix;
-    PostfixNames::metallicName  = abSettings->r_postfix;
+    Image::diffuseName   = abSettings->d_postfix;
+    Image::normalName    = abSettings->n_postfix;
+    Image::specularName  = abSettings->s_postfix;
+    Image::heightName    = abSettings->h_postfix;
+    Image::occlusionName = abSettings->o_postfix;
+    Image::roughnessName = abSettings->m_postfix;
+    Image::metallicName  = abSettings->r_postfix;
 
     showHideTextureTypes(true);
 
-    ui->lineEditPostfixDiffuse  ->setText(PostfixNames::diffuseName);
-    ui->lineEditPostfixNormal   ->setText(PostfixNames::normalName);
-    ui->lineEditPostfixSpecular ->setText(PostfixNames::specularName);
-    ui->lineEditPostfixHeight   ->setText(PostfixNames::heightName);
-    ui->lineEditPostfixOcclusion->setText(PostfixNames::occlusionName);
-    ui->lineEditPostfixRoughness->setText(PostfixNames::roughnessName);
-    ui->lineEditPostfixMetallic ->setText(PostfixNames::metallicName);
+    ui->lineEditPostfixDiffuse  ->setText(Image::diffuseName);
+    ui->lineEditPostfixNormal   ->setText(Image::normalName);
+    ui->lineEditPostfixSpecular ->setText(Image::specularName);
+    ui->lineEditPostfixHeight   ->setText(Image::heightName);
+    ui->lineEditPostfixOcclusion->setText(Image::occlusionName);
+    ui->lineEditPostfixRoughness->setText(Image::roughnessName);
+    ui->lineEditPostfixMetallic ->setText(Image::metallicName);
 
     recentDir     = abSettings->recent_dir;
     recentMeshDir = abSettings->recent_mesh_dir;

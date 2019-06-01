@@ -379,8 +379,8 @@ void ImageWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            PostfixNames::getPostfix(image.getTextureType()) +
-            PostfixNames::outputFormat;
+            image.getTextureSuffix() +
+            Image::outputFormat;
     saveFile(fullFileName);
 }
 
@@ -388,8 +388,8 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            PostfixNames::getPostfix(image.getTextureType()) +
-            PostfixNames::outputFormat;
+            image.getTextureSuffix() +
+            Image::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
     QFileInfo fileInfo(fullFileName);
@@ -442,8 +442,8 @@ void ImageWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 image.getImageName() +
-                PostfixNames::getPostfix(image.getTextureType()) +
-                PostfixNames::outputFormat;
+                image.getTextureSuffix() +
+                Image::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "ImageWidget: Saving image to file:" << fullFileName;
     }
@@ -464,7 +464,7 @@ void ImageWidget::save()
 void ImageWidget::copyToClipboard()
 {
     qDebug() << "<FormImageProp> Image :" +
-                PostfixNames::getTextureName(image.getTextureType()) +
+                image.getTextureName() +
                 " copied to clipboard.";
 
     QApplication::processEvents();
@@ -480,7 +480,7 @@ void ImageWidget::pasteFromClipboard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Image :" +
-                    PostfixNames::getTextureName(image.getTextureType())+
+                    image.getTextureName() +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
@@ -496,7 +496,7 @@ void ImageWidget::pasteNormalFromClipBoard()
     if (mimeData->hasImage())
     {
         qDebug() << "<FormImageProp> Normal image :" +
-                    PostfixNames::getTextureName(image.getTextureType()) +
+                    image.getTextureName() +
                     " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
