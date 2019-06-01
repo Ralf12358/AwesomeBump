@@ -29,7 +29,6 @@ public:
 
 signals:
     void signalPropertyChanged();
-    void signalRecompileCustomShader();
 
 public slots:
     // Opens settings window.
@@ -40,9 +39,6 @@ public slots:
     void acceptSettings();
 
     void propertyChanged(const QtnPropertyBase *, const QtnPropertyBase *, QtnPropertyChangeReason reason);
-    void recompileCustomShader();
-    void shaderChanged(int index);
-    void updateParsedShaders();
 
 private:
     Ui::PropertyDialog *ui;

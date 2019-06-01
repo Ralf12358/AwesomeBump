@@ -51,6 +51,9 @@ compile_commands.json
 # QtCreator local machine specific files for imported projects
 *creator.user*
 
+# Configuration files
+*.dat
+
 #Awesomebump compile directory, but keep Bin/Core
 Bin/*
 !Bin/Core

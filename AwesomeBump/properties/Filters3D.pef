@@ -5,8 +5,6 @@
 #include "Filter3DDOF.peg.h"
 #include "Filter3DLensFlares.peg.h"
 #include "Filter3DToneMapping.peg.h"
-#include "GLSLParsedFragShader.peg.h"
-
 
 property_set Filters3D
 {
@@ -44,24 +42,4 @@ property_set Filters3D
       displayName = "Reinhard's tone mapping";
     state = QtnPropertyStateCollapsed;
   }
-
-
-  extern property_set GLSLParsedFragShader ParsedShader
-  {
-      description = "AwesomeBump engine can be supplied with "
-                    "custom GLSL fragment shader in order to "
-                    "customize 3D render output to your engine."
-                    "In order to make "
-                    "custom fragment shader you must create a new "
-                    ".frag file in Core/Render folder. Created file "
-                    "will be then parsed during the initialization process."
-                    "See Template.frag file to undersdand how this shader "
-                    "should be written in order to be compatible with AB."
-                    "Note: Saving option does not work for this feature, thus "
-                    "all the settings has to be defined in your *.frag file.";
-      displayName = "Custom rednder settings";
-      state = QtnPropertyStateCollapsed;
-  }
-
-
 }

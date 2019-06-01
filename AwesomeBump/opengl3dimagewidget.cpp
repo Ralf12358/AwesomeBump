@@ -55,7 +55,6 @@ OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
 
     settingsDialog = new Dialog3DGeneralSettings(this);
     connect(settingsDialog, SIGNAL (signalPropertyChanged()), this, SLOT (repaint()));
-    connect(settingsDialog, SIGNAL (signalRecompileCustomShader()), this, SLOT (recompileRenderShader()));
 }
 
 OpenGL3DImageWidget::~OpenGL3DImageWidget()
@@ -263,94 +262,6 @@ void OpenGL3DImageWidget::updatePerformanceSettings(Display3DSettings settings)
     update();
 }
 
-void OpenGL3DImageWidget::recompileRenderShader()
-{
-    qDebug() << Q_FUNC_INFO;
-
-    makeCurrent();
-    renderProgram->release();
-    delete renderProgram;
-    renderProgram = new QOpenGLShaderProgram(this);
-
-    QOpenGLShader *vshader  = NULL;
-    QOpenGLShader *tcshader = NULL;
-    QOpenGLShader *teshader = NULL;
-    QOpenGLShader *gshader  = NULL;
-
-    gshader = new QOpenGLShader(QOpenGLShader::Geometry, this);
-    QFile gFile(":/resources/shaders/plane.geom");
-    gFile.open(QFile::ReadOnly);
-    QTextStream in(&gFile);
-    QString shaderCode = in.readAll();
-    QString preambule = "#version 330 core\n"
-                        "layout(triangle_strip, max_vertices = 3) out;\n" ;
-    gshader->compileSourceCode(preambule+shaderCode);
-    if (!gshader->log().isEmpty()) qDebug() << gshader->log();
-    else qDebug() << "  Geometry shader: OK";
-
-    vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceFile(":/resources/shaders/plane.vert");
-    if (!vshader->log().isEmpty())
-        qDebug() << vshader->log();
-    else
-        qDebug() << "  Vertex shader (GLSL4.0): OK";
-
-    tcshader = new QOpenGLShader(QOpenGLShader::TessellationControl, this);
-    tcshader->compileSourceFile(":/resources/shaders/plane.tcs.vert");
-    if (!tcshader->log().isEmpty())
-        qDebug() << tcshader->log();
-    else
-        qDebug() << "  Tessellation control shader (GLSL4.0): OK";
-
-    teshader = new QOpenGLShader(QOpenGLShader::TessellationEvaluation, this);
-    teshader->compileSourceFile(":/resources/shaders/plane.tes.vert");
-    if (!teshader->log().isEmpty())
-        qDebug() << teshader->log();
-    else
-        qDebug() << "  Tessellation evaluation shader (GLSL4.0): OK";
-
-    // Load custom fragment shader.
-    QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    pfshader->compileSourceFile(":/resources/shaders/awesombump.frag");
-    if (!pfshader->log().isEmpty())
-        qDebug() << pfshader->log();
-    else
-        qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
-
-    renderProgram->addShader(tcshader);
-    renderProgram->addShader(teshader);
-    renderProgram->addShader(vshader);
-    renderProgram->addShader(pfshader);
-    renderProgram->addShader(gshader);
-    renderProgram->bindAttributeLocation("FragColor",0);
-    renderProgram->bindAttributeLocation("FragNormal",1);
-    renderProgram->bindAttributeLocation("FragGlowColor",2);
-    renderProgram->bindAttributeLocation("FragPosition",3);
-    GLCHK(renderProgram->link());
-
-    delete pfshader;
-    if(vshader  != NULL) delete vshader;
-    if(tcshader != NULL) delete tcshader;
-    if(teshader != NULL) delete teshader;
-    if(gshader  != NULL) delete gshader;
-
-    GLCHK(renderProgram->bind());
-    renderProgram->setUniformValue("texDiffuse",           0);
-    renderProgram->setUniformValue("texNormal",            1);
-    renderProgram->setUniformValue("texSpecular",          2);
-    renderProgram->setUniformValue("texHeight",            3);
-    renderProgram->setUniformValue("texSSAO",              4);
-    renderProgram->setUniformValue("texRoughness",         5);
-    renderProgram->setUniformValue("texMetallic",          6);
-    renderProgram->setUniformValue("texMaterial",          7);
-    renderProgram->setUniformValue("texPrefilteredEnvMap", 8);
-    renderProgram->setUniformValue("texSourceEnvMap",      9);
-
-    GLCHK(renderProgram->release());
-    settingsDialog->updateParsedShaders();
-    update();
-}
-
 void OpenGL3DImageWidget::initializeGL()
 {
     qDebug() << Q_FUNC_INFO;
@@ -444,10 +355,6 @@ void OpenGL3DImageWidget::initializeGL()
     renderProgram->setUniformValue("texSourceEnvMap",      9);
 
     GLCHK(renderProgram->release());
-
-    settingsDialog->updateParsedShaders();
-
-    settingsDialog->updateParsedShaders();
 
     // Lines shader
     qDebug() << "Compiling lines program...";

@@ -56,8 +56,6 @@ public slots:
     // PBR functions.
     void chooseSkyBox(QString cubeMapName, bool bFirstTime = false);
     void updatePerformanceSettings(Display3DSettings settings);
-    // Read and compile custom fragment shader again, can be called from 3D settings GUI.
-    void recompileRenderShader();
 
 protected:
     void initializeGL();

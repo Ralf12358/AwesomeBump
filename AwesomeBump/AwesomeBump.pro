@@ -73,7 +73,6 @@ PEG_SOURCES += \
     properties/Filter3DLensFlares.pef \
     properties/Filter3DToneMapping.pef \
     properties/Filters3D.pef \
-    properties/GLSLParsedFragShader.pef \
     properties/ImageProperties.pef
 
 FORMS += \
