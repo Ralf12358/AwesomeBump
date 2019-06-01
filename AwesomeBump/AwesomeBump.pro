@@ -15,7 +15,6 @@ win32{
 }
 
 HEADERS = \
-    allaboutdialog.h \
     basemapconvlevelproperties.h \
     camera.h \
     dialogheightcalculator.h \
@@ -50,7 +49,6 @@ HEADERS = \
     utils/contextinfo/renderwindow.h
 
 SOURCES = \
-    allaboutdialog.cpp \
     basemapconvlevelproperties.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
@@ -94,7 +92,6 @@ PEG_SOURCES += \
     properties/ImageProperties.pef
 
 FORMS += \
-    allaboutdialog.ui \
     dialogheightcalculator.ui \
     dialoglogger.ui \
     dialogshortcuts.ui \
