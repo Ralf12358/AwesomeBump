@@ -8,8 +8,6 @@
 #include <QClipboard>
 #include <QMimeData>
 
-#include "targaimage.h"
-
 bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
@@ -346,18 +344,8 @@ bool ImageWidget::loadFile(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
     QImage qImage;
-    //    qDebug() << "Opening file: " << fileName;
-    // Targa support added
-    if(fileInfo.completeSuffix().compare("tga") == 0)
-    {
-        TargaImage tgaImage;
-        qImage = tgaImage.read(fileName);
-    }
-    else
-    {
-        QImageReader loadedImage(fileName);
-        qImage = loadedImage.read();
-    }
+    QImageReader loadedImage(fileName);
+    qImage = loadedImage.read();
 
     if (qImage.isNull())
     {
@@ -368,10 +356,6 @@ bool ImageWidget::loadFile(const QString &fileName)
     if(image.getProperties()->NormalsMixer.EnableMixer)
     {
         qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
-        //imageProp.getOpenGLWidget()->makeCurrent();
-        //if(glIsTexture(imageProp.normalMixerInputTexId))
-        //    imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-        //    imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
         image.setNormalMixerInputTexture(qImage);
 
         emit imageChanged();
@@ -411,13 +395,7 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
     QFileInfo fileInfo(fullFileName);
     (*recentDir).setPath(fileInfo.absolutePath());
 
-    if( PostfixNames::outputFormat.compare(".tga") == 0)
-    {
-        TargaImage tgaImage;
-        tgaImage.write(qImage, fullFileName);
-    }
-    else
-        qImage.save(fullFileName);
+    qImage.save(fullFileName);
 }
 
 void ImageWidget::reloadImageSettings()
@@ -795,16 +773,7 @@ bool ImageWidget::saveFile(const QString &fileName)
     (*recentDir).setPath(fileInfo.absolutePath());
     QImage qImage = image.getFBOImage();
 
-    if( PostfixNames::outputFormat.compare(".tga") == 0
-            || fileInfo.completeSuffix().compare("tga") == 0 )
-    {
-        TargaImage tgaImage;
-        tgaImage.write(qImage, fileName);
-    }
-    else
-    {
-        qImage.save(fileName);
-    }
+    qImage.save(fileName);
 
     return true;
 }

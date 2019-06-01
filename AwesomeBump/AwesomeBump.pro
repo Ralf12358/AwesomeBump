@@ -37,7 +37,6 @@ HEADERS = \
     postfixnames.h \
     randomtilingmode.h \
     splashscreen.h \
-    targaimage.h \
     properties/Dialog3DGeneralSettings.h \
     properties/PropertyABColor.h \
     properties/propertyconstructor.h \
@@ -71,7 +70,6 @@ SOURCES = \
     postfixnames.cpp \
     randomtilingmode.cpp \
     splashscreen.cpp \
-    targaimage.cpp \
     properties/Dialog3DGeneralSettings.cpp \
     properties/PropertyABColor.cpp \
     properties/PropertyDelegateABColor.cpp \

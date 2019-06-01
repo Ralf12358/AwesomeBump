@@ -7,7 +7,6 @@
 #include <QMimeData>
 #include <QImageReader>
 
-#include "targaimage.h"
 #include "image.h"
 
 FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget) :
@@ -200,17 +199,8 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     QFileInfo fileInfo(fileName);
     QImage qImage;
 
-    // Targa support added.
-    if(fileInfo.completeSuffix().compare("tga") == 0)
-    {
-        TargaImage tgaImage;
-        qImage = tgaImage.read(fileName);
-    }
-    else
-    {
-        QImageReader loadedImage(fileName);
-        qImage = loadedImage.read();
-    }
+    QImageReader loadedImage(fileName);
+    qImage = loadedImage.read();
 
     if (qImage.isNull())
     {
