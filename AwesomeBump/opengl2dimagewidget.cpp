@@ -883,12 +883,12 @@ void OpenGL2DImageWidget::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO
     // Send random angles.
     QMatrix3x3 random_angles;
     for(int i = 0; i < 9; i++)
-        random_angles.data()[i] = Image::randomTilingMode.angles[i];
+        random_angles.data()[i] = Image::randomAngles[i];
 
     GLCHK( program->setUniformValue("gui_seamless_random_angles" , random_angles) );
-    GLCHK( program->setUniformValue("gui_seamless_random_phase" , Image::randomTilingMode.common_phase) );
-    GLCHK( program->setUniformValue("gui_seamless_random_inner_radius" , Image::randomTilingMode.inner_radius) );
-    GLCHK( program->setUniformValue("gui_seamless_random_outer_radius" , Image::randomTilingMode.outer_radius) );
+    GLCHK( program->setUniformValue("gui_seamless_random_phase" , Image::randomCommonPhase) );
+    GLCHK( program->setUniformValue("gui_seamless_random_inner_radius" , Image::randomInnerRadius) );
+    GLCHK( program->setUniformValue("gui_seamless_random_outer_radius" , Image::randomOuterRadius) );
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
 

@@ -8,7 +8,6 @@
 #include "properties/ImageProperties.peg.h"
 #include "postfixnames.h"
 #include "basemapconvlevelproperties.h"
-#include "randomtilingmode.h"
 
 #define TEXTURE_3DRENDER_FORMAT GL_RGB16F
 #define TEXTURE_FORMAT GL_RGB16F
@@ -93,7 +92,12 @@ public:
     static float seamlessSimpleModeRadius;
     // values: 2 - x repear, 1 - y  repeat, 0 - xy  repeat
     static int seamlessMirroModeType;
-    static RandomTilingMode randomTilingMode;
+    static float randomAngles[9];
+    static float randomCommonPhase;
+    static float randomInnerRadius;
+    static float randomOuterRadius;
+    static void randomize();
+    static void randomReset();
     static float seamlessContrastStrength;
     static float seamlessContrastPower;
     static int seamlessSimpleModeDirection;

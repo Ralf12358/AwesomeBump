@@ -1389,16 +1389,16 @@ void MainWindow::runBatch()
 
 void MainWindow::randomizeAngles()
 {
-    Image::randomTilingMode.randomize();
+    Image::randomize();
     replotAllImages();
 }
 
 void MainWindow::resetRandomPatches()
 {
-    Image::randomTilingMode = RandomTilingMode();
-    ui->horizontalSliderRandomPatchesRotate     ->setValue(Image::randomTilingMode.common_phase);
-    ui->horizontalSliderRandomPatchesInnerRadius->setValue(Image::randomTilingMode.inner_radius*100.0);
-    ui->horizontalSliderRandomPatchesOuterRadius->setValue(Image::randomTilingMode.outer_radius*100.0);
+    Image::randomReset();
+    ui->horizontalSliderRandomPatchesRotate     ->setValue(Image::randomCommonPhase);
+    ui->horizontalSliderRandomPatchesInnerRadius->setValue(Image::randomInnerRadius * 100.0);
+    ui->horizontalSliderRandomPatchesOuterRadius->setValue(Image::randomOuterRadius * 100.0);
     updateSpinBoxes(0);
     replotAllImages();
 }
@@ -1503,9 +1503,9 @@ void MainWindow::updateSliders()
     Image::seamlessSimpleModeRadius          = ui->doubleSpinBoxMakeSeamless->value();
     Image::seamlessContrastStrength          = ui->doubleSpinBoxSeamlessContrastStrenght->value();
     Image::seamlessContrastPower             = ui->doubleSpinBoxSeamlessContrastPower->value();
-    Image::randomTilingMode.common_phase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
-    Image::randomTilingMode.inner_radius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
-    Image::randomTilingMode.outer_radius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
+    Image::randomCommonPhase = ui->doubleSpinBoxRandomPatchesAngle->value()/180.0*3.1415926;
+    Image::randomInnerRadius = ui->doubleSpinBoxRandomPatchesInnerRadius->value();
+    Image::randomOuterRadius = ui->doubleSpinBoxRandomPatchesOuterRadius->value();
 
     Image::bSeamlessTranslationsFirst = ui->checkBoxUVTranslationsFirst->isChecked();
     // Choose the proper mirror mode.

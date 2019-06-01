@@ -35,7 +35,6 @@ HEADERS = \
     openglerrorcheck.h \
     opengltexturecube.h \
     postfixnames.h \
-    randomtilingmode.h \
     splashscreen.h \
     properties/Dialog3DGeneralSettings.h \
     properties/PropertyABColor.h \
@@ -68,7 +67,6 @@ SOURCES = \
     opengl3dimagewidget.cpp \
     opengltexturecube.cpp \
     postfixnames.cpp \
-    randomtilingmode.cpp \
     splashscreen.cpp \
     properties/Dialog3DGeneralSettings.cpp \
     properties/PropertyABColor.cpp \
