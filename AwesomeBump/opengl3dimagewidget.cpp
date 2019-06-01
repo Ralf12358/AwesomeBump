@@ -74,6 +74,7 @@ OpenGL3DImageWidget::~OpenGL3DImageWidget()
     delete lensDirtTexture;
     delete lensStarTexture;
 
+    delete renderProgram;
     delete line_program;
     delete skybox_program;
     delete env_program;
@@ -267,10 +268,9 @@ void OpenGL3DImageWidget::recompileRenderShader()
     qDebug() << Q_FUNC_INFO;
 
     makeCurrent();
-    settingsDialog->currentShaderParser->reparseShader();
-    settingsDialog->currentShaderParser->program->release();
-    delete settingsDialog->currentShaderParser->program;
-    settingsDialog->currentShaderParser->program = new QOpenGLShaderProgram(this);
+    renderProgram->release();
+    delete renderProgram;
+    renderProgram = new QOpenGLShaderProgram(this);
 
     QOpenGLShader *vshader  = NULL;
     QOpenGLShader *tcshader = NULL;
@@ -311,22 +311,22 @@ void OpenGL3DImageWidget::recompileRenderShader()
 
     // Load custom fragment shader.
     QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    pfshader->compileSourceFile(settingsDialog->currentShaderParser->shaderFilename);
+    pfshader->compileSourceFile(":/resources/shaders/awesombump.frag");
     if (!pfshader->log().isEmpty())
         qDebug() << pfshader->log();
     else
         qDebug() << "  Custom Fragment Shader (GLSL3.3): OK";
 
-    settingsDialog->currentShaderParser->program->addShader(tcshader);
-    settingsDialog->currentShaderParser->program->addShader(teshader);
-    settingsDialog->currentShaderParser->program->addShader(vshader);
-    settingsDialog->currentShaderParser->program->addShader(pfshader);
-    settingsDialog->currentShaderParser->program->addShader(gshader);
-    settingsDialog->currentShaderParser->program->bindAttributeLocation("FragColor",0);
-    settingsDialog->currentShaderParser->program->bindAttributeLocation("FragNormal",1);
-    settingsDialog->currentShaderParser->program->bindAttributeLocation("FragGlowColor",2);
-    settingsDialog->currentShaderParser->program->bindAttributeLocation("FragPosition",3);
-    GLCHK(settingsDialog->currentShaderParser->program->link());
+    renderProgram->addShader(tcshader);
+    renderProgram->addShader(teshader);
+    renderProgram->addShader(vshader);
+    renderProgram->addShader(pfshader);
+    renderProgram->addShader(gshader);
+    renderProgram->bindAttributeLocation("FragColor",0);
+    renderProgram->bindAttributeLocation("FragNormal",1);
+    renderProgram->bindAttributeLocation("FragGlowColor",2);
+    renderProgram->bindAttributeLocation("FragPosition",3);
+    GLCHK(renderProgram->link());
 
     delete pfshader;
     if(vshader  != NULL) delete vshader;
@@ -334,19 +334,19 @@ void OpenGL3DImageWidget::recompileRenderShader()
     if(teshader != NULL) delete teshader;
     if(gshader  != NULL) delete gshader;
 
-    GLCHK(settingsDialog->currentShaderParser->program->bind());
-    settingsDialog->currentShaderParser->program->setUniformValue("texDiffuse",           0);
-    settingsDialog->currentShaderParser->program->setUniformValue("texNormal",            1);
-    settingsDialog->currentShaderParser->program->setUniformValue("texSpecular",          2);
-    settingsDialog->currentShaderParser->program->setUniformValue("texHeight",            3);
-    settingsDialog->currentShaderParser->program->setUniformValue("texSSAO",              4);
-    settingsDialog->currentShaderParser->program->setUniformValue("texRoughness",         5);
-    settingsDialog->currentShaderParser->program->setUniformValue("texMetallic",          6);
-    settingsDialog->currentShaderParser->program->setUniformValue("texMaterial",          7);
-    settingsDialog->currentShaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
-    settingsDialog->currentShaderParser->program->setUniformValue("texSourceEnvMap",      9);
+    GLCHK(renderProgram->bind());
+    renderProgram->setUniformValue("texDiffuse",           0);
+    renderProgram->setUniformValue("texNormal",            1);
+    renderProgram->setUniformValue("texSpecular",          2);
+    renderProgram->setUniformValue("texHeight",            3);
+    renderProgram->setUniformValue("texSSAO",              4);
+    renderProgram->setUniformValue("texRoughness",         5);
+    renderProgram->setUniformValue("texMetallic",          6);
+    renderProgram->setUniformValue("texMaterial",          7);
+    renderProgram->setUniformValue("texPrefilteredEnvMap", 8);
+    renderProgram->setUniformValue("texSourceEnvMap",      9);
 
-    GLCHK(settingsDialog->currentShaderParser->program->release());
+    GLCHK(renderProgram->release());
     settingsDialog->updateParsedShaders();
     update();
 }
@@ -407,44 +407,43 @@ void OpenGL3DImageWidget::initializeGL()
     else qDebug() << "done";
 
     // Load parsed shader.
-    GLSLShaderParser* shaderParser = settingsDialog->currentShaderParser;
-    shaderParser->program = new QOpenGLShaderProgram(this);
+    renderProgram = new QOpenGLShaderProgram(this);
 
     // Load custom fragment shader.
     qDebug() << "Loading parsed glsl fragment shader";
     QOpenGLShader* pfshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    pfshader->compileSourceFile(shaderParser->shaderFilename);
+    pfshader->compileSourceFile(":/resources/shaders/awesombump.frag");
     if (!pfshader->log().isEmpty())
         qDebug() << pfshader->log();
     else
         qDebug() << "done";
 
-    shaderParser->program->addShader(tcshader);
-    shaderParser->program->addShader(teshader);
-    shaderParser->program->addShader(vshader);
-    shaderParser->program->addShader(pfshader);
-    shaderParser->program->addShader(gshader);
-    shaderParser->program->bindAttributeLocation("FragColor",     0);
-    shaderParser->program->bindAttributeLocation("FragNormal",    1);
-    shaderParser->program->bindAttributeLocation("FragGlowColor", 2);
-    shaderParser->program->bindAttributeLocation("FragPosition",  3);
-    GLCHK(shaderParser->program->link());
+    renderProgram->addShader(tcshader);
+    renderProgram->addShader(teshader);
+    renderProgram->addShader(vshader);
+    renderProgram->addShader(pfshader);
+    renderProgram->addShader(gshader);
+    renderProgram->bindAttributeLocation("FragColor",     0);
+    renderProgram->bindAttributeLocation("FragNormal",    1);
+    renderProgram->bindAttributeLocation("FragGlowColor", 2);
+    renderProgram->bindAttributeLocation("FragPosition",  3);
+    GLCHK(renderProgram->link());
 
     delete pfshader;
 
-    GLCHK(shaderParser->program->bind());
-    shaderParser->program->setUniformValue("texDiffuse",           0);
-    shaderParser->program->setUniformValue("texNormal",            1);
-    shaderParser->program->setUniformValue("texSpecular",          2);
-    shaderParser->program->setUniformValue("texHeight",            3);
-    shaderParser->program->setUniformValue("texSSAO",              4);
-    shaderParser->program->setUniformValue("texRoughness",         5);
-    shaderParser->program->setUniformValue("texMetallic",          6);
-    shaderParser->program->setUniformValue("texMaterial",          7);
-    shaderParser->program->setUniformValue("texPrefilteredEnvMap", 8);
-    shaderParser->program->setUniformValue("texSourceEnvMap",      9);
+    GLCHK(renderProgram->bind());
+    renderProgram->setUniformValue("texDiffuse",           0);
+    renderProgram->setUniformValue("texNormal",            1);
+    renderProgram->setUniformValue("texSpecular",          2);
+    renderProgram->setUniformValue("texHeight",            3);
+    renderProgram->setUniformValue("texSSAO",              4);
+    renderProgram->setUniformValue("texRoughness",         5);
+    renderProgram->setUniformValue("texMetallic",          6);
+    renderProgram->setUniformValue("texMaterial",          7);
+    renderProgram->setUniformValue("texPrefilteredEnvMap", 8);
+    renderProgram->setUniformValue("texSourceEnvMap",      9);
 
-    GLCHK(shaderParser->program->release());
+    GLCHK(renderProgram->release());
 
     settingsDialog->updateParsedShaders();
 
@@ -693,7 +692,7 @@ void OpenGL3DImageWidget::paintGL()
     GLCHK( skybox_mesh->drawMesh() );
 
     // Drawing model
-    QOpenGLShaderProgram* program_ptrs[2] = {settingsDialog->currentShaderParser->program,line_program};
+    QOpenGLShaderProgram* program_ptrs[2] = {renderProgram,line_program};
     GLCHK( glEnable(GL_CULL_FACE) );
     GLCHK( glEnable(GL_DEPTH_TEST) );
     GLCHK( glCullFace(GL_BACK) );
@@ -704,12 +703,6 @@ void OpenGL3DImageWidget::paintGL()
     {
         QOpenGLShaderProgram* program_ptr = program_ptrs[pindex];
         GLCHK( program_ptr->bind() );
-
-        // Update uniforms from parsed file.
-        if(pindex == 0)
-        {
-            settingsDialog->setUniforms();
-        }
 
         program_ptr->setUniformValue("ProjectionMatrix", projectionMatrix);
 

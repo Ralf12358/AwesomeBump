@@ -39,7 +39,7 @@ HEADERS = \
     properties/PropertyABColor.h \
     properties/propertyconstructor.h \
     properties/PropertyDelegateABColor.h \
-    utils/glslshaderparser.h
+    properties/propertyconstructor.h
 
 SOURCES = \
     basemapconvlevelproperties.cpp \
@@ -65,8 +65,7 @@ SOURCES = \
     properties/Dialog3DGeneralSettings.cpp \
     properties/PropertyABColor.cpp \
     properties/PropertyDelegateABColor.cpp \
-    properties/propertydelegateabfloatslider.cpp \
-    utils/glslshaderparser.cpp
+    properties/propertydelegateabfloatslider.cpp
 
 PEG_SOURCES += \
     properties/Filter3DBloom.pef \

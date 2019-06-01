@@ -7,7 +7,6 @@
 
 #include "Property.h"
 #include "Filters3D.peg.h"
-#include "utils/glslshaderparser.h"
 
 namespace Ui
 {
@@ -27,7 +26,6 @@ public:
     void saveSettings();
 
     QtnPropertySetFilters3D* filters3DProperties;
-    GLSLShaderParser* currentShaderParser;
 
 signals:
     void signalPropertyChanged();
@@ -45,7 +43,6 @@ public slots:
     void recompileCustomShader();
     void shaderChanged(int index);
     void updateParsedShaders();
-    void setUniforms();
 
 private:
     Ui::PropertyDialog *ui;

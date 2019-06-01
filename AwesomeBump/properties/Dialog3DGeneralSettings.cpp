@@ -40,7 +40,6 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
     // Setup pointer and comboBox
     int lastIndex = filters3DProperties->ParsedShader.LastShaderIndex.value();
     ui->comboBoxShadersList->setCurrentIndex(lastIndex);
-    currentShaderParser = new GLSLShaderParser;
 
     connect(ui->comboBoxShadersList, SIGNAL (currentIndexChanged(int)), this, SLOT (shaderChanged(int)));
 }
@@ -48,7 +47,6 @@ Dialog3DGeneralSettings::Dialog3DGeneralSettings(QWidget* parent) :
 Dialog3DGeneralSettings::~Dialog3DGeneralSettings()
 {
     delete filters3DProperties;
-    delete currentShaderParser;
     delete ui;
 }
 
@@ -113,24 +111,7 @@ void Dialog3DGeneralSettings::shaderChanged(int)
 
 void Dialog3DGeneralSettings::updateParsedShaders()
 {
-    GLSLShaderParser *parsedShader = currentShaderParser;
     int maxParams = filters3DProperties->ParsedShader.MaxParams;
-    int parsedParamsCount = parsedShader->uniforms.size();
-
-    // If parsed number uniform is greater than supported number of params display warning message.
-    if(parsedParamsCount > maxParams)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Warning!");
-        msgBox.setInformativeText("Custom shader with name:" + parsedShader->shaderBaseName +
-                                  " has more than maxiumum allowed number of user-defined uniforms.\n" +
-                                  "Current number of parameters: " + QString::number(parsedParamsCount) + ".\n" +
-                                  "Supported number of parameters: " + QString::number(maxParams) + ".\n" +
-                                  "Custom shader has been linked but may not work properly.");
-        msgBox.setStandardButtons(QMessageBox::Cancel);
-        msgBox.exec();
-        return;
-    }
 
     // Hide all by default.
     for(int i = 0; i < maxParams; i++)
@@ -139,35 +120,4 @@ void Dialog3DGeneralSettings::updateParsedShaders()
                 (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i + 1));
         floatProperty->switchState(QtnPropertyStateInvisible, true);
     }
-
-    // Update property set based on parsed fragment shader.
-    for(int i = 0; i < qMin(parsedParamsCount, maxParams); i++)
-    {
-        QtnPropertyFloat *floatProperty =
-                (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i + 1));
-        UniformData& uniform = parsedShader->uniforms[i];
-        floatProperty->switchState(QtnPropertyStateInvisible, false);
-        floatProperty->setDescription(uniform.description);
-        floatProperty->setDisplayName(uniform.name);
-        floatProperty->setValue(uniform.value);
-        floatProperty->setMaxValue(uniform.max);
-        floatProperty->setMinValue(uniform.min);
-        floatProperty->setStepValue(uniform.step);
-    }
-}
-
-void Dialog3DGeneralSettings::setUniforms()
-{
-    GLSLShaderParser *parsedShader = currentShaderParser;
-    int maxParams = filters3DProperties->ParsedShader.MaxParams;
-    int parsedParamsCount = parsedShader->uniforms.size();
-
-    // Update property set based on parsed fragment shader.
-    for(int i = 0; i < qMin(parsedParamsCount, maxParams) ; i++)
-    {
-        QtnPropertyFloat* floatProperty = (QtnPropertyFloat*)(filters3DProperties->ParsedShader.findChildProperty(i+1));
-        UniformData& uniform = parsedShader->uniforms[i];
-        uniform.value = (float)floatProperty->value();
-    }
-    parsedShader->setParsedUniforms();
 }

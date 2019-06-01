@@ -1,9 +1,10 @@
 #ifndef OPENGL3DIMAGEWIDGET_H
 #define OPENGL3DIMAGEWIDGET_H
 
-#include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QOpenGLWidget>
 #include <QtMath>
 
 #include "image.h"
@@ -12,7 +13,6 @@
 #include "camera.h"
 #include "mesh.h"
 #include "properties/Dialog3DGeneralSettings.h"
-#include "utils/glslshaderparser.h"
 
 #define KEY_SHOW_MATERIALS Qt::Key_S
 
@@ -95,10 +95,11 @@ private:
     const GLuint& getAttachedTexture(GLuint index);
     void setFBOTextureParameters(QOpenGLFramebufferObject *fbo);
 
-    // Same as "program" but instead of triangles lines are used
-    QOpenGLShaderProgram *line_program;
-    QOpenGLShaderProgram *skybox_program;
-    QOpenGLShaderProgram *env_program;
+    // Render Shader Program
+    QOpenGLShaderProgram* renderProgram;
+    QOpenGLShaderProgram* line_program;
+    QOpenGLShaderProgram* skybox_program;
+    QOpenGLShaderProgram* env_program;
 
     Image * images[8];
 
@@ -147,8 +148,6 @@ private:
     OpenGLTextureCube* skyBoxTextureCube;
     // Control calculating diffuse environment map.
     bool bDiffuseMapBaked;
-
-    //GLImage* glImagePtr;
 
     // Post-processing variables.
     // All post processing functions
