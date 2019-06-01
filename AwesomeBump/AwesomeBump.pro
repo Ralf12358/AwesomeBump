@@ -39,11 +39,8 @@ HEADERS = \
     properties/PropertyABColor.h \
     properties/propertyconstructor.h \
     properties/PropertyDelegateABColor.h \
-    utils/DebugMetricsMonitor.h \
     utils/glslparsedshadercontainer.h \
-    utils/glslshaderparser.h \
-    utils/contextinfo/contextwidget.h \
-    utils/contextinfo/renderwindow.h
+    utils/glslshaderparser.h
 
 SOURCES = \
     basemapconvlevelproperties.cpp \
@@ -70,11 +67,8 @@ SOURCES = \
     properties/PropertyABColor.cpp \
     properties/PropertyDelegateABColor.cpp \
     properties/propertydelegateabfloatslider.cpp \
-    utils/DebugMetricsMonitor.cpp \
     utils/glslparsedshadercontainer.cpp \
-    utils/glslshaderparser.cpp \
-    utils/contextinfo/contextwidget.cpp \
-    utils/contextinfo/renderwindow.cpp
+    utils/glslshaderparser.cpp
 
 PEG_SOURCES += \
     properties/Filter3DBloom.pef \
