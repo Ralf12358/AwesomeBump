@@ -23,10 +23,6 @@
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
 
-#define INIT_PROGRESS(p,m) \
-    emit initProgress(p); \
-    emit initMessage(m);
-
 // Compressed texture type.
 enum CompressedFromTypes
 {
@@ -65,7 +61,7 @@ void MainWindow::initialiseWindow()
     qDebug() << "Application dir:" << QApplication::applicationDirPath();
 
     qDebug() << "Initialization: Build image properties";
-    INIT_PROGRESS(10, "Build image properties");
+    emit initialisationProgress(10, "Build image properties");
 
     diffuseImageWidget   = new ImageWidget(this, openGL2DImageWidget, DIFFUSE_TEXTURE);
     normalImageWidget    = new ImageWidget(this, openGL2DImageWidget, NORMAL_TEXTURE);
@@ -79,7 +75,7 @@ void MainWindow::initialiseWindow()
     materialManager    = new FormMaterialIndicesManager(this, openGL2DImageWidget);
 
     qDebug() << "Initialization: Setup image properties";
-    INIT_PROGRESS(20, "Setup image properties");
+    emit initialisationProgress(20, "Setup image properties");
 
     // Set pointers to images
     materialManager->imagesPointers[0] = diffuseImageWidget;
@@ -112,7 +108,7 @@ void MainWindow::initialiseWindow()
 
     // Setup GUI
     qDebug() << "Initialization: GUI setup";
-    INIT_PROGRESS(30, "GUI setup");
+    emit initialisationProgress(30, "GUI setup");
 
     ui->statusbar->addWidget(statusLabel);
 
@@ -144,7 +140,7 @@ void MainWindow::initialiseWindow()
     ui->verticalLayout2DImage->addWidget(openGL2DImageWidget);
 
     qDebug() << "Initialization: Adding widgets.";
-    INIT_PROGRESS(40, "Adding widgets.");
+    emit initialisationProgress(40, "Adding widgets.");
 
     ui->verticalLayoutDiffuseImage        ->addWidget(diffuseImageWidget);
     ui->verticalLayoutNormalImage         ->addWidget(normalImageWidget);
@@ -179,7 +175,7 @@ void MainWindow::initialiseWindow()
     connect(grungeImageWidget,    SIGNAL (imageChanged()), this, SLOT (updateGrungeImage()));
 
     qDebug() << "Initialization: Connections and actions.";
-    INIT_PROGRESS(50, "Connections and actions.");
+    emit initialisationProgress(50, "Connections and actions.");
 
     // Connect grunge slots.
     connect(grungeImageWidget,    SIGNAL(toggleGrungeSettings(bool)), diffuseImageWidget  , SLOT (toggleGrungeImageSettingsGroup(bool)));
@@ -280,7 +276,7 @@ void MainWindow::initialiseWindow()
     connect(ui->actionFitToScreen, SIGNAL (triggered()), this, SLOT (fitImage()));
 
     qDebug() << "Initialization: Perspective tool connections.";
-    INIT_PROGRESS(60, "Perspective tool connections.");
+    emit initialisationProgress(60, "Perspective tool connections.");
 
     // Connect perspective tool signals.
     connect(ui->pushButtonResetTransform, SIGNAL (released()), this, SLOT (resetTransform()));
@@ -289,7 +285,7 @@ void MainWindow::initialiseWindow()
     connect(ui->comboBoxSeamlessContrastInputImage, SIGNAL (activated(int)), this, SLOT (selectContrastInputImage(int)));
 
     qDebug() << "Initialization: UV seamless connections.";
-    INIT_PROGRESS(70, "UV seamless connections.");
+    emit initialisationProgress(70, "UV seamless connections.");
 
     // Connect uv seamless algorithms.
     connect(ui->checkBoxUVTranslationsFirst, SIGNAL (clicked()), this, SLOT (updateSliders()));
@@ -375,7 +371,7 @@ void MainWindow::initialiseWindow()
     loadSettings();
 
     qDebug() << "Initialization: Loading default (initial) textures.";
-    INIT_PROGRESS(80, "Loading default (initial) textures.");
+    emit initialisationProgress(80, "Loading default (initial) textures.");
 
     // Load initial textures.
     diffuseImageWidget   ->setImage(QImage(QString(":/resources/logo/logo_D.png")));
@@ -391,7 +387,7 @@ void MainWindow::initialiseWindow()
     // Set the active image
     openGL2DImageWidget->setActiveImage(diffuseImageWidget->getImage());
 
-    INIT_PROGRESS(90, "Updating main menu items.");
+    emit initialisationProgress(90, "Updating main menu items.");
 
     aboutAction = new QAction(QIcon(":/resources/icons/cube.png"), tr("&About %1").arg(qApp->applicationName()), this);
     aboutAction->setToolTip(tr("Show information about AwesomeBump"));
@@ -434,7 +430,7 @@ void MainWindow::initialiseWindow()
     ui->pushButtonOccWarning       ->setVisible(false);
 
     qDebug() << "Initialization: Done - UI ready.";
-    INIT_PROGRESS(100, tr("Done - UI ready."));
+    emit initialisationProgress(100, tr("Done - UI ready."));
 
     setWindowTitle(AWESOME_BUMP_VERSION);
     resize(sizeHint());

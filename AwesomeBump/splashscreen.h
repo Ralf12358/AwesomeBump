@@ -8,17 +8,16 @@ class SplashScreen : public QSplashScreen
     Q_OBJECT
 
 public:
-    explicit SplashScreen(QApplication *app, QWidget *parent = 0);
-
-    int m_progress;
-    QApplication *app;
+    SplashScreen();
 
 public slots:
-    void setProgress(int value);
-    void setMessage(const QString &msg);
+    void updateProgress(int percent, const QString& message);
 
 protected:
-    void drawContents(QPainter *painter);
+    void drawContents(QPainter *painter) override;
+
+private:
+    int progress;
 };
 
 #endif // SPLASHSCREEN_H

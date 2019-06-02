@@ -49,8 +49,7 @@ protected:
     void showEvent(QShowEvent* event);
 
 signals:
-    void initProgress(int perc);
-    void initMessage(const QString &msg);
+    void initialisationProgress(int perc, const QString& message);
 
 public slots:
     void aboutQt();

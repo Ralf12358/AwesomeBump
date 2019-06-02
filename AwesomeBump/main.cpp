@@ -7,7 +7,6 @@
 
 #define GL_MAJOR 4
 #define GL_MINOR 0
-#define VERSION_STRING "6.0"
 
 // Register delegates.
 extern void regABSliderDelegates();
@@ -21,16 +20,9 @@ int main(int argc, char *argv[])
     regABColorDelegates();
 
     // Create splash screen.
-    SplashScreen splashScreen(&app);
-    QPixmap splashScreenPixMap = QPixmap(":/resources/logo/splash.png");
-    // Resize splash screen to 1/4 of the screen.
-    QSize splashScreenSize = splashScreenPixMap.size() *
-            float(QApplication::desktop()->screenGeometry().width()) / 4.0 /
-            float(splashScreenPixMap.size().width());
-    splashScreen.resize(splashScreenSize);
-    splashScreen.setPixmap(splashScreenPixMap.scaled(splashScreenSize));
-    splashScreen.setMessage(VERSION_STRING "|Starting ...");
-    splashScreen.show(); app.processEvents();
+    SplashScreen splashScreen;
+    splashScreen.show();
+    app.processEvents();
 
     // Choose proper GUI style from config.ini file.
     QSettings settings("config.ini", QSettings::IniFormat);
@@ -64,8 +56,8 @@ int main(int argc, char *argv[])
 
     // Create main application window.
     MainWindow window;
-    QObject::connect(&window, SIGNAL (initProgress(int)), &splashScreen, SLOT (setProgress(int)));
-    QObject::connect(&window, SIGNAL (initMessage(const QString&)), &splashScreen, SLOT (setMessage(const QString&)));
+    QObject::connect(&window,       SIGNAL(initialisationProgress(int, const QString&)),
+                     &splashScreen, SLOT(updateProgress(int, const QString&)));
     window.initialiseWindow();
     int desktopArea = QApplication::desktop()->width() * QApplication::desktop()->height();
     int windowArea = window.width() * window.height();

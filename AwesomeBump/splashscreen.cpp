@@ -1,27 +1,29 @@
 #include "splashscreen.h"
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QStyleOptionProgressBar>
 
-SplashScreen::SplashScreen(QApplication *app, QWidget *parent) :
-    QSplashScreen(parent), app(app)
+SplashScreen::SplashScreen()
 {
+    QPixmap pixMap = QPixmap(":/resources/logo/splash.png");
+    // Resize splash screen to 1/4 of the screen.
+    QSize size = pixMap.size() * (0.25 *
+            QApplication::desktop()->screenGeometry().width() /
+            pixMap.size().width());
+    setPixmap(pixMap.scaled(size));
+    showMessage("Starting ...", Qt::AlignTop);
     setCursor(Qt::BusyCursor);
 }
 
-void SplashScreen::setProgress(int value)
+void SplashScreen::updateProgress(int progress, const QString& message)
 {
-    m_progress = value;
-    if (m_progress > 100)
-        m_progress = 100;
-    if (m_progress < 0)
-        m_progress = 0;
-    update();
-    repaint();
-}
+    if (progress < 0)   progress = 0;
+    if (progress > 100) progress = 100;
+    this->progress = progress;
 
-void SplashScreen::setMessage(const QString &msg)
-{
-    QSplashScreen:: showMessage(msg, Qt::AlignTop);
+    showMessage(message, Qt::AlignTop);
+
     update();
     repaint();
 }
@@ -30,17 +32,15 @@ void SplashScreen::drawContents(QPainter *painter)
 {
     QSplashScreen::drawContents(painter);
 
-    // Set style for progressbar...
-    QStyleOptionProgressBar pbstyle;
-    pbstyle.initFrom(this);
-    pbstyle.state = QStyle::State_Enabled;
-    pbstyle.textVisible = false;
-    pbstyle.minimum = 0;
-    pbstyle.maximum = 100;
-    pbstyle.progress = m_progress;
-    pbstyle.invertedAppearance = false;
-    pbstyle.rect = QRect(0, height()-19, width(), 19); // Where is it.
+    // Draw ProgressBar...
+    QStyleOptionProgressBar progressBar;
+    progressBar.initFrom(this);
+    progressBar.state = QStyle::State_Enabled;
+    progressBar.minimum = 0;
+    progressBar.maximum = 100;
+    progressBar.progress = progress;
+    // Set location.
+    progressBar.rect = QRect(0, height()-20, width(), 20);
 
-    // Draw it...
-    style()->drawControl(QStyle::CE_ProgressBar, &pbstyle, painter, this);
+    style()->drawControl(QStyle::CE_ProgressBar, &progressBar, painter, this);
 }
