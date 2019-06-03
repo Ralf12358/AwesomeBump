@@ -9,6 +9,10 @@
 
 #include <Property.h>
 #include <PropertySet.h>
+#include "Core/PropertyFloat.h"
+#include "Core/PropertyInt.h"
+#include "Delegates/PropertyDelegateFactory.h"
+#include "Delegates/Utils/PropertyDelegateSliderBox.h"
 
 #include <iostream>
 
@@ -22,6 +26,7 @@
 #include "properties/Dialog3DGeneralSettings.h"
 #include "dialoglogger.h"
 #include "dialogshortcuts.h"
+#include "properties/PropertyDelegateABColor.h"
 
 // Compressed texture type.
 enum CompressedFromTypes
@@ -37,6 +42,18 @@ MainWindow::MainWindow(QWidget *parent) :
     bSaveCompressedFormImages(false)
 {
     ui->setupUi(this);
+
+    QtnPropertyDelegateFactory::staticInstance().registerDelegateDefault(
+            &QtnPropertyFloatBase::staticMetaObject,
+            &qtnCreateDelegate<QtnPropertyDelegateSlideBoxTyped<QtnPropertyFloatBase>, QtnPropertyFloatBase>,
+            "SliderBox");
+
+    QtnPropertyDelegateFactory::staticInstance().registerDelegateDefault(
+            &QtnPropertyIntBase::staticMetaObject,
+            &qtnCreateDelegate<QtnPropertyDelegateSlideBoxTyped<QtnPropertyIntBase>, QtnPropertyIntBase>,
+            "SliderBox");
+
+    regABColorDelegates();
 
     abSettings = new QtnPropertySetAwesomeBump(this);
     statusLabel = new QLabel("GPU memory status: n/a");

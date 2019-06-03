@@ -32,7 +32,9 @@ protected:
     QWidget* createValueEditorImpl(QWidget* parent, const QRect& rect, QtnInplaceInfo* inplaceInfo = nullptr) override;
 
 private:
-    QtnPropertyABColor& m_owner;
+    QtnPropertyABColor& owner;
 };
+
+void regABColorDelegates();
 
 #endif // PROPERTY_DELEGATE_AB_COLOR_H

@@ -64,8 +64,7 @@ SOURCES = \
     splashscreen.cpp \
     properties/Dialog3DGeneralSettings.cpp \
     properties/PropertyABColor.cpp \
-    properties/PropertyDelegateABColor.cpp \
-    properties/propertydelegateabfloatslider.cpp
+    properties/PropertyDelegateABColor.cpp
 
 PEG_SOURCES += \
     properties/Filter3DBloom.pef \

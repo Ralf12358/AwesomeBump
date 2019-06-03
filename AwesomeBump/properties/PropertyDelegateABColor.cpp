@@ -14,26 +14,26 @@
    limitations under the License.
 */
 
+#include "PropertyABColor.h"
 #include "PropertyDelegateABColor.h"
 #include "Delegates/PropertyDelegateFactory.h"
-#include "PropertyABColor.h"
+
+QtnPropertyDelegateABColor::QtnPropertyDelegateABColor(QtnPropertyABColor& owner) :
+    QtnPropertyDelegateQColor(owner),
+    owner(owner)
+{
+}
+
+QWidget* QtnPropertyDelegateABColor::createValueEditorImpl(QWidget*, const QRect&, QtnInplaceInfo*)
+{
+    owner.invokeClick();
+    return nullptr;
+}
 
 void regABColorDelegates()
 {
-  QtnPropertyDelegateFactory::staticInstance()
-    .registerDelegateDefault(&QtnPropertyABColor::staticMetaObject
-                 , &qtnCreateDelegate<QtnPropertyDelegateABColor, QtnPropertyABColor>
-                 , "LineEditBttn");
-}
-
-QtnPropertyDelegateABColor::QtnPropertyDelegateABColor(QtnPropertyABColor& owner)
-    : QtnPropertyDelegateQColor(owner),
-      m_owner(owner)
-{
-}
-
-QWidget* QtnPropertyDelegateABColor::createValueEditorImpl(QWidget* /*parent*/, const QRect& /*rect*/, QtnInplaceInfo* /*inplaceInfo*/)
-{
-    m_owner.invokeClick();
-    return nullptr;
+    QtnPropertyDelegateFactory::staticInstance().registerDelegateDefault(
+            &QtnPropertyABColor::staticMetaObject,
+            &qtnCreateDelegate<QtnPropertyDelegateABColor, QtnPropertyABColor>,
+            "LineEditBttn");
 }

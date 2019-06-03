@@ -8,16 +8,9 @@
 #define GL_MAJOR 4
 #define GL_MINOR 0
 
-// Register delegates.
-extern void regABSliderDelegates();
-extern void regABColorDelegates();
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-    regABSliderDelegates();
-    regABColorDelegates();
 
     // Create splash screen.
     SplashScreen splashScreen;
