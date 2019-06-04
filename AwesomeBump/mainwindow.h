@@ -171,8 +171,6 @@ private:
     // Show key shortcuts
     QAction *shortcutsAction;
 
-    QLabel *statusLabel;
-
     DialogLogger *dialogLogger;
     DialogShortcuts *dialogShortcuts;
 };

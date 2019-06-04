@@ -56,14 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
     regABColorDelegates();
 
     abSettings = new QtnPropertySetAwesomeBump(this);
-    statusLabel = new QLabel("GPU memory status: n/a");
 
     ImageWidget::recentDir = &recentDir;
-
-#ifdef Q_OS_MAC
-    if(!statusLabel->testAttribute(Qt::WA_MacNormalSize))
-        statusLabel->setAttribute(Qt::WA_MacSmallSize);
-#endif
 
     openGL2DImageWidget = new OpenGL2DImageWidget(this);
     //glWidget = new OpenGLWidget(this,glImage);
@@ -126,8 +120,6 @@ void MainWindow::initialiseWindow()
     // Setup GUI
     qDebug() << "Initialization: GUI setup";
     emit initialisationProgress(30, "GUI setup");
-
-    ui->statusbar->addWidget(statusLabel);
 
     // Settings container
     settingsContainer = new FormSettingsContainer;
@@ -468,7 +460,6 @@ MainWindow::~MainWindow()
     delete roughnessImageWidget;
     delete grungeImageWidget;
     delete metallicImageWidget;
-    delete statusLabel;
     delete openGL2DImageWidget;
     delete openGL3DImageWidget;
     delete abSettings;
