@@ -175,7 +175,6 @@ private:
 
     DialogLogger *dialogLogger;
     DialogShortcuts *dialogShortcuts;
-    QSettings defaults;
 };
 
 void displayOpenGLInformation(bool includeExtensions);

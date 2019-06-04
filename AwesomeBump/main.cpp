@@ -17,26 +17,8 @@ int main(int argc, char *argv[])
     splashScreen.show();
     app.processEvents();
 
-    // Choose proper GUI style from config.ini file.
-    QSettings settings("config.ini", QSettings::IniFormat);
-    QString guiStyle = settings.value("gui_style").toString();
-    if (!guiStyle.isEmpty())
-        app.setStyle(QStyleFactory::create(guiStyle));
-    // Customize some elements.
-    app.setStyleSheet("QGroupBox { font-weight: bold; } ");
-    // Load specific settings for GUI same for every preset.
-    QSettings guiSettings("Configs/gui.ini", QSettings::IniFormat);
-    QPalette palette;
-    palette.setColor(QPalette::Shadow,
-                     QColor(guiSettings.value("slider_font_color", "#000000").toString()));
-    app.setPalette(palette);
-    QFont font;
-    font.setFamily(font.defaultFamily());
-    font.setPixelSize(guiSettings.value("font_size", 10).toInt());
-    app.setFont(font);
-
-    // Remove old log file.
-    QFile::remove(AB_LOG);
+    // Customize GUI style elements.
+    app.setStyleSheet("QGroupBox { font-weight: bold; }");
 
     // Setup default context attributes.
     QSurfaceFormat surfaceFormat;
