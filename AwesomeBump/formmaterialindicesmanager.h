@@ -25,7 +25,6 @@ public:
     ~FormMaterialIndicesManager();
 
     Image* getImage();
-    void setImage(const QImage &qImage);
 
     // Counts colors and manages material masking
     bool updateMaterials(const QImage &qImage);

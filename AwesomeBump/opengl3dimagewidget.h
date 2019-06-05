@@ -9,6 +9,7 @@
 #include <QtMath>
 
 #include "image.h"
+#include "opengl2dimagewidget.h"
 #include "opengltexturecube.h"
 #include "display3dsettings.h"
 #include "camera.h"
@@ -22,7 +23,7 @@ class OpenGL3DImageWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0
     Q_OBJECT
 
 public:
-    OpenGL3DImageWidget(QWidget *parent = 0);
+    OpenGL3DImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget);
     ~OpenGL3DImageWidget();
 
     QSize minimumSizeHint() const;
@@ -100,6 +101,7 @@ private:
     QOpenGLShaderProgram* skybox_program;
     QOpenGLShaderProgram* env_program;
 
+    OpenGL2DImageWidget* openGL2DImageWidget;
     Image * images[8];
 
     bool bToggleDiffuseView;

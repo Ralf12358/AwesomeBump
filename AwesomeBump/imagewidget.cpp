@@ -102,11 +102,6 @@ Image* ImageWidget::getImage()
     return &image;
 }
 
-void ImageWidget::setImage(const QImage& qImage)
-{
-    image.setImage(qImage);
-}
-
 QString ImageWidget::getImageName()
 {
     return image.getImageName();
@@ -365,7 +360,7 @@ bool ImageWidget::loadFile(const QString &fileName)
 
         image.getImageName() = fileInfo.baseName();
         (*recentDir).setPath(fileName);
-        image.setImage(qImage);
+        openGL2DImageWidget->setTextureImage(textureType, qImage);
 
         emit imageLoaded(qImage.width(), qImage.height());
         if(image.getTextureType() == GRUNGE_TEXTURE)
@@ -738,7 +733,8 @@ void ImageWidget::applyHeightNormalToOcclusionConversion()
 
 void ImageWidget::showHeightCalculatorDialog()
 {
-    heightCalculator->setImageSize(image.width(), image.height());
+    heightCalculator->setImageSize(openGL2DImageWidget->getTextureWidth(textureType),
+                                   openGL2DImageWidget->getTextureHeight(textureType));
     unsigned int result = heightCalculator->exec();
     if(result == QDialog::Accepted)
     {
@@ -780,8 +776,8 @@ bool ImageWidget::saveFile(const QString &fileName)
 void ImageWidget::pasteImageFromClipboard(const QImage& qImage)
 {
     image.setImageName("clipboard_image");
-    image.setImage(qImage);
+    openGL2DImageWidget->setTextureImage(textureType, qImage);
     emit imageLoaded(qImage.width(), qImage.height());
-    if(image.getTextureType() == GRUNGE_TEXTURE)
+    if(textureType == GRUNGE_TEXTURE)
         emit imageChanged();
 }

@@ -59,16 +59,12 @@ public:
     ~Image();
 
     void copySettings(Image *source);
-    void setImage(const QImage &image);
 
     QtnPropertySetFormImageProp* getProperties();
-    QOpenGLTexture* getTexture();
     TextureType getTextureType();
     QString getTextureName();
     QString getTextureSuffix();
     void setTextureType(TextureType textureType);
-    int width();
-    int height();
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
     QOpenGLTexture* getNormalMixerInputTexture();
@@ -118,12 +114,9 @@ public:
 
 private:
     QtnPropertySetFormImageProp properties;
-    // Texture created from the image.
-    QOpenGLTexture *texture;
     // Used only by normal texture.
     QOpenGLTexture *normalMixerInputTexture;
 
-    QImage image;
     QString imageName;
 
     bool bFirstDraw;

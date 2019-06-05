@@ -48,19 +48,6 @@ Image* FormMaterialIndicesManager::getImage()
     return &image;
 }
 
-void FormMaterialIndicesManager::setImage(const QImage& qImage)
-{
-    // Remember the last id.
-    int mIndex = Image::currentMaterialIndex;
-    if(updateMaterials(qImage))
-    {
-        image.setImage(qImage);
-        emit materialChanged();
-    }
-
-    Image::currentMaterialIndex = mIndex;
-}
-
 bool FormMaterialIndicesManager::updateMaterials(const QImage& qImage)
 {
     bSkipUpdating = true;
@@ -217,8 +204,7 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
     int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(qImage))
     {
-        //image = _image;
-        image.setImage(qImage);
+        openGL2DImageWidget->setTextureImage(MATERIAL_TEXTURE, qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());
@@ -236,7 +222,7 @@ void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& qImage)
     int mIndex = Image::currentMaterialIndex;
     if(updateMaterials(qImage))
     {
-        image.setImage(qImage);
+        openGL2DImageWidget->setTextureImage(MATERIAL_TEXTURE, qImage);
         emit materialChanged();
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());

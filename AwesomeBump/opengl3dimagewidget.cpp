@@ -8,8 +8,8 @@
 #include "image.h"
 #include "openglerrorcheck.h"
 
-OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget *parent) :
-    QOpenGLWidget(parent),
+OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget) :
+    QOpenGLWidget(parent), openGL2DImageWidget(openGL2DImageWidget),
     mouseUpdateIsQueued(false),
     blockMouseMovement(false),
     keyPressed((Qt::Key)0)
@@ -616,7 +616,8 @@ void OpenGL3DImageWidget::paintGL()
         objectMatrix.setToIdentity();
         if(images[0] != NULL)
         {
-            float fboRatio = float(images[0]->width()) / images[0]->height();
+            float fboRatio = float(openGL2DImageWidget->getTextureWidth(DIFFUSE_TEXTURE)) /
+                                   openGL2DImageWidget->getTextureHeight(DIFFUSE_TEXTURE);
             objectMatrix.scale(fboRatio,1,fboRatio);
         }
         if(mesh->isLoaded())
@@ -699,8 +700,9 @@ void OpenGL3DImageWidget::paintGL()
             // Skip grunge texture (not used in 3D view).
             for(; tindex <= MATERIAL_TEXTURE; tindex++)
             {
+                TextureType textureType = static_cast<TextureType>(tindex);
                 GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-                GLCHK( glBindTexture(GL_TEXTURE_2D, images[tindex]->getTexture()->textureId()) );
+                GLCHK( glBindTexture(GL_TEXTURE_2D, openGL2DImageWidget->getTextureId(textureType)) );
             }
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
 

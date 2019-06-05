@@ -1,6 +1,8 @@
 #ifndef OPENGL2DIMAGEWIDGET_H
 #define OPENGL2DIMAGEWIDGET_H
 
+#include <QOpenGLTexture>
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_0_Core>
 #include <QtOpenGL>
@@ -8,16 +10,16 @@
 #include <math.h>
 #include <map>
 
-#define BasicProp getActiveImage(activeTexture)->getProperties()->Basic
-#define RemoveShadingProp getActiveImage(activeTexture)->getProperties()->RemoveShading
-#define ColorLevelsProp getActiveImage(activeTexture)->getProperties()->ColorLevels
-#define SurfaceDetailsProp getActiveImage(activeTexture)->getProperties()->SurfaceDetails
-#define AOProp getActiveImage(activeTexture)->getProperties()->AO
+#define BasicProp getActiveImage(activeTextureType)->getProperties()->Basic
+#define RemoveShadingProp getActiveImage(activeTextureType)->getProperties()->RemoveShading
+#define ColorLevelsProp getActiveImage(activeTextureType)->getProperties()->ColorLevels
+#define SurfaceDetailsProp getActiveImage(activeTextureType)->getProperties()->SurfaceDetails
+#define AOProp getActiveImage(activeTextureType)->getProperties()->AO
 #define GrungeProp targetImageGrunge->getProperties()->Grunge
-#define GrungeOnImageProp getActiveImage(activeTexture)->getProperties()->GrungeOnImage
-#define NormalMixerProp getActiveImage(activeTexture)->getProperties()->NormalsMixer
-#define BaseMapToOthersProp getActiveImage(activeTexture)->getProperties()->BaseMapToOthers
-#define RMFilterProp getActiveImage(activeTexture)->getProperties()->RMFilter
+#define GrungeOnImageProp getActiveImage(activeTextureType)->getProperties()->GrungeOnImage
+#define NormalMixerProp getActiveImage(activeTextureType)->getProperties()->NormalsMixer
+#define BaseMapToOthersProp getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers
+#define RMFilterProp getActiveImage(activeTextureType)->getProperties()->RMFilter
 
 enum ConversionType
 {
@@ -47,9 +49,13 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    TextureType getActiveTexture() const;
-    void setActiveTexture(TextureType textureType);
-    QImage getTextureFBOImage(TextureType texture);
+    TextureType getActiveTextureType() const;
+    void setActiveTextureType(TextureType textureType);
+    void setTextureImage(TextureType textureType, const QImage& image);
+    int getTextureWidth(TextureType textureType);
+    int getTextureHeight(TextureType textureType);
+    GLuint getTextureId(TextureType textureType);
+    QImage getTextureFBOImage(TextureType textureType);
 
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
@@ -193,7 +199,8 @@ private:
     void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
     Image* getActiveImage(TextureType texture);
-    TextureType activeTexture;
+    TextureType activeTextureType;
+    QOpenGLTexture** textures;
     QOpenGLFramebufferObject** textureFBOs;
 
     QOpenGLShaderProgram *program;

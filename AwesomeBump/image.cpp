@@ -47,7 +47,6 @@ void Image::randomReset()
 }
 
 Image::Image() :
-    texture(0),
     normalMixerInputTexture(0),
     bFirstDraw(true),
     bSkipProcessing(false),
@@ -59,7 +58,6 @@ Image::Image() :
 Image::~Image()
 {
     if(normalMixerInputTexture) delete normalMixerInputTexture;
-    if(texture) delete texture;
 }
 
 void Image::copySettings(Image *source)
@@ -71,26 +69,9 @@ void Image::copySettings(Image *source)
     properties.copyValues(&source->properties);
 }
 
-void Image::setImage(const QImage& image)
-{
-    this->image = image;
-    bFirstDraw = true;
-}
-
 QtnPropertySetFormImageProp* Image::getProperties()
 {
     return &properties;
-}
-
-QOpenGLTexture* Image::getTexture()
-{
-    if (bFirstDraw)
-    {
-        if(texture) delete texture;
-        texture = new QOpenGLTexture(image);
-        bFirstDraw = false;
-    }
-    return texture;
 }
 
 TextureType Image::getTextureType()
@@ -169,16 +150,6 @@ QString Image::getTextureSuffix()
 void Image::setTextureType(TextureType textureType)
 {
     this->textureType = textureType;
-}
-
-int Image::width()
-{
-    return image.width();
-}
-
-int Image::height()
-{
-    return image.height();
 }
 
 ImageType Image::getInputImageType()

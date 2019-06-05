@@ -60,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ImageWidget::recentDir = &recentDir;
 
     openGL2DImageWidget = new OpenGL2DImageWidget(this);
-    //glWidget = new OpenGLWidget(this,glImage);
-    openGL3DImageWidget = new OpenGL3DImageWidget(this);
+    openGL3DImageWidget = new OpenGL3DImageWidget(this, openGL2DImageWidget);
 }
 
 void MainWindow::initialiseWindow()
@@ -382,20 +381,6 @@ void MainWindow::initialiseWindow()
     qDebug() << "Initialization: Loading default (initial) textures.";
     emit initialisationProgress(80, "Loading default (initial) textures.");
 
-    // Load initial textures.
-    diffuseImageWidget   ->setImage(QImage(QString(":/resources/logo/logo_D.png")));
-    normalImageWidget    ->setImage(QImage(QString(":/resources/logo/logo_N.png")));
-    specularImageWidget  ->setImage(QImage(QString(":/resources/logo/logo_D.png")));
-    heightImageWidget    ->setImage(QImage(QString(":/resources/logo/logo_H.png")));
-    occlusionImageWidget ->setImage(QImage(QString(":/resources/logo/logo_O.png")));
-    roughnessImageWidget ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-    metallicImageWidget  ->setImage(QImage(QString(":/resources/logo/logo_M.png")));
-    grungeImageWidget    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-    materialManager    ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-
-    // Set the active image
-    openGL2DImageWidget->setActiveTexture(DIFFUSE_TEXTURE);
-
     emit initialisationProgress(90, "Updating main menu items.");
 
     aboutAction = new QAction(QIcon(":/resources/icons/cube.png"), tr("&About %1").arg(qApp->applicationName()), this);
@@ -488,7 +473,7 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::replotAllImages()
 {
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
     openGL2DImageWidget->enableShadowRender(true);
 
     // Skip grunge map if conversion is enabled
@@ -509,7 +494,7 @@ void MainWindow::replotAllImages()
     updateImage(MATERIAL_TEXTURE);
 
     openGL2DImageWidget->enableShadowRender(false);
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
     openGL3DImageWidget->update();
 }
 
@@ -1014,8 +999,8 @@ void MainWindow::updateGrungeImage()
 
 void MainWindow::updateImageInformation()
 {
-    ui->labelCurrentImageWidth ->setNum(diffuseImageWidget->getImage()->width());
-    ui->labelCurrentImageHeight->setNum(diffuseImageWidget->getImage()->height());
+    ui->labelCurrentImageWidth ->setNum(openGL2DImageWidget->getTextureWidth(DIFFUSE_TEXTURE));
+    ui->labelCurrentImageHeight->setNum(openGL2DImageWidget->getTextureHeight(DIFFUSE_TEXTURE));
 }
 
 void MainWindow::initializeGL()
@@ -1027,16 +1012,6 @@ void MainWindow::initializeGL()
         one_time = true;
         qDebug() << "calling" << Q_FUNC_INFO;
 
-        // Loading default (initial) textures
-        diffuseImageWidget  ->setImage(QImage(QString(":/resources/logo/logo_D.png")));
-        normalImageWidget   ->setImage(QImage(QString(":/resources/logo/logo_N.png")));
-        specularImageWidget ->setImage(QImage(QString(":/resources/logo/logo_D.png")));
-        heightImageWidget   ->setImage(QImage(QString(":/resources/logo/logo_H.png")));
-        occlusionImageWidget->setImage(QImage(QString(":/resources/logo/logo_O.png")));
-        roughnessImageWidget->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-        metallicImageWidget ->setImage(QImage(QString(":/resources/logo/logo_M.png")));
-        grungeImageWidget   ->setImage(QImage(QString(":/resources/logo/logo_R.png")));
-
         diffuseImageWidget  ->setImageName(ui->lineEditOutputName->text());
         normalImageWidget   ->setImageName(ui->lineEditOutputName->text());
         heightImageWidget   ->setImageName(ui->lineEditOutputName->text());
@@ -1045,9 +1020,6 @@ void MainWindow::initializeGL()
         roughnessImageWidget->setImageName(ui->lineEditOutputName->text());
         metallicImageWidget ->setImageName(ui->lineEditOutputName->text());
         grungeImageWidget   ->setImageName(ui->lineEditOutputName->text());
-
-        // Set the active image.
-        openGL2DImageWidget->setActiveTexture(DIFFUSE_TEXTURE);
     }
 }
 
@@ -1058,16 +1030,16 @@ void MainWindow::initializeImages()
 
     replotAllImages();
     // SSAO recalculation
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
 
     updateImage(OCCLUSION_TEXTURE);
     //glImage->update();
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
 }
 
 void MainWindow::updateImage(int tType)
 {
-    openGL2DImageWidget->setActiveTexture((TextureType)tType);
+    openGL2DImageWidget->setActiveTextureType((TextureType)tType);
     openGL3DImageWidget->update();
 }
 
@@ -1093,7 +1065,7 @@ void MainWindow::applyResizeImage()
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
 
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
     openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < TEXTURES; i++)
     {
@@ -1105,7 +1077,7 @@ void MainWindow::applyResizeImage()
         }
     }
     openGL2DImageWidget->enableShadowRender(false);
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
     replotAllImages();
     updateImageInformation();
     openGL3DImageWidget->repaint();
@@ -1125,7 +1097,7 @@ void MainWindow::applyResizeImage(int width, int height)
     qDebug() << "Image resize applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
     openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < TEXTURES; i++)
     {
@@ -1136,7 +1108,7 @@ void MainWindow::applyResizeImage(int width, int height)
         }
     }
     openGL2DImageWidget->enableShadowRender(false);
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
     replotAllImages();
     updateImageInformation();
     openGL3DImageWidget->repaint();
@@ -1170,13 +1142,13 @@ void MainWindow::applyScaleImage()
     QCoreApplication::processEvents();
     float scale_width   = ui->doubleSpinBoxRescaleWidth ->value();
     float scale_height  = ui->doubleSpinBoxRescaleHeight->value();
-    int width  = diffuseImageWidget->getImage()->width() * scale_width;
-    int height = diffuseImageWidget->getImage()->height() * scale_height;
+    int width  = openGL2DImageWidget->getTextureWidth(DIFFUSE_TEXTURE) * scale_width;
+    int height = openGL2DImageWidget->getTextureHeight(DIFFUSE_TEXTURE) * scale_height;
 
     qDebug() << "Image rescale applied. Current image size is (" << width << "," << height << ")" ;
     int materiaIndex = Image::currentMaterialIndex;
     materialManager->disableMaterials();
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
     openGL2DImageWidget->enableShadowRender(true);
     for(int i = 0 ; i < TEXTURES; i++)
     {
@@ -1184,7 +1156,7 @@ void MainWindow::applyScaleImage()
         updateImage(i);
     }
     openGL2DImageWidget->enableShadowRender(false);
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
     replotAllImages();
     updateImageInformation();
     openGL3DImageWidget->repaint();
@@ -1206,7 +1178,7 @@ void MainWindow::applyCurrentUVsTransformations()
     selectSeamlessMode(0);
     resetTransform();
     // Set as default.
-    diffuseImageWidget->setImage(diffuseImage);
+    openGL2DImageWidget->setTextureImage(DIFFUSE_TEXTURE, diffuseImage);
     // Generate all textures based on new image.
     bool bConvValue = diffuseImageWidget->getImage()->bConversionBaseMap;
     diffuseImageWidget->getImage()->bConversionBaseMap = true;
@@ -1399,10 +1371,10 @@ void MainWindow::convertFromHtoN()
 {
     openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);
     openGL2DImageWidget->enableShadowRender(true);
-    openGL2DImageWidget->setActiveTexture(HEIGHT_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(HEIGHT_TEXTURE);
     openGL2DImageWidget->enableShadowRender(true);
     openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);
-    openGL2DImageWidget->setActiveTexture(NORMAL_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(NORMAL_TEXTURE);
     openGL2DImageWidget->enableShadowRender(false);
     openGL2DImageWidget->setConversionType(CONVERT_NONE);
 
@@ -1415,13 +1387,13 @@ void MainWindow::convertFromNtoH()
 {
     openGL2DImageWidget->setConversionType(CONVERT_FROM_H_TO_N);// fake conversion
     openGL2DImageWidget->enableShadowRender(true);
-    openGL2DImageWidget->setActiveTexture(HEIGHT_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(HEIGHT_TEXTURE);
     openGL2DImageWidget->setConversionType(CONVERT_FROM_N_TO_H);
     openGL2DImageWidget->enableShadowRender(true);
-    openGL2DImageWidget->setActiveTexture(NORMAL_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(NORMAL_TEXTURE);
     openGL2DImageWidget->setConversionType(CONVERT_FROM_N_TO_H);
     openGL2DImageWidget->enableShadowRender(true);
-    openGL2DImageWidget->setActiveTexture(HEIGHT_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(HEIGHT_TEXTURE);
     openGL2DImageWidget->enableShadowRender(false);
     replotAllImages();
 
@@ -1430,8 +1402,8 @@ void MainWindow::convertFromNtoH()
 
 void MainWindow::convertFromBase()
 {
-    TextureType lastActive = openGL2DImageWidget->getActiveTexture();
-    openGL2DImageWidget->setActiveTexture(DIFFUSE_TEXTURE);
+    TextureType lastActive = openGL2DImageWidget->getActiveTextureType();
+    openGL2DImageWidget->setActiveTextureType(DIFFUSE_TEXTURE);
     qDebug() << "Conversion from Base to others started";
     normalImageWidget   ->setImageName(diffuseImageWidget->getImageName());
     heightImageWidget   ->setImageName(diffuseImageWidget->getImageName());
@@ -1444,7 +1416,7 @@ void MainWindow::convertFromBase()
     openGL2DImageWidget->setConversionType(CONVERT_FROM_D_TO_O);
     replotAllImages();
 
-    openGL2DImageWidget->setActiveTexture(lastActive);
+    openGL2DImageWidget->setActiveTextureType(lastActive);
     openGL3DImageWidget->update();
     qDebug() << "Conversion from Base to others applied";
 }
@@ -1454,15 +1426,15 @@ void MainWindow::convertFromHNtoOcc()
     openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGL2DImageWidget->enableShadowRender(true);
 
-    openGL2DImageWidget->setActiveTexture(HEIGHT_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(HEIGHT_TEXTURE);
     openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGL2DImageWidget->enableShadowRender(true);
 
-    openGL2DImageWidget->setActiveTexture(NORMAL_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(NORMAL_TEXTURE);
     openGL2DImageWidget->setConversionType(CONVERT_FROM_HN_TO_OC);
     openGL2DImageWidget->enableShadowRender(true);
 
-    openGL2DImageWidget->setActiveTexture(OCCLUSION_TEXTURE);
+    openGL2DImageWidget->setActiveTextureType(OCCLUSION_TEXTURE);
     openGL2DImageWidget->enableShadowRender(false);
 
     replotAllImages();

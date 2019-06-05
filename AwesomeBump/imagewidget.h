@@ -23,7 +23,6 @@ public:
     ~ImageWidget();
 
     Image* getImage();
-    void setImage(const QImage& qImage);
     QString getImageName();
     void setImageName(const QString& name);
     void setupPropertiesGUI();
