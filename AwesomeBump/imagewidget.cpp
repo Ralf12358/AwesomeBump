@@ -11,9 +11,8 @@
 bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
-ImageWidget::ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget, TextureType textureType) :
-    QWidget(parent),
-    image(openGL2DImageWidget),
+ImageWidget::ImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget, TextureType textureType) :
+    QWidget(parent), openGL2DImageWidget(openGL2DImageWidget), textureType(textureType),
     ui(new Ui::ImageWidget)
 {
     ui->setupUi(this);
@@ -468,7 +467,7 @@ void ImageWidget::copyToClipboard()
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    QImage qImage = image.getFBOImage();
+    QImage qImage = openGL2DImageWidget->getTextureFBOImage(textureType);
     QApplication::clipboard()->setImage(qImage, QClipboard::Clipboard);
 }
 
@@ -771,7 +770,7 @@ bool ImageWidget::saveFile(const QString &fileName)
 
     QFileInfo fileInfo(fileName);
     (*recentDir).setPath(fileInfo.absolutePath());
-    QImage qImage = image.getFBOImage();
+    QImage qImage = openGL2DImageWidget->getTextureFBOImage(textureType);
 
     qImage.save(fileName);
 

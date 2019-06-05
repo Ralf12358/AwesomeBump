@@ -2,7 +2,6 @@
 #define IMAGE_H
 
 #include <QImage>
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLTexture>
 
 #include "properties/ImageProperties.peg.h"
@@ -56,16 +55,11 @@ class OpenGL2DImageWidget;
 class Image
 {
 public:
-    explicit Image(OpenGL2DImageWidget *openGL2DImageWidget = 0);
+    explicit Image();
     ~Image();
 
     void copySettings(Image *source);
     void setImage(const QImage &image);
-
-    QOpenGLFramebufferObject* getFBO();
-    void updateImageFromFBO(QOpenGLFramebufferObject* in_ref_fbo);
-    void resizeFBO(int width, int height);
-    QImage getFBOImage();
 
     QtnPropertySetFormImageProp* getProperties();
     QOpenGLTexture* getTexture();
@@ -123,13 +117,7 @@ public:
     static QString outputFormat;
 
 private:
-    void createFBO(int width, int height);
-
     QtnPropertySetFormImageProp properties;
-    // Pointer to the OpenGL 2D Image Widget.
-    OpenGL2DImageWidget *openGL2DImageWidget;
-    // Output image.
-    QOpenGLFramebufferObject *fbo;
     // Texture created from the image.
     QOpenGLTexture *texture;
     // Used only by normal texture.

@@ -4,6 +4,7 @@
 
 OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent), activeTexture(DIFFUSE_TEXTURE),
+    textureFBOs(new QOpenGLFramebufferObject*[TEXTURES]()),
     averageColorFBO(0), samplerFBO1(0), samplerFBO2(0),
     auxFBO1(0), auxFBO2(0), auxFBO3(0), auxFBO4(0),
     paintFBO(0), renderFBO(0),
@@ -80,6 +81,11 @@ void OpenGL2DImageWidget::setActiveTexture(TextureType textureType)
 {
     activeTexture = textureType;
     update();
+}
+
+QImage OpenGL2DImageWidget::getTextureFBOImage(TextureType texture)
+{
+    return textureFBOs[texture]->toImage();
 }
 
 void OpenGL2DImageWidget::enableShadowRender(bool enable)
@@ -341,6 +347,11 @@ void OpenGL2DImageWidget::initializeGL()
     averageColorFBO = createFBO(256, 256);
     samplerFBO1     = createFBO(1024, 1024);
     samplerFBO2     = createFBO(1024, 1024);
+    for (unsigned int textureIndex = 0; textureIndex < TEXTURES; ++textureIndex)
+    {
+        TextureType texture = static_cast<TextureType>(textureIndex);
+        textureFBOs[textureIndex] = createTextureFBO(getActiveImage(texture)->width(), getActiveImage(texture)->height());
+    }
 }
 
 void OpenGL2DImageWidget::paintGL()
@@ -1460,7 +1471,7 @@ void OpenGL2DImageWidget::applyCPUNormalizationFilter(QOpenGLFramebufferObject *
     // If materials are enabled calulate the height only in the region of selected material color.
     if(Image::materialsEnabled)
     {
-        QImage maskImage = targetImageMaterial->getFBOImage();
+        QImage maskImage = textureFBOs[MATERIAL_TEXTURE]->toImage();
         int currentMaterialIndex = Image::currentMaterialIndex;
         // Number of components.
         int nc = maskImage. byteCount () / (textureWidth*textureHeight) ;
@@ -1794,7 +1805,7 @@ void OpenGL2DImageWidget::applyGrungeRandomizationFilter(QOpenGLFramebufferObjec
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageGrunge->getFBO()->texture()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, textureFBOs[GRUNGE_TEXTURE]->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
@@ -1881,7 +1892,7 @@ void OpenGL2DImageWidget::render()
 {
     if (!getActiveImage(activeTexture)) return;
 
-    QOpenGLFramebufferObject *activeFBO = getActiveImage(activeTexture)->getFBO();
+    QOpenGLFramebufferObject* activeFBO = textureFBOs[activeTexture];
 
     // Since grunge map can be different we need to calculate ratio each time.
     if (activeFBO)
@@ -1923,9 +1934,10 @@ void OpenGL2DImageWidget::render()
             break;
         case(CONVERT_RESIZE):
             // Apply resize textures.
-            getActiveImage(activeTexture)->resizeFBO(resize_width,resize_height);
+            delete textureFBOs[activeTexture];
+            textureFBOs[activeTexture] = createTextureFBO(resize_width, resize_height);
             // Pointers were changed in resize function.
-            activeFBO = getActiveImage(activeTexture)->getFBO();
+            activeFBO = textureFBOs[activeTexture];
             bSkipStandardProcessing = true;
             break;
         default:
@@ -1987,7 +1999,7 @@ void OpenGL2DImageWidget::render()
         GLCHK( glBindTexture(GL_TEXTURE_2D, targetImageMaterial->getTexture()->textureId()) );
         GLCHK( glActiveTexture(GL_TEXTURE0) );
 
-        copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(),getActiveImage(activeTexture)->getFBO());
+        copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), textureFBOs[activeTexture]);
 
         // In some cases the output image will be taken from other sources.
         switch(activeTexture)
@@ -2000,7 +2012,7 @@ void OpenGL2DImageWidget::render()
             case(INPUT_FROM_NORMAL_INPUT):
                 if(conversionType == CONVERT_FROM_H_TO_N)
                 {
-                    applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
+                    applyHeightToNormal(textureFBOs[HEIGHT_TEXTURE],activeFBO);
                     bTransformUVs = false;
                 }
                 break;
@@ -2028,7 +2040,7 @@ void OpenGL2DImageWidget::render()
                 }
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                applyHeightToNormal(targetImageHeight->getFBO(),activeFBO);
+                applyHeightToNormal(textureFBOs[HEIGHT_TEXTURE],activeFBO);
 
                 if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
@@ -2050,7 +2062,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageHeight->getTexture()->textureId(),activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
                 if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2058,7 +2070,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                copyFBO(textureFBOs[DIFFUSE_TEXTURE], activeFBO);
                 if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2078,7 +2090,7 @@ void OpenGL2DImageWidget::render()
                 {
                     // Ambient occlusion is calculated from normal and height map.
                     // Skip some parts of the processing.
-                    applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
+                    applyOcclusionFilter(textureFBOs[HEIGHT_TEXTURE]->texture(),textureFBOs[NORMAL_TEXTURE]->texture(),activeFBO);
                     bSkipStandardProcessing =  true;
                     if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
                         bTransformUVs = false;
@@ -2091,7 +2103,7 @@ void OpenGL2DImageWidget::render()
                 applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HO_NO):
-                applyOcclusionFilter(targetImageHeight->getFBO()->texture(),targetImageNormal->getFBO()->texture(),activeFBO);
+                applyOcclusionFilter(textureFBOs[HEIGHT_TEXTURE]->texture(),textureFBOs[NORMAL_TEXTURE]->texture(),activeFBO);
                 if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2105,12 +2117,12 @@ void OpenGL2DImageWidget::render()
         {
             if(conversionType == CONVERT_FROM_N_TO_H)
             {
-                applyNormalToHeight(getActiveImage(activeTexture),targetImageNormal->getFBO(),activeFBO,auxFBO1);
+                applyNormalToHeight(getActiveImage(activeTexture),textureFBOs[NORMAL_TEXTURE],activeFBO,auxFBO1);
                 applyCPUNormalizationFilter(auxFBO1,activeFBO);
                 applyAddNoiseFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
 
-                targetImageHeight->updateImageFromFBO(activeFBO);
+                targetImageHeight->setImage(textureFBOs[activeTexture]->toImage());
                 if(!targetImageNormal->isSkippingProcessing())
                     bTransformUVs = false;
             }
@@ -2128,7 +2140,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
                 if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2136,7 +2148,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                copyFBO(textureFBOs[DIFFUSE_TEXTURE], activeFBO);
                 if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2157,7 +2169,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageHeight->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
-                copyFBO(targetImageHeight->getFBO(),activeFBO);
+                copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
                 if(!targetImageHeight->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2165,7 +2177,7 @@ void OpenGL2DImageWidget::render()
                 copyTex2FBO(targetImageDiffuse->getTexture()->textureId(), activeFBO);
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
-                copyFBO(targetImageDiffuse->getFBO(),activeFBO);
+                copyFBO(textureFBOs[DIFFUSE_TEXTURE],activeFBO);
                 if(!targetImageDiffuse->isSkippingProcessing())
                     bTransformUVs = false;
                 break;
@@ -2195,7 +2207,7 @@ void OpenGL2DImageWidget::render()
         {
             if(activeTexture < MATERIAL_TEXTURE)
             {
-                copyTex2FBO(targetImageGrunge->getFBO()->texture(),auxFBO2);
+                copyTex2FBO(textureFBOs[GRUNGE_TEXTURE]->texture(),auxFBO2);
                 // If "output" type selected, transform grunge map.
                 if(bTransformUVs == false)
                 {
@@ -2263,7 +2275,7 @@ void OpenGL2DImageWidget::render()
                 copyFBO(auxFBO2,auxFBO1);
                 applyOverlayFilter(activeFBO,auxFBO1,auxFBO2);
 
-                applyRemoveShadingFilter(auxFBO2, targetImageOcclusion->getFBO(), activeFBO, auxFBO1);
+                applyRemoveShadingFilter(auxFBO2, textureFBOs[OCCLUSION_TEXTURE], activeFBO, auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
             }
 
@@ -2399,8 +2411,8 @@ void OpenGL2DImageWidget::render()
         case(CONVERT_FROM_H_TO_N):
             if(activeTexture == NORMAL_TEXTURE)
             {
-                copyFBO(activeFBO,targetImageNormal->getFBO());
-                targetImageNormal->updateImageFromFBO(targetImageNormal->getFBO());
+                copyFBO(activeFBO,textureFBOs[NORMAL_TEXTURE]);
+                targetImageNormal->setImage(textureFBOs[NORMAL_TEXTURE]->toImage());
             }
             break;
         case(CONVERT_FROM_N_TO_H):
@@ -2410,29 +2422,29 @@ void OpenGL2DImageWidget::render()
             }
             break;
         case(CONVERT_FROM_D_TO_O):
-            copyFBO(activeFBO,targetImageNormal->getFBO());
-            targetImageNormal->updateImageFromFBO(targetImageNormal->getFBO());
-            copyFBO(auxFBO1,targetImageHeight->getFBO());
-            targetImageHeight->updateImageFromFBO(targetImageHeight->getFBO());
-            applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateImageFromFBO(targetImageOcclusion->getFBO());
-            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), targetImageSpecular->getFBO());
-            targetImageSpecular->updateImageFromFBO(targetImageSpecular->getFBO());
-            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), targetImageRoughness->getFBO());
-            targetImageRoughness->updateImageFromFBO(targetImageRoughness->getFBO());
-            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), targetImageMetallic->getFBO());
-            targetImageMetallic->updateImageFromFBO(targetImageMetallic->getFBO());
+            copyFBO(activeFBO, textureFBOs[NORMAL_TEXTURE]);
+            targetImageNormal->setImage(textureFBOs[NORMAL_TEXTURE]->toImage());
+            copyFBO(auxFBO1,textureFBOs[HEIGHT_TEXTURE]);
+            targetImageHeight->setImage(textureFBOs[HEIGHT_TEXTURE]->toImage());
+            applyOcclusionFilter(targetImageHeight->getTexture()->textureId(), targetImageNormal->getTexture()->textureId(), textureFBOs[OCCLUSION_TEXTURE]);
+            targetImageOcclusion->setImage(textureFBOs[OCCLUSION_TEXTURE]->toImage());
+            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), textureFBOs[SPECULAR_TEXTURE]);
+            targetImageSpecular->setImage(textureFBOs[SPECULAR_TEXTURE]->toImage());
+            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), textureFBOs[ROUGHNESS_TEXTURE]);
+            targetImageRoughness->setImage(textureFBOs[ROUGHNESS_TEXTURE]->toImage());
+            copyTex2FBO(getActiveImage(activeTexture)->getTexture()->textureId(), textureFBOs[METALLIC_TEXTURE]);
+            targetImageMetallic->setImage(textureFBOs[METALLIC_TEXTURE]->toImage());
             break;
         case(CONVERT_FROM_HN_TO_OC):
             //copyFBO(activeFBO,targetImageOcclusion->ref_fbo);
-            copyFBO(activeFBO,targetImageOcclusion->getFBO());
-            targetImageOcclusion->updateImageFromFBO(activeFBO);
+            copyFBO(activeFBO,textureFBOs[OCCLUSION_TEXTURE]);
+            targetImageOcclusion->setImage(textureFBOs[activeTexture]->toImage());
             break;
         default:
             break;
         }
 
-        activeFBO = getActiveImage(activeTexture)->getFBO();
+        activeFBO = textureFBOs[activeTexture];
 
     } // End of skip processing
 
@@ -2482,6 +2494,37 @@ QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
     GLCHK( glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso) );
     GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
+
+    return fbo;
+}
+
+QOpenGLFramebufferObject* OpenGL2DImageWidget::createTextureFBO(int width, int height)
+{
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(GL_RGB16F);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setMipmap(true);
+    QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject(width, height, format);
+
+    glBindTexture(GL_TEXTURE_2D, fbo->texture());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    if(Image::bUseLinearInterpolation)
+    {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    else
+    {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
+
+    float aniso = 0.0f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     return fbo;
 }

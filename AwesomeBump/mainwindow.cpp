@@ -1200,7 +1200,7 @@ void MainWindow::applyScaleImage()
 void MainWindow::applyCurrentUVsTransformations()
 {
     // Get current diffuse image (with applied UVs transformations).
-    QImage diffuseImage = diffuseImageWidget->getImage()->getFBOImage();
+    QImage diffuseImage = openGL2DImageWidget->getTextureFBOImage(DIFFUSE_TEXTURE);
     // Reset all the transformations
     ui->comboBoxSeamlessMode->setCurrentIndex(0);
     selectSeamlessMode(0);

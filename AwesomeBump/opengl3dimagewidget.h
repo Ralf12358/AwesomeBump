@@ -1,6 +1,7 @@
 #ifndef OPENGL3DIMAGEWIDGET_H
 #define OPENGL3DIMAGEWIDGET_H
 
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions_4_0_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>

@@ -49,6 +49,7 @@ public:
 
     TextureType getActiveTexture() const;
     void setActiveTexture(TextureType textureType);
+    QImage getTextureFBOImage(TextureType texture);
 
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
@@ -187,11 +188,14 @@ private:
     void updateMousePosition();
     void render();
     QOpenGLFramebufferObject* createFBO(int width, int height);
+    QOpenGLFramebufferObject* createTextureFBO(int width, int height);
     void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
     void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
     Image* getActiveImage(TextureType texture);
     TextureType activeTexture;
+    QOpenGLFramebufferObject** textureFBOs;
+
     QOpenGLShaderProgram *program;
     QOpenGLVertexArrayObject *vertexArray;
 

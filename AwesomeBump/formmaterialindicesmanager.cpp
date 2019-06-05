@@ -9,10 +9,10 @@
 
 #include "image.h"
 
-FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget) :
+FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget) :
     QWidget(parent),
     ui(new Ui::FormMaterialIndicesManager),
-    image(openGL2DImageWidget)
+    openGL2DImageWidget(openGL2DImageWidget)
 {
     ui->setupUi(this);
 
@@ -332,6 +332,6 @@ void FormMaterialIndicesManager::copyToClipboard()
                 " copied to clipboard.";
 
     QApplication::processEvents();
-    QImage qImage = image.getFBOImage();
+    QImage qImage = openGL2DImageWidget->getTextureFBOImage(MATERIAL_TEXTURE);
     QApplication::clipboard()->setImage(qImage,QClipboard::Clipboard);
 }

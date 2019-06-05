@@ -21,7 +21,7 @@ class FormMaterialIndicesManager : public QWidget
     Q_OBJECT
 
 public:
-    FormMaterialIndicesManager(QWidget *parent = 0, OpenGL2DImageWidget *openGL2DImageWidget = 0);
+    FormMaterialIndicesManager(QWidget* parent = 0, OpenGL2DImageWidget* openGL2DImageWidget = 0);
     ~FormMaterialIndicesManager();
 
     Image* getImage();
@@ -62,6 +62,7 @@ protected:
     bool bSkipUpdating;
 
 private:
+    OpenGL2DImageWidget* openGL2DImageWidget;
     Image image;
 };
 

@@ -19,7 +19,7 @@ class ImageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ImageWidget(QWidget *parent, OpenGL2DImageWidget *openGL2DImageWidget, TextureType textureType);
+    explicit ImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget, TextureType textureType);
     ~ImageWidget();
 
     Image* getImage();
@@ -79,6 +79,8 @@ private:
     bool saveFile(const QString &fileName);
     void pasteImageFromClipboard(const QImage &image);
 
+    OpenGL2DImageWidget* openGL2DImageWidget;
+    TextureType textureType;
     Image image;
     Ui::ImageWidget *ui;
     // Height calculator tool.

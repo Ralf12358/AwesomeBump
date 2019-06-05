@@ -2,8 +2,6 @@
 
 #include <QDebug>
 
-#include "opengl2dimagewidget.h"
-
 SeamlessMode Image::seamlessMode                = SEAMLESS_NONE;
 float Image::seamlessSimpleModeRadius           = 0.5;
 float Image::seamlessContrastPower              = 0.0;
@@ -20,6 +18,7 @@ float Image::randomAngles[]                     = {0};
 float Image::randomCommonPhase                  = 0.0;
 float Image::randomInnerRadius                  = 0.2;
 float Image::randomOuterRadius                  = 0.4;
+bool Image::bUseLinearInterpolation             = true;
 
 QString  Image::diffuseName   = "_d";
 QString  Image::normalName    = "_n";
@@ -47,11 +46,7 @@ void Image::randomReset()
     for (unsigned int i = 0; i < 9; ++i) randomAngles[i] = 0;
 }
 
-bool Image::bUseLinearInterpolation              = true;
-
-Image::Image(OpenGL2DImageWidget *openGL2DImageWidget) :
-    openGL2DImageWidget(openGL2DImageWidget),
-    fbo(0),
+Image::Image() :
     texture(0),
     normalMixerInputTexture(0),
     bFirstDraw(true),
@@ -65,7 +60,6 @@ Image::~Image()
 {
     if(normalMixerInputTexture) delete normalMixerInputTexture;
     if(texture) delete texture;
-    if(fbo) delete fbo;
 }
 
 void Image::copySettings(Image *source)
@@ -81,29 +75,6 @@ void Image::setImage(const QImage& image)
 {
     this->image = image;
     bFirstDraw = true;
-}
-
-QOpenGLFramebufferObject* Image::getFBO()
-{
-    if (!fbo) createFBO(image.width(), image.height());
-    return fbo;
-}
-
-void Image::updateImageFromFBO(QOpenGLFramebufferObject* sourceFBO)
-{
-    image = sourceFBO->toImage();
-    bFirstDraw = true;
-}
-
-void Image::resizeFBO(int width, int height)
-{
-    createFBO(width, height);
-}
-
-QImage Image::getFBOImage()
-{
-    openGL2DImageWidget->makeCurrent();
-    return fbo->toImage();
 }
 
 QtnPropertySetFormImageProp* Image::getProperties()
@@ -269,36 +240,4 @@ QString Image::getImageName()
 void Image::setImageName(const QString& newName)
 {
     imageName = newName;
-}
-
-void Image::createFBO(int width, int height)
-{
-    if (fbo) delete fbo;
-
-    QOpenGLFramebufferObjectFormat format;
-    format.setInternalTextureFormat(GL_RGB16F);
-    format.setTextureTarget(GL_TEXTURE_2D);
-    format.setMipmap(true);
-    fbo = new QOpenGLFramebufferObject(width, height, format);
-
-    QOpenGLFunctions *f = openGL2DImageWidget->context()->functions();
-    f->glBindTexture(GL_TEXTURE_2D, fbo->texture());
-    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    if(bUseLinearInterpolation)
-    {
-        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    else
-    {
-        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    }
-
-    float aniso = 0.0f;
-    f->glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-    f->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
-    f->glBindTexture(GL_TEXTURE_2D, 0);
 }
