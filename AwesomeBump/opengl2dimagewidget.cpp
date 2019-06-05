@@ -130,8 +130,8 @@ void OpenGL2DImageWidget::resetView()
 
     zoom = 0;
     windowRatio = float(width()) / height();
-    fboRatio    = float(getActiveImage(activeTexture)->getFBO()->width()) /
-                        getActiveImage(activeTexture)->getFBO()->height();
+    fboRatio    = float(getActiveImage(activeTexture)->width()) /
+                        getActiveImage(activeTexture)->height();
     // OpenGL window dimensions.
     orthographicProjHeight = (1 + zoom) / windowRatio;
     orthographicProjWidth = (1 + zoom) / fboRatio;
@@ -408,8 +408,8 @@ void OpenGL2DImageWidget::resizeGL(int width, int height)
 {
     windowRatio = float(width) / height;
     GLCHK( glViewport(0, 0, width, height) );
-    fboRatio = float(getActiveImage(activeTexture)->getFBO()->width()) /
-                     getActiveImage(activeTexture)->getFBO()->height();
+    fboRatio = float(getActiveImage(activeTexture)->width()) /
+                     getActiveImage(activeTexture)->height();
     orthographicProjHeight = (1 + zoom) / windowRatio;
     orthographicProjWidth = (1 + zoom) / fboRatio;
 
@@ -480,8 +480,8 @@ void OpenGL2DImageWidget::wheelEvent(QWheelEvent *event)
     {
         GLCHK( glViewport(0, 0, width(), height()) );
 
-        fboRatio = float(getActiveImage(activeTexture)->getFBO()->width()) /
-                         getActiveImage(activeTexture)->getFBO()->height();
+        fboRatio = float(getActiveImage(activeTexture)->width()) /
+                         getActiveImage(activeTexture)->height();
         orthographicProjHeight = (1+zoom)/windowRatio;
         orthographicProjWidth = (1+zoom)/fboRatio;
     }
