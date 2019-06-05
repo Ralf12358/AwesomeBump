@@ -85,7 +85,6 @@ ImageWidget::ImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidg
     setFocus();
     setFocusPolicy(Qt::ClickFocus);
 
-    image.setTextureType(textureType);
     setupPropertiesGUI();
     setImageName("image");
 }
@@ -114,7 +113,7 @@ void ImageWidget::setImageName(const QString& name)
 
 void ImageWidget::setupPropertiesGUI()
 {
-    image.getProperties()->ImageType.setValue((image.getTextureType()));
+    image.getProperties()->ImageType.setValue(textureType);
 
     //    ui->groupBoxConvertToHeightSettings->setVisible(false);
     //    ui->groupBoxHN                 ->setVisible(false);
@@ -124,7 +123,7 @@ void ImageWidget::setupPropertiesGUI()
     ui->groupBoxSpecularInputImage ->setVisible(false);
     ui->groupBoxNtoHConversion     ->setVisible(false);
 
-    switch(image.getTextureType())
+    switch(textureType)
     {
     case(DIFFUSE_TEXTURE):
         image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
@@ -205,7 +204,7 @@ void ImageWidget::reloadSettings()
 {
     loadingImages = true;
 
-    if(image.getTextureType() == HEIGHT_TEXTURE)
+    if(textureType == HEIGHT_TEXTURE)
     {
         ui->horizontalSliderNormalToHeightNoiseLevel    ->setValue(image.getProperties()->NormalHeightConv.NoiseLevel);
         ui->horizontalSliderNormalToHeightItersHuge     ->setValue(image.getProperties()->NormalHeightConv.Huge);
@@ -216,7 +215,7 @@ void ImageWidget::reloadSettings()
         ui->horizontalSliderNormalToHeightItersSmall    ->setValue(image.getProperties()->NormalHeightConv.VerySmall);
     }
     // Input image case study
-    switch(image.getTextureType())
+    switch(textureType)
     {
     case(NORMAL_TEXTURE):
         // Select propper input image for normals.
@@ -363,7 +362,7 @@ bool ImageWidget::loadFile(const QString &fileName)
         openGL2DImageWidget->setTextureImage(textureType, qImage);
 
         emit imageLoaded(qImage.width(), qImage.height());
-        if(image.getTextureType() == GRUNGE_TEXTURE)
+        if(textureType == GRUNGE_TEXTURE)
             emit imageChanged();
     }
     return true;
@@ -373,7 +372,7 @@ void ImageWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            image.getTextureSuffix() +
+            image.getTextureSuffix(textureType) +
             Image::outputFormat;
     saveFile(fullFileName);
 }
@@ -382,7 +381,7 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            image.getTextureSuffix() +
+            image.getTextureSuffix(textureType) +
             Image::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
@@ -394,7 +393,7 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 
 void ImageWidget::reloadImageSettings()
 {
-    emit reloadSettingsFromConfigFile(image.getTextureType());
+    emit reloadSettingsFromConfigFile(textureType);
 }
 
 void ImageWidget::open()
@@ -436,7 +435,7 @@ void ImageWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 image.getImageName() +
-                image.getTextureSuffix() +
+                image.getTextureSuffix(textureType) +
                 Image::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "ImageWidget: Saving image to file:" << fullFileName;
@@ -457,10 +456,6 @@ void ImageWidget::save()
 
 void ImageWidget::copyToClipboard()
 {
-    qDebug() << "<FormImageProp> Image :" +
-                image.getTextureName() +
-                " copied to clipboard.";
-
     QApplication::processEvents();
     QImage qImage = openGL2DImageWidget->getTextureFBOImage(textureType);
     QApplication::clipboard()->setImage(qImage, QClipboard::Clipboard);
@@ -473,9 +468,6 @@ void ImageWidget::pasteFromClipboard()
 
     if (mimeData->hasImage())
     {
-        qDebug() << "<FormImageProp> Image :" +
-                    image.getTextureName() +
-                    " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
         pasteImageFromClipboard(qImage);
@@ -489,16 +481,9 @@ void ImageWidget::pasteNormalFromClipBoard()
 
     if (mimeData->hasImage())
     {
-        qDebug() << "<FormImageProp> Normal image :" +
-                    image.getTextureName() +
-                    " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
 
-        //imageProp.getOpenGLWidget()->makeCurrent();
-        //        if(glIsTexture(imageProp.normalMixerInputTexId))
-        //            imageProp.glWidget_ptr->deleteTexture(imageProp.normalMixerInputTexId);
-        //        imageProp.normalMixerInputTexId = imageProp.glWidget_ptr->bindTexture(_image,GL_TEXTURE_2D);
         image.setNormalMixerInputTexture(qImage);
 
         emit imageChanged();
@@ -513,7 +498,7 @@ void ImageWidget::pasteNormalFromClipBoard(const QtnPropertyButton*)
 void ImageWidget::updateComboBoxes(int)
 {
     // Input image case study.
-    switch(image.getTextureType())
+    switch(textureType)
     {
     case(NORMAL_TEXTURE):
         // Select propper input image for normals.

@@ -61,10 +61,7 @@ public:
     void copySettings(Image *source);
 
     QtnPropertySetFormImageProp* getProperties();
-    TextureType getTextureType();
-    QString getTextureName();
-    QString getTextureSuffix();
-    void setTextureType(TextureType textureType);
+    QString getTextureSuffix(TextureType textureType);
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
     QOpenGLTexture* getNormalMixerInputTexture();
@@ -127,8 +124,6 @@ private:
     BaseMapConvLevelProperties baseMapConvLevelProperties[4];
     // Input image type
     ImageType inputImageType;
-    // The kind of preprocessing that will be applied to the image.
-    TextureType textureType;
 };
 
 #endif // IMAGE_H

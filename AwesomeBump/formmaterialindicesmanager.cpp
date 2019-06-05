@@ -24,7 +24,6 @@ FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget* parent, OpenGL2D
 
     ui->groupBox->setDisabled(true);
     setAcceptDrops(true);
-    image.setTextureType(MATERIAL_TEXTURE);
 }
 
 FormMaterialIndicesManager::~FormMaterialIndicesManager()
@@ -302,9 +301,6 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 
     if (mimeData->hasImage())
     {
-        qDebug() << "<FormImageProp> Image :" +
-                    image.getTextureName() +
-                    " loaded from clipboard.";
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
         pasteImageFromClipboard(qImage);
@@ -313,10 +309,6 @@ void FormMaterialIndicesManager::pasteFromClipboard()
 
 void FormMaterialIndicesManager::copyToClipboard()
 {
-    qDebug() << "<FormImageProp> Image :" +
-                image.getTextureName() +
-                " copied to clipboard.";
-
     QApplication::processEvents();
     QImage qImage = openGL2DImageWidget->getTextureFBOImage(MATERIAL_TEXTURE);
     QApplication::clipboard()->setImage(qImage,QClipboard::Clipboard);

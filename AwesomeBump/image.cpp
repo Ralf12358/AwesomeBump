@@ -74,49 +74,7 @@ QtnPropertySetFormImageProp* Image::getProperties()
     return &properties;
 }
 
-TextureType Image::getTextureType()
-{
-    return textureType;
-}
-
-QString Image::getTextureName()
-{
-    switch(textureType)
-    {
-    case(DIFFUSE_TEXTURE):
-        return "diffuse";
-        break;
-    case(NORMAL_TEXTURE):
-        return "normal";
-        break;
-    case(SPECULAR_TEXTURE):
-        return "specular";
-        break;
-    case(HEIGHT_TEXTURE):
-        return "height";
-        break;
-    case(OCCLUSION_TEXTURE):
-        return "occlusion";
-        break;
-    case(ROUGHNESS_TEXTURE):
-        return "roughness";
-        break;
-    case(METALLIC_TEXTURE):
-        return "metallic";
-        break;
-    case(MATERIAL_TEXTURE):
-        return "material";
-    case(GRUNGE_TEXTURE):
-        return "grunge";
-        break;
-    default:
-        return "default-diffuse";
-        break;
-    }
-}
-
-
-QString Image::getTextureSuffix()
+QString Image::getTextureSuffix(TextureType textureType)
 {
     switch(textureType)
     {
@@ -145,11 +103,6 @@ QString Image::getTextureSuffix()
         return diffuseName;
         break;
     }
-}
-
-void Image::setTextureType(TextureType textureType)
-{
-    this->textureType = textureType;
 }
 
 ImageType Image::getInputImageType()

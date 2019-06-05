@@ -2011,7 +2011,6 @@ void OpenGL2DImageWidget::render()
         if(getActiveImage(activeTextureType)->isFirstDraw())
         {
             resetView();
-            qDebug() << "Doing first draw of" << getActiveImage(activeTextureType)->getTextureName() << " texture.";
         }
 
         // Skip all precessing when material tab is selected.
