@@ -899,7 +899,7 @@ void OpenGL3DImageWidget::dragEnterEvent(QDragEnterEvent *event)
 void OpenGL3DImageWidget::resizeFBOs()
 {
     QOpenGLFramebufferObjectFormat format;
-    format.setInternalTextureFormat(TEXTURE_3DRENDER_FORMAT);
+    format.setInternalTextureFormat(GL_RGB16F);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setMipmap(true);
     format.setAttachment(QOpenGLFramebufferObject::Depth);
@@ -1347,7 +1347,7 @@ bool OpenGL3DImageWidget::addTexture(GLenum COLOR_ATTACHMENTn)
     GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT) );
     GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT) );
 
-    GLCHK( glTexImage2D(GL_TEXTURE_2D, 0, TEXTURE_3DRENDER_FORMAT, width(), height(), 0,GL_RGB, GL_UNSIGNED_BYTE, 0) );
+    GLCHK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0,GL_RGB, GL_UNSIGNED_BYTE, 0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
     if(!glIsTexture(tex[0]))
     {

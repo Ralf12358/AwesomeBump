@@ -14,7 +14,8 @@ bool Image::bSeamlessTranslationsFirst          = true;
 int Image::seamlessMirroModeType                = 0;
 bool Image::bConversionBaseMap                  = false;
 bool Image::bConversionBaseMapShowHeightTexture = false;
-int Image::currentMaterialIndex                 = MATERIALS_DISABLED;
+int Image::currentMaterialIndex                 = 0;
+bool Image::materialsEnabled                    = false;
 float Image::randomAngles[]                     = {0};
 float Image::randomCommonPhase                  = 0.0;
 float Image::randomInnerRadius                  = 0.2;
@@ -274,12 +275,8 @@ void Image::createFBO(int width, int height)
 {
     if (fbo) delete fbo;
 
-    GLenum internalFormat = TEXTURE_FORMAT;
-    if(textureType == HEIGHT_TEXTURE)
-        internalFormat = TEXTURE_3DRENDER_FORMAT;
-
     QOpenGLFramebufferObjectFormat format;
-    format.setInternalTextureFormat(internalFormat);
+    format.setInternalTextureFormat(GL_RGB16F);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setMipmap(true);
     fbo = new QOpenGLFramebufferObject(width, height, format);

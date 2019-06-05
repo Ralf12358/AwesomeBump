@@ -35,12 +35,12 @@ FormMaterialIndicesManager::~FormMaterialIndicesManager()
 
 bool FormMaterialIndicesManager::isEnabled()
 {
-    return (Image::currentMaterialIndex != MATERIALS_DISABLED);
+    return Image::materialsEnabled;
 }
 
 void FormMaterialIndicesManager::disableMaterials()
 {
-    Image::currentMaterialIndex = MATERIALS_DISABLED;
+    Image::materialsEnabled = false;
 }
 
 Image* FormMaterialIndicesManager::getImage()
@@ -223,7 +223,7 @@ bool FormMaterialIndicesManager::loadFile(const QString &fileName)
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());
         // Repaint all materials.
-        if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+        if(Image::materialsEnabled)
         {
             toggleMaterials(true);
         }
@@ -241,7 +241,7 @@ void FormMaterialIndicesManager::pasteImageFromClipboard(const QImage& qImage)
         Image::currentMaterialIndex = mIndex;
         emit imageLoaded(qImage.width(), qImage.height());
         // Repaint all materials.
-        if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+        if(Image::materialsEnabled)
         {
             toggleMaterials(true);
         }
@@ -253,7 +253,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
     if(toggle == false)
     {
         // Render normally.
-        Image::currentMaterialIndex = MATERIALS_DISABLED;
+        Image::materialsEnabled = false;
         emit materialChanged();
     }
     else
@@ -275,7 +275,7 @@ void FormMaterialIndicesManager::toggleMaterials(bool toggle)
 void FormMaterialIndicesManager::chooseMaterialByColor(QColor color)
 {
     // Check if materials are enabled.
-    if(Image::currentMaterialIndex == MATERIALS_DISABLED) return;
+    if(!Image::materialsEnabled) return;
 
     bool bColorFound = false;
     // Look for the color in materials.

@@ -8,15 +8,6 @@
 #include "properties/ImageProperties.peg.h"
 #include "basemapconvlevelproperties.h"
 
-#define TEXTURE_3DRENDER_FORMAT GL_RGB16F
-#define TEXTURE_FORMAT GL_RGB16F
-
-enum MaterialIndicesType
-{
-    MATERIALS_DISABLED = -10,
-    MATERIALS_ENABLED = -1
-};
-
 enum ImageType
 {
     INPUT_NONE = 0,
@@ -119,6 +110,7 @@ public:
     static ImageType seamlessContrastImageType;
     static bool bSeamlessTranslationsFirst;
     static int currentMaterialIndex;
+    static bool materialsEnabled;
     static bool bUseLinearInterpolation;
 
     static QString diffuseName;

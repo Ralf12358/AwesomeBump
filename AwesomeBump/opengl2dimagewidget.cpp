@@ -560,7 +560,7 @@ void OpenGL2DImageWidget::applyPerspectiveTransformFilter(  QOpenGLFramebufferOb
                                                           QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
-    if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+    if(Image::materialsEnabled)
     {
         copyFBO(inputFBO,outputFBO);
         return;
@@ -759,7 +759,7 @@ void OpenGL2DImageWidget::applySeamlessLinearFilter(QOpenGLFramebufferObject *in
                                                   QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
-    if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+    if(Image::materialsEnabled)
     {
         copyFBO(inputFBO,outputFBO);
         return;
@@ -846,7 +846,7 @@ void OpenGL2DImageWidget::applySeamlessFilter(QOpenGLFramebufferObject *inputFBO
                                             QOpenGLFramebufferObject *outputFBO)
 {
     // When materials texture is enabled, UV transformations are disabled.
-    if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+    if(Image::materialsEnabled)
     {
         copyFBO(inputFBO,outputFBO);
         return;
@@ -1469,7 +1469,7 @@ void OpenGL2DImageWidget::applyCPUNormalizationFilter(QOpenGLFramebufferObject *
     float max[3] = {img[0],img[1],img[2]};
 
     // If materials are enabled calulate the height only in the region of selected material color.
-    if(Image::currentMaterialIndex != MATERIALS_DISABLED)
+    if(Image::materialsEnabled)
     {
         QImage maskImage = targetImageMaterial->getFBOImage();
         int currentMaterialIndex = Image::currentMaterialIndex;
@@ -1992,7 +1992,7 @@ void OpenGL2DImageWidget::render()
         if(activeImage->getTextureType() == GRUNGE_TEXTURE)
         {
             bTransformUVs = false;
-            GLCHK( program->setUniformValue("material_id", int(MATERIALS_DISABLED) ) );
+            GLCHK( program->setUniformValue("material_id", int(-10) ) );
         }
 
         GLCHK( glActiveTexture(GL_TEXTURE10) );
@@ -2472,7 +2472,7 @@ void OpenGL2DImageWidget::render()
 QOpenGLFramebufferObject* OpenGL2DImageWidget::createFBO(int width, int height)
 {
     QOpenGLFramebufferObjectFormat format;
-    format.setInternalTextureFormat(TEXTURE_FORMAT);
+    format.setInternalTextureFormat(GL_RGB16F);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setMipmap(true);
 
