@@ -8,16 +8,16 @@
 #include <math.h>
 #include <map>
 
-#define BasicProp activeImage->getProperties()->Basic
-#define RemoveShadingProp activeImage->getProperties()->RemoveShading
-#define ColorLevelsProp activeImage->getProperties()->ColorLevels
-#define SurfaceDetailsProp activeImage->getProperties()->SurfaceDetails
-#define AOProp activeImage->getProperties()->AO
+#define BasicProp getActiveImage(activeTexture)->getProperties()->Basic
+#define RemoveShadingProp getActiveImage(activeTexture)->getProperties()->RemoveShading
+#define ColorLevelsProp getActiveImage(activeTexture)->getProperties()->ColorLevels
+#define SurfaceDetailsProp getActiveImage(activeTexture)->getProperties()->SurfaceDetails
+#define AOProp getActiveImage(activeTexture)->getProperties()->AO
 #define GrungeProp targetImageGrunge->getProperties()->Grunge
-#define GrungeOnImageProp activeImage->getProperties()->GrungeOnImage
-#define NormalMixerProp activeImage->getProperties()->NormalsMixer
-#define BaseMapToOthersProp activeImage->getProperties()->BaseMapToOthers
-#define RMFilterProp activeImage->getProperties()->RMFilter
+#define GrungeOnImageProp getActiveImage(activeTexture)->getProperties()->GrungeOnImage
+#define NormalMixerProp getActiveImage(activeTexture)->getProperties()->NormalsMixer
+#define BaseMapToOthersProp getActiveImage(activeTexture)->getProperties()->BaseMapToOthers
+#define RMFilterProp getActiveImage(activeTexture)->getProperties()->RMFilter
 
 enum ConversionType
 {
@@ -47,8 +47,9 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    Image* getActiveImage();
-    void setActiveImage(Image *image);
+    TextureType getActiveTexture() const;
+    void setActiveTexture(TextureType textureType);
+
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
     void setConversionType(ConversionType conversionType);
@@ -189,7 +190,8 @@ private:
     void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
     void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
-    Image* activeImage;
+    Image* getActiveImage(TextureType texture);
+    TextureType activeTexture;
     QOpenGLShaderProgram *program;
     QOpenGLVertexArrayObject *vertexArray;
 

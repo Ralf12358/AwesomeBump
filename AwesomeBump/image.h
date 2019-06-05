@@ -28,6 +28,7 @@ enum ImageType
     INPUT_FROM_HO_NO
 };
 
+#define TEXTURES 9
 enum TextureType
 {
     DIFFUSE_TEXTURE = 0,
@@ -38,8 +39,7 @@ enum TextureType
     ROUGHNESS_TEXTURE,
     METALLIC_TEXTURE,
     MATERIAL_TEXTURE,
-    GRUNGE_TEXTURE,
-    MAX_TEXTURES_TYPE
+    GRUNGE_TEXTURE
 };
 
 // Methods of making the texture seamless.
