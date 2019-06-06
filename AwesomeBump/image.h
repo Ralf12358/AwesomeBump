@@ -61,7 +61,6 @@ public:
     void copySettings(Image *source);
 
     QtnPropertySetFormImageProp* getProperties();
-    QString getTextureSuffix(TextureType textureType);
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
     QOpenGLTexture* getNormalMixerInputTexture();
@@ -99,14 +98,6 @@ public:
     static int currentMaterialIndex;
     static bool materialsEnabled;
     static bool bUseLinearInterpolation;
-
-    static QString diffuseName;
-    static QString normalName;
-    static QString specularName;
-    static QString heightName;
-    static QString occlusionName;
-    static QString roughnessName;
-    static QString metallicName;
     static QString outputFormat;
 
 private:

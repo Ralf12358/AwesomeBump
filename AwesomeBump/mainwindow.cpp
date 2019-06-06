@@ -1538,22 +1538,13 @@ void MainWindow::saveSettings()
     abSettings->recent_dir      = recentDir.absolutePath();
     abSettings->recent_mesh_dir = recentMeshDir.absolutePath();
 
-    Image::diffuseName   = ui->lineEditPostfixDiffuse->text();
-    Image::normalName    = ui->lineEditPostfixNormal->text();
-    Image::specularName  = ui->lineEditPostfixSpecular->text();
-    Image::heightName    = ui->lineEditPostfixHeight->text();
-    Image::occlusionName = ui->lineEditPostfixOcclusion->text();
-    Image::roughnessName = ui->lineEditPostfixRoughness->text();
-    Image::metallicName  = ui->lineEditPostfixMetallic->text();
-
-    abSettings->d_postfix=ui->lineEditPostfixDiffuse->text();
-    abSettings->d_postfix=ui->lineEditPostfixDiffuse->text();
-    abSettings->n_postfix=ui->lineEditPostfixNormal->text();
-    abSettings->s_postfix=ui->lineEditPostfixSpecular->text();
-    abSettings->h_postfix=ui->lineEditPostfixHeight->text();
-    abSettings->o_postfix=ui->lineEditPostfixOcclusion->text();
-    abSettings->r_postfix=ui->lineEditPostfixRoughness->text();
-    abSettings->m_postfix=ui->lineEditPostfixMetallic->text();
+    diffuseImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixDiffuse->text();
+    normalImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixNormal->text();
+    specularImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixSpecular->text();
+    heightImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixHeight->text();
+    occlusionImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixOcclusion->text();
+    roughnessImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixRoughness->text();
+    metallicImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixMetallic->text();
 
     abSettings->gui_style=ui->comboBoxGUIStyle->currentText();
 
@@ -1641,6 +1632,8 @@ void MainWindow::loadSettings()
     QString name = abSettings->settings_name.value();
     ui->pushButtonProjectManager->setText("Project manager (" + name + ")");
 
+    qDebug() << diffuseImageWidget->getImage()->getProperties()->suffix;
+
     diffuseImageWidget    ->getImage()->getProperties()->copyValues(&abSettings->Diffuse);
     specularImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Specular);
     normalImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Normal);
@@ -1650,6 +1643,8 @@ void MainWindow::loadSettings()
     roughnessImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Roughness);
     grungeImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Grunge);
 
+    qDebug() << diffuseImageWidget->getImage()->getProperties()->suffix;
+
     // Update general settings.
     if(bFirstTime)
     {
@@ -1657,23 +1652,15 @@ void MainWindow::loadSettings()
         ui->tabWidget->resize(abSettings->tab_win_w,abSettings->tab_win_h);
     }
 
-    Image::diffuseName   = abSettings->d_postfix;
-    Image::normalName    = abSettings->n_postfix;
-    Image::specularName  = abSettings->s_postfix;
-    Image::heightName    = abSettings->h_postfix;
-    Image::occlusionName = abSettings->o_postfix;
-    Image::roughnessName = abSettings->m_postfix;
-    Image::metallicName  = abSettings->r_postfix;
-
     showHideTextureTypes(true);
 
-    ui->lineEditPostfixDiffuse  ->setText(Image::diffuseName);
-    ui->lineEditPostfixNormal   ->setText(Image::normalName);
-    ui->lineEditPostfixSpecular ->setText(Image::specularName);
-    ui->lineEditPostfixHeight   ->setText(Image::heightName);
-    ui->lineEditPostfixOcclusion->setText(Image::occlusionName);
-    ui->lineEditPostfixRoughness->setText(Image::roughnessName);
-    ui->lineEditPostfixMetallic ->setText(Image::metallicName);
+    ui->lineEditPostfixDiffuse  ->setText(diffuseImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixNormal   ->setText(normalImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixSpecular ->setText(specularImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixHeight   ->setText(heightImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixOcclusion->setText(occlusionImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixRoughness->setText(roughnessImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixMetallic ->setText(metallicImageWidget->getImage()->getProperties()->suffix);
 
     recentDir     = abSettings->recent_dir;
     recentMeshDir = abSettings->recent_mesh_dir;

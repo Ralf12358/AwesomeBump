@@ -134,6 +134,7 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->EnableRemoveShading.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_d");
         break;
     case(NORMAL_TEXTURE):
         image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
@@ -142,6 +143,7 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->GrungeOnImage.BlendingMode.switchState(QtnPropertyStateInvisible,true);
         image.getProperties()->GrungeOnImage.ImageWeight.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->NormalsMixer.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_n");
         ui->groupBoxNormalInputImage->setVisible(true);
         break;
     case(SPECULAR_TEXTURE):
@@ -151,12 +153,14 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_s");
         ui->groupBoxSpecularInputImage->setVisible(true);
         break;
     case(HEIGHT_TEXTURE):
         image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_h");
         ui->groupBoxNtoHConversion->setVisible(true);
         break;
     case(OCCLUSION_TEXTURE):
@@ -164,6 +168,7 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->AO.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_o");
         ui->groupBoxOcclusionInputImage->setVisible(true);
         break;
     case(ROUGHNESS_TEXTURE):
@@ -172,6 +177,7 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->RMFilter.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_r");
         ui->groupBoxRoughnessInputImage->setVisible(true);
         break;
     case(METALLIC_TEXTURE):
@@ -182,6 +188,7 @@ void ImageWidget::setupPropertiesGUI()
         image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
         image.getProperties()->RMFilter.switchState(QtnPropertyStateInvisible,false);
+        image.getProperties()->suffix.setValue("_m");
         ui->groupBoxRoughnessInputImage->setVisible(true);
         break;
     case(MATERIAL_TEXTURE):
@@ -372,7 +379,7 @@ void ImageWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            image.getTextureSuffix(textureType) +
+            image.getProperties()->suffix +
             Image::outputFormat;
     saveFile(fullFileName);
 }
@@ -381,7 +388,7 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 {
     QString fullFileName = dir + "/" +
             image.getImageName() +
-            image.getTextureSuffix(textureType) +
+            image.getProperties()->suffix +
             Image::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
@@ -435,7 +442,7 @@ void ImageWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 image.getImageName() +
-                image.getTextureSuffix(textureType) +
+                image.getProperties()->suffix +
                 Image::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "ImageWidget: Saving image to file:" << fullFileName;

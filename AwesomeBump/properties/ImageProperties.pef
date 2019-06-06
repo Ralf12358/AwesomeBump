@@ -1102,6 +1102,10 @@ property_set FormImageProp
     {
         state = QtnPropertyStateInvisible;
     }
+    QString suffix
+    {
+        state = QtnPropertyStateInvisible;
+    }
 }
 
 // Collect all settings in one place to save them into file
@@ -1138,34 +1142,6 @@ property_set AwesomeBump
     Int tab_win_h
     {
         value = 600;
-    }
-    QString d_postfix
-    {
-        value = "_d";
-    }
-    QString n_postfix
-    {
-        value = "_n";
-    }
-    QString s_postfix
-    {
-        value = "_s";
-    }
-    QString h_postfix
-    {
-        value = "_h";
-    }
-    QString o_postfix
-    {
-        value = "_o";
-    }
-    QString m_postfix
-    {
-        value = "_m";
-    }
-    QString r_postfix
-    {
-        value = "_r";
     }
     QString recent_dir
     {

@@ -20,13 +20,6 @@ float Image::randomInnerRadius                  = 0.2;
 float Image::randomOuterRadius                  = 0.4;
 bool Image::bUseLinearInterpolation             = true;
 
-QString  Image::diffuseName   = "_d";
-QString  Image::normalName    = "_n";
-QString  Image::specularName  = "_s";
-QString  Image::heightName    = "_h";
-QString  Image::occlusionName = "_o";
-QString  Image::roughnessName = "_r";
-QString  Image::metallicName  = "_m";
 QString  Image::outputFormat  = ".png";
 
 void Image::randomize()
@@ -72,37 +65,6 @@ void Image::copySettings(Image *source)
 QtnPropertySetFormImageProp* Image::getProperties()
 {
     return &properties;
-}
-
-QString Image::getTextureSuffix(TextureType textureType)
-{
-    switch(textureType)
-    {
-    case(DIFFUSE_TEXTURE):
-        return diffuseName;
-        break;
-    case(NORMAL_TEXTURE):
-        return normalName;
-        break;
-    case(SPECULAR_TEXTURE):
-        return specularName;
-        break;
-    case(HEIGHT_TEXTURE):
-        return heightName;
-        break;
-    case(OCCLUSION_TEXTURE):
-        return occlusionName;
-        break;
-    case(ROUGHNESS_TEXTURE):
-        return roughnessName;
-        break;
-    case(METALLIC_TEXTURE) :
-        return metallicName;
-        break;
-    default:
-        return diffuseName;
-        break;
-    }
 }
 
 ImageType Image::getInputImageType()
