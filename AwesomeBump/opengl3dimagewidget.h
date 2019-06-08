@@ -1,10 +1,11 @@
 #ifndef OPENGL3DIMAGEWIDGET_H
 #define OPENGL3DIMAGEWIDGET_H
 
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 #include <QtMath>
 
@@ -95,6 +96,9 @@ private:
     const GLuint& getAttachedTexture(GLuint index);
     void setFBOTextureParameters(QOpenGLFramebufferObject *fbo);
 
+    QOpenGLVertexArrayObject* createVertexArray(Mesh* mesh);
+    void drawTriangles(QOpenGLVertexArrayObject* vertexArray, unsigned int vertexCount, bool usePatches = false);
+
     // Render Shader Program
     QOpenGLShaderProgram* renderProgram;
     QOpenGLShaderProgram* line_program;
@@ -144,6 +148,14 @@ private:
     Mesh* skybox_mesh;
     // One trinagle used for calculation of prefiltered environment map.
     Mesh* env_mesh;
+    // Quad mesh used for post processing
+    Mesh* quad_mesh;
+
+    // Vertex Array Object
+    QOpenGLVertexArrayObject* meshArray;
+    QOpenGLVertexArrayObject* skyboxMeshArray;
+    QOpenGLVertexArrayObject* envMeshArray;
+    QOpenGLVertexArrayObject* quadMeshArray;
 
     // Skybox texture.
     OpenGLTextureCube* skyBoxTextureCube;
@@ -153,8 +165,6 @@ private:
     // Post-processing variables.
     // All post processing functions
     std::map<std::string,QOpenGLShaderProgram*> post_processing_programs;
-    // Quad mesh used for post processing
-    Mesh* quad_mesh;
     // Holds pointer to current post-processing program
     QOpenGLShaderProgram *filter_program;
     QOpenGLFramebufferObject* colorFBO;

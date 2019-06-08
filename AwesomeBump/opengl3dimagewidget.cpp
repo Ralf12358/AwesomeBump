@@ -10,6 +10,7 @@
 
 OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget) :
     QOpenGLWidget(parent), openGL2DImageWidget(openGL2DImageWidget),
+    meshArray(0), skyboxMeshArray(0), envMeshArray(0), quadMeshArray(0),
     mouseUpdateIsQueued(false),
     blockMouseMovement(false),
     keyPressed((Qt::Key)0)
@@ -82,6 +83,10 @@ OpenGL3DImageWidget::~OpenGL3DImageWidget()
     delete env_mesh;
     delete quad_mesh;
     delete skyBoxTextureCube;
+    delete meshArray;
+    delete skyboxMeshArray;
+    delete envMeshArray;
+    delete quadMeshArray;
 
     doneCurrent();
 }
@@ -205,8 +210,10 @@ bool OpenGL3DImageWidget::loadMeshFile(const QString& fileName)
 
     if(newMesh->isLoaded())
     {
-        if(mesh != NULL) delete mesh;
+        if(mesh) delete mesh;
         mesh = newMesh;
+        if(meshArray) delete meshArray;
+        meshArray = createVertexArray(mesh);
     }
     else
     {
@@ -532,10 +539,14 @@ void OpenGL3DImageWidget::initializeGL()
     lightDirection.toggleFreeCamera(false);
     lightDirection.radius = 1;
 
-    mesh        = new Mesh(":/resources/meshes/Cube.obj");
-    skybox_mesh = new Mesh(":/resources/meshes/sky_cube.obj");
-    env_mesh    = new Mesh(":/resources/meshes/sky_cube_env.obj");
-    quad_mesh   = new Mesh(":/resources/meshes/quad.obj");
+    mesh            = new Mesh(":/resources/meshes/Cube.obj");
+    meshArray       = createVertexArray(mesh);
+    skybox_mesh     = new Mesh(":/resources/meshes/sky_cube.obj");
+    skyboxMeshArray = createVertexArray(skybox_mesh);
+    env_mesh        = new Mesh(":/resources/meshes/sky_cube_env.obj");
+    envMeshArray    = createVertexArray(env_mesh);
+    quad_mesh       = new Mesh(":/resources/meshes/quad.obj");
+    quadMeshArray   = createVertexArray(quad_mesh);
 
     chooseSkyBox("1SaintLazarusChurch", true);
 
@@ -596,7 +607,7 @@ void OpenGL3DImageWidget::paintGL()
     skybox_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     skyBoxTextureCube->bind();
-    GLCHK( skybox_mesh->drawMesh() );
+    drawTriangles(skyboxMeshArray, skybox_mesh->getVertices().count());
 
     // Drawing model
     QOpenGLShaderProgram* program_ptrs[2] = {renderProgram,line_program};
@@ -709,7 +720,7 @@ void OpenGL3DImageWidget::paintGL()
             tindex++;
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
             skyBoxTextureCube->bind();
-            mesh->drawMesh(true);
+            drawTriangles(meshArray, mesh->getVertices().count(), true);
             // Set default active texture.
             GLCHK( glActiveTexture(GL_TEXTURE0) );
         }
@@ -976,7 +987,7 @@ void OpenGL3DImageWidget::applyNormalFilter(GLuint input_tex)
     filter_program->setUniformValue("quad_pos"  , QVector2D(0.0,0.0));
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
 }
 
 void OpenGL3DImageWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject* dst)
@@ -989,7 +1000,7 @@ void OpenGL3DImageWidget::copyTexToFBO(GLuint input_tex,QOpenGLFramebufferObject
     filter_program->setUniformValue("quad_pos",   QVector2D(0.0,0.0));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, input_tex);
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     dst->bindDefault();
 }
 
@@ -1011,14 +1022,14 @@ void OpenGL3DImageWidget::applyGaussFilter(
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
     auxFBO->bind();
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     auxFBO->bindDefault();
 
     outputFBO->bind();
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     filter_program->setUniformValue("gui_gauss_mode", 1);
     GLCHK( glBindTexture(GL_TEXTURE_2D, auxFBO->texture()) );
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     outputFBO->bindDefault();
 }
 
@@ -1054,7 +1065,7 @@ void OpenGL3DImageWidget::applyDofFilter(
     GLCHK( glBindTexture(GL_TEXTURE_2D, getAttachedTexture(2)) );
 
     outputFBO->bind();
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     outputFBO->bindDefault();
 
     copyTexToFBO(outputFBO->texture(),colorFBO);
@@ -1099,7 +1110,7 @@ void OpenGL3DImageWidget::applyGlowFilter(QOpenGLFramebufferObject* outputFBO)
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[2]->texture()) );
     GLCHK( glActiveTexture(GL_TEXTURE4) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
 
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     outputFBO->bindDefault();
@@ -1131,7 +1142,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     outputFBO->bindDefault();
 
     // Caclulate averaged luminance of image.
@@ -1144,7 +1155,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
         GLCHK( glActiveTexture(GL_TEXTURE0) );
         GLCHK( glBindTexture(GL_TEXTURE_2D, averagedTexID) );
 
-        quad_mesh->drawMesh();
+        drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
         averagedTexID = toneMipmaps[i]->texture();
     }
 
@@ -1160,7 +1171,7 @@ void OpenGL3DImageWidget::applyToneFilter(GLuint input_tex,QOpenGLFramebufferObj
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, input_tex) );
 
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     outputFBO->bindDefault();
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 
@@ -1200,7 +1211,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[0]->texture()) );
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
 
     // Create ghosts and halos.
 
@@ -1220,7 +1231,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
 
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT) );
     GLCHK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT) );
     outputFBO->bindDefault();
@@ -1270,7 +1281,7 @@ void OpenGL3DImageWidget::applyLensFlaresFilter(GLuint input_tex,QOpenGLFramebuf
     GLCHK( glActiveTexture(GL_TEXTURE4) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, glowOutputColor[3]->texture()) );
 
-    quad_mesh->drawMesh();
+    drawTriangles(quadMeshArray, quad_mesh->getVertices().count());
     copyTexToFBO(outputFBO->texture(),colorFBO);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
@@ -1333,7 +1344,7 @@ void OpenGL3DImageWidget::bakeEnviromentalMaps()
     env_program->setUniformValue("ProjectionMatrix", projectionMatrix);
     GLCHK( glActiveTexture(GL_TEXTURE0) );
     skyBoxTextureCube->bind();
-    env_mesh->drawMesh();
+    drawTriangles(envMeshArray, env_mesh->getVertices().count());
 
     GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
     GLCHK( glViewport(0, 0, width(), height()) );
@@ -1388,4 +1399,83 @@ void OpenGL3DImageWidget::setFBOTextureParameters(QOpenGLFramebufferObject *fbo)
     GLCHK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
     GLCHK( glBindTexture(GL_TEXTURE_2D, 0) );
     GLCHK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+}
+
+QOpenGLVertexArrayObject* OpenGL3DImageWidget::createVertexArray(Mesh* mesh)
+{
+    QOpenGLVertexArrayObject* vertexArray = new QOpenGLVertexArrayObject();
+    vertexArray->create();
+    vertexArray->bind();
+
+    QOpenGLBuffer vertexBuffer(QOpenGLBuffer::VertexBuffer);
+    vertexBuffer.create();
+    vertexBuffer.bind();
+    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vertexBuffer.allocate(mesh->getVertices().constData(), sizeof(QVector3D) *
+                          mesh->getVertices().count());
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    QOpenGLBuffer textureCoordBuffer(QOpenGLBuffer::VertexBuffer);
+    textureCoordBuffer.create();
+    textureCoordBuffer.bind();
+    textureCoordBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    textureCoordBuffer.allocate(mesh->getTextureCoordinates().constData(), sizeof(QVector3D) *
+                                mesh->getTextureCoordinates().count());
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    QOpenGLBuffer normalsBuffer(QOpenGLBuffer::VertexBuffer);
+    normalsBuffer.create();
+    normalsBuffer.bind();
+    normalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    normalsBuffer.allocate(mesh->getNormals().constData(), sizeof(QVector3D) *
+                           mesh->getNormals().count());
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(2);
+
+    QOpenGLBuffer tangetsBuffer(QOpenGLBuffer::VertexBuffer);
+    tangetsBuffer.create();
+    tangetsBuffer.bind();
+    tangetsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    tangetsBuffer.allocate(mesh->getTangents().constData(), sizeof(QVector3D) *
+                           mesh->getTangents().count());
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(3);
+
+    QOpenGLBuffer bitangentsBuffer(QOpenGLBuffer::VertexBuffer);
+    bitangentsBuffer.create();
+    bitangentsBuffer.bind();
+    bitangentsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    bitangentsBuffer.allocate(mesh->getBitangents().constData(), sizeof(QVector3D) *
+                              mesh->getBitangents().count());
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(4);
+
+    QOpenGLBuffer smoothedNormalsBuffer(QOpenGLBuffer::VertexBuffer);
+    smoothedNormalsBuffer.create();
+    smoothedNormalsBuffer.bind();
+    smoothedNormalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    smoothedNormalsBuffer.allocate(mesh->getSmoothedNormals().constData(), sizeof(QVector3D) *
+                                   mesh->getSmoothedNormals().count());
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
+    glEnableVertexAttribArray(5);
+
+    vertexArray->release();
+    return vertexArray;
+}
+
+void OpenGL3DImageWidget::drawTriangles(QOpenGLVertexArrayObject* vertexArray, unsigned int vertexCount, bool usePatches)
+{
+    vertexArray->bind();
+    if (usePatches)
+    {
+        GLCHK( glPatchParameteri(GL_PATCH_VERTICES, 3) );
+        GLCHK( glDrawArrays(GL_PATCHES, 0, vertexCount) );
+    }
+    else
+    {
+        GLCHK( glDrawArrays(GL_TRIANGLES, 0, vertexCount) );
+    }
+    vertexArray->release();
 }

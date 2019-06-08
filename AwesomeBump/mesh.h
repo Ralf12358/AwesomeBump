@@ -3,8 +3,6 @@
 
 #include <QFile>
 #include <QHash>
-#include <QOpenGLFunctions_4_0_Core>
-#include <QOpenGLVertexArrayObject>
 #include <QString>
 #include <QTextStream>
 #include <QVector>
@@ -70,14 +68,19 @@ private:
     QVector<QVector3D> triangleNormals;
 };
 
-class Mesh : public QOpenGLFunctions_4_0_Core
+class Mesh
 {
 public:
     Mesh(const QString& objFilename, const QString& mtlDirectory = "");
     virtual ~Mesh();
 
-    void initializeMesh();
-    void drawMesh(bool usePatches = false);
+    const QVector<QVector3D>& getVertices();
+    const QVector<QVector3D>& getTextureCoordinates();
+    const QVector<QVector3D>& getNormals();
+    const QVector<QVector3D>& getSmoothedNormals();
+    const QVector<QVector3D>& getTangents();
+    const QVector<QVector3D>& getBitangents();
+
     bool isLoaded();
     const QString getMeshLog();
     QVector3D getCentreOfMass();
@@ -113,9 +116,6 @@ private:
     QVector<QVector3D> triangleSmoothedNormals;
     QVector<QVector3D> triangleTangents;
     QVector<QVector3D> triangleBitangents;
-
-    // Vertex Array Object
-    QOpenGLVertexArrayObject *vertexArray;
 
     bool loaded;
     QString meshLog;

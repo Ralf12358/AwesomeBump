@@ -88,7 +88,7 @@ void Shape::createTriangle(
 
 Mesh::Mesh(const QString& objFilename, const QString& mtlDirectory) :
     filename(objFilename), materialDirectory(mtlDirectory),
-    radius(0), vertexArray(0), loaded(false)
+    radius(0), loaded(false)
 {
     QFile objFile(objFilename);
     if (!objFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -161,90 +161,42 @@ Mesh::Mesh(const QString& objFilename, const QString& mtlDirectory) :
 
     calculateTangents();
     calculateSmoothNormals();
-    initializeMesh();
 
     loaded = true;
 }
 
 Mesh::~Mesh()
 {
-    if(vertexArray) delete vertexArray;
 }
 
-void Mesh::initializeMesh()
+const QVector<QVector3D>& Mesh::getVertices()
 {
-    initializeOpenGLFunctions();
-
-    vertexArray = new QOpenGLVertexArrayObject();
-    vertexArray->create();
-    vertexArray->bind();
-
-    QOpenGLBuffer vertexBuffer(QOpenGLBuffer::VertexBuffer);
-    vertexBuffer.create();
-    vertexBuffer.bind();
-    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vertexBuffer.allocate(triangleVertices.constData(), sizeof(QVector3D) * triangleVertices.count());
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    QOpenGLBuffer textureCoordBuffer(QOpenGLBuffer::VertexBuffer);
-    textureCoordBuffer.create();
-    textureCoordBuffer.bind();
-    textureCoordBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    textureCoordBuffer.allocate(triangleTextureCoordinates.constData(), sizeof(QVector3D) * triangleTextureCoordinates.count());
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(1);
-
-    QOpenGLBuffer normalsBuffer(QOpenGLBuffer::VertexBuffer);
-    normalsBuffer.create();
-    normalsBuffer.bind();
-    normalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    normalsBuffer.allocate(triangleNormals.constData(), sizeof(QVector3D) * triangleNormals.count());
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(2);
-
-    QOpenGLBuffer tangetsBuffer(QOpenGLBuffer::VertexBuffer);
-    tangetsBuffer.create();
-    tangetsBuffer.bind();
-    tangetsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    tangetsBuffer.allocate(triangleTangents.constData(), sizeof(QVector3D) * triangleTangents.count());
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(3);
-
-    QOpenGLBuffer bitangentsBuffer(QOpenGLBuffer::VertexBuffer);
-    bitangentsBuffer.create();
-    bitangentsBuffer.bind();
-    bitangentsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    bitangentsBuffer.allocate(triangleBitangents.constData(), sizeof(QVector3D) * triangleBitangents.count());
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(4);
-
-    QOpenGLBuffer smoothedNormalsBuffer(QOpenGLBuffer::VertexBuffer);
-    smoothedNormalsBuffer.create();
-    smoothedNormalsBuffer.bind();
-    smoothedNormalsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    smoothedNormalsBuffer.allocate(triangleSmoothedNormals.constData(), sizeof(QVector3D) * triangleSmoothedNormals.count());
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)0);
-    glEnableVertexAttribArray(5);
-
-    vertexArray->release();
+    return triangleVertices;
 }
 
-void Mesh::drawMesh(bool usePatches)
+const QVector<QVector3D>& Mesh::getTextureCoordinates()
 {
-    if(!loaded) return;
+    return triangleTextureCoordinates;
+}
 
-    vertexArray->bind();
-    if (usePatches)
-    {
-        GLCHK( glPatchParameteri(GL_PATCH_VERTICES, 3) );
-        GLCHK( glDrawArrays(GL_PATCHES, 0, triangleVertices.count()) );
-    }
-    else
-    {
-        GLCHK( glDrawArrays(GL_TRIANGLES, 0,  triangleVertices.count()) );
-    }
-    vertexArray->release();
+const QVector<QVector3D>& Mesh::getNormals()
+{
+    return triangleNormals;
+}
+
+const QVector<QVector3D>& Mesh::getSmoothedNormals()
+{
+    return triangleSmoothedNormals;
+}
+
+const QVector<QVector3D>& Mesh::getTangents()
+{
+    return triangleTangents;
+}
+
+const QVector<QVector3D>& Mesh::getBitangents()
+{
+    return triangleBitangents;
 }
 
 bool Mesh::isLoaded()
