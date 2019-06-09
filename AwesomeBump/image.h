@@ -2,7 +2,6 @@
 #define IMAGE_H
 
 #include <QImage>
-#include <QOpenGLTexture>
 
 #include "properties/ImageProperties.peg.h"
 #include "basemapconvlevelproperties.h"
@@ -63,8 +62,6 @@ public:
     QtnPropertySetFormImageProp* getProperties();
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
-    QOpenGLTexture* getNormalMixerInputTexture();
-    void setNormalMixerInputTexture(const QImage& image);
 
     bool isSkippingProcessing();
     void setSkipProcessing(bool skipProcessing);
@@ -102,8 +99,6 @@ public:
 
 private:
     QtnPropertySetFormImageProp properties;
-    // Used only by normal texture.
-    QOpenGLTexture *normalMixerInputTexture;
 
     QString imageName;
 

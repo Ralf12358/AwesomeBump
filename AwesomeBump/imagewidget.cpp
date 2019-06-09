@@ -356,7 +356,7 @@ bool ImageWidget::loadFile(const QString &fileName)
     if(image.getProperties()->NormalsMixer.EnableMixer)
     {
         qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
-        image.setNormalMixerInputTexture(qImage);
+        openGL2DImageWidget->setNormalMixerInputTexture(qImage);
 
         emit imageChanged();
     }
@@ -491,7 +491,7 @@ void ImageWidget::pasteNormalFromClipBoard()
         QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
         QImage qImage = pixmap.toImage();
 
-        image.setNormalMixerInputTexture(qImage);
+        openGL2DImageWidget->setNormalMixerInputTexture(qImage);
 
         emit imageChanged();
     }

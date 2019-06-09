@@ -4,7 +4,7 @@
 
 OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent), activeTextureType(DIFFUSE_TEXTURE),
-    textures(new QOpenGLTexture*[TEXTURES]()),
+    textures(new QOpenGLTexture*[TEXTURES]()), normalMixerInputTexture(0),
     textureFBOs(new QOpenGLFramebufferObject*[TEXTURES]()),
     averageColorFBO(0), samplerFBO1(0), samplerFBO2(0),
     auxFBO1(0), auxFBO2(0), auxFBO3(0), auxFBO4(0),
@@ -108,6 +108,12 @@ GLuint OpenGL2DImageWidget::getTextureId(TextureType textureType)
 QImage OpenGL2DImageWidget::getTextureFBOImage(TextureType textureType)
 {
     return textureFBOs[textureType]->toImage();
+}
+
+void OpenGL2DImageWidget::setNormalMixerInputTexture(const QImage& image)
+{
+    if(normalMixerInputTexture) delete normalMixerInputTexture;
+    normalMixerInputTexture = new QOpenGLTexture(image);
 }
 
 void OpenGL2DImageWidget::enableShadowRender(bool enable)
@@ -1187,7 +1193,7 @@ void OpenGL2DImageWidget::applyNormalMixerFilter(QOpenGLFramebufferObject *input
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
 
     GLCHK( glActiveTexture(GL_TEXTURE1) );
-    GLCHK( glBindTexture(GL_TEXTURE_2D, getActiveImage(activeTextureType)->getNormalMixerInputTexture()->textureId()) );
+    GLCHK( glBindTexture(GL_TEXTURE_2D, normalMixerInputTexture->textureId()) );
 
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     GLCHK( outputFBO->bindDefault() );
@@ -2271,7 +2277,7 @@ void OpenGL2DImageWidget::render()
             {
                 applyNormalsStepFilter(activeFBO,auxFBO1);
                 // Apply normal mixer filter.
-                if(NormalMixerProp.EnableMixer && getActiveImage(activeTextureType)->getNormalMixerInputTexture() != 0)
+                if(NormalMixerProp.EnableMixer && normalMixerInputTexture != 0)
                 {
                     applyNormalMixerFilter(auxFBO1,activeFBO);
                 }

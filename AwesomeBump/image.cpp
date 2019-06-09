@@ -40,7 +40,6 @@ void Image::randomReset()
 }
 
 Image::Image() :
-    normalMixerInputTexture(0),
     bFirstDraw(true),
     bSkipProcessing(false),
     conversionHNDepth(2.0),
@@ -50,7 +49,6 @@ Image::Image() :
 
 Image::~Image()
 {
-    if(normalMixerInputTexture) delete normalMixerInputTexture;
 }
 
 void Image::copySettings(Image *source)
@@ -75,17 +73,6 @@ ImageType Image::getInputImageType()
 void Image::setInputImageType(ImageType inputImageType)
 {
     this->inputImageType = inputImageType;
-}
-
-QOpenGLTexture* Image::getNormalMixerInputTexture()
-{
-    return normalMixerInputTexture;
-}
-
-void Image::setNormalMixerInputTexture(const QImage& image)
-{
-    if(normalMixerInputTexture) delete normalMixerInputTexture;
-    normalMixerInputTexture = new QOpenGLTexture(image);
 }
 
 bool Image::isSkippingProcessing()

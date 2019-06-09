@@ -56,6 +56,7 @@ public:
     int getTextureHeight(TextureType textureType);
     GLuint getTextureId(TextureType textureType);
     QImage getTextureFBOImage(TextureType textureType);
+    void setNormalMixerInputTexture(const QImage& image);
 
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
@@ -201,6 +202,7 @@ private:
     Image* getActiveImage(TextureType texture);
     TextureType activeTextureType;
     QOpenGLTexture** textures;
+    QOpenGLTexture* normalMixerInputTexture;
     QOpenGLFramebufferObject** textureFBOs;
 
     QOpenGLShaderProgram *program;
