@@ -64,9 +64,6 @@ public:
 
     bool isFirstDraw();
 
-    float getConversionHNDepth();
-    void setConversionHNDepth(float newDepth);
-
     QString getImageName();
     void setImageName(const QString& newName);
 
@@ -100,8 +97,6 @@ private:
 
     bool bFirstDraw;
 
-    // Conversion settings
-    float conversionHNDepth;
     // Input image type
     ImageType inputImageType;
 };

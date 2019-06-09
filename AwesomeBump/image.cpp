@@ -41,7 +41,6 @@ void Image::randomReset()
 
 Image::Image() :
     bFirstDraw(true),
-    conversionHNDepth(2.0),
     inputImageType(INPUT_NONE)
 {
 }
@@ -53,7 +52,6 @@ Image::~Image()
 void Image::copySettings(Image *source)
 {
     bFirstDraw         = source->bFirstDraw;
-    conversionHNDepth  = source->conversionHNDepth;
     bConversionBaseMap = source->bConversionBaseMap;
     inputImageType     = source->inputImageType;
     properties.copyValues(&source->properties);
@@ -77,16 +75,6 @@ void Image::setInputImageType(ImageType inputImageType)
 bool Image::isFirstDraw()
 {
     return bFirstDraw;
-}
-
-float Image::getConversionHNDepth()
-{
-    return conversionHNDepth;
-}
-
-void Image::setConversionHNDepth(float newDepth)
-{
-    conversionHNDepth = newDepth;
 }
 
 QString Image::getImageName()

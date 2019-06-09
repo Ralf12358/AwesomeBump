@@ -619,7 +619,7 @@ void ImageWidget::updateGuiSpinBoxesAndLabes(int)
 
     ui->doubleSpinBoxConversionHNDepth->setValue(ui->horizontalSliderConversionHNDepth->value()/5.0);
 
-    image.setConversionHNDepth(ui->doubleSpinBoxConversionHNDepth->value());
+    openGL2DImageWidget->setConversionHNDepth(ui->doubleSpinBoxConversionHNDepth->value());
 
     image.getProperties()->NormalHeightConv.NoiseLevel = ui->horizontalSliderNormalToHeightNoiseLevel     ->value();
     image.getProperties()->NormalHeightConv.Huge       = ui->horizontalSliderNormalToHeightItersHuge      ->value();

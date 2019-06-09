@@ -58,6 +58,7 @@ public:
     QImage getTextureFBOImage(TextureType textureType);
     void setNormalMixerInputTexture(const QImage& image);
     void setSkipProcessing(TextureType textureType, bool skipProcessing);
+    void setConversionHNDepth(float newDepth);
 
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
@@ -207,6 +208,7 @@ private:
     QOpenGLFramebufferObject** textureFBOs;
 
     bool skipProcessing[TEXTURES]{};
+    float conversionHNDepth;
 
     QOpenGLShaderProgram *program;
     QOpenGLVertexArrayObject *vertexArray;

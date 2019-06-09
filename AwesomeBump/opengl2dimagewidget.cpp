@@ -6,6 +6,7 @@ OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
     QOpenGLWidget(parent), activeTextureType(DIFFUSE_TEXTURE),
     textures(new QOpenGLTexture*[TEXTURES]()), normalMixerInputTexture(0),
     textureFBOs(new QOpenGLFramebufferObject*[TEXTURES]()),
+    conversionHNDepth(2.0),
     averageColorFBO(0), samplerFBO1(0), samplerFBO2(0),
     auxFBO1(0), auxFBO2(0), auxFBO3(0), auxFBO4(0),
     paintFBO(0), renderFBO(0),
@@ -119,6 +120,11 @@ void OpenGL2DImageWidget::setNormalMixerInputTexture(const QImage& image)
 void OpenGL2DImageWidget::setSkipProcessing(TextureType textureType, bool skipProcessing)
 {
     this->skipProcessing[textureType] = skipProcessing;
+}
+
+void OpenGL2DImageWidget::setConversionHNDepth(float newDepth)
+{
+    conversionHNDepth = newDepth;
 }
 
 void OpenGL2DImageWidget::enableShadowRender(bool enable)
@@ -572,7 +578,7 @@ void OpenGL2DImageWidget::applyHeightToNormal(QOpenGLFramebufferObject *inputFBO
 {
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_height_to_normal"]) );
 
-    GLCHK( program->setUniformValue("gui_hn_conversion_depth", getActiveImage(activeTextureType)->getConversionHNDepth()) );
+    GLCHK( program->setUniformValue("gui_hn_conversion_depth", conversionHNDepth) );
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
