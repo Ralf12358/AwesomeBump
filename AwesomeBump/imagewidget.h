@@ -81,6 +81,7 @@ private:
     OpenGL2DImageWidget* openGL2DImageWidget;
     TextureType textureType;
     Image image;
+    QString imageName;
     Ui::ImageWidget *ui;
     // Height calculator tool.
     DialogHeightCalculator *heightCalculator;

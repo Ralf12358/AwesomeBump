@@ -64,9 +64,6 @@ public:
 
     bool isFirstDraw();
 
-    QString getImageName();
-    void setImageName(const QString& newName);
-
     // Base to others settings
     static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
@@ -92,8 +89,6 @@ public:
 
 private:
     QtnPropertySetFormImageProp properties;
-
-    QString imageName;
 
     bool bFirstDraw;
 

@@ -103,12 +103,12 @@ Image* ImageWidget::getImage()
 
 QString ImageWidget::getImageName()
 {
-    return image.getImageName();
+    return imageName;
 }
 
 void ImageWidget::setImageName(const QString& name)
 {
-    image.setImageName(name);
+    imageName = name;
 }
 
 void ImageWidget::setupPropertiesGUI()
@@ -364,7 +364,7 @@ bool ImageWidget::loadFile(const QString &fileName)
     {
         qDebug() << "<FormImageProp> Open image:" << fileName;
 
-        image.getImageName() = fileInfo.baseName();
+        imageName = fileInfo.baseName();
         (*recentDir).setPath(fileName);
         openGL2DImageWidget->setTextureImage(textureType, qImage);
 
@@ -378,7 +378,7 @@ bool ImageWidget::loadFile(const QString &fileName)
 void ImageWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
-            image.getImageName() +
+            imageName +
             image.getProperties()->suffix +
             Image::outputFormat;
     saveFile(fullFileName);
@@ -387,7 +387,7 @@ void ImageWidget::saveFileToDir(const QString &dir)
 void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 {
     QString fullFileName = dir + "/" +
-            image.getImageName() +
+            imageName +
             image.getProperties()->suffix +
             Image::outputFormat;
 
@@ -441,7 +441,7 @@ void ImageWidget::save()
     {
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
-                image.getImageName() +
+                imageName +
                 image.getProperties()->suffix +
                 Image::outputFormat;
         picturesLocations << fullFileName;
@@ -767,7 +767,7 @@ bool ImageWidget::saveFile(const QString &fileName)
 
 void ImageWidget::pasteImageFromClipboard(const QImage& qImage)
 {
-    image.setImageName("clipboard_image");
+    imageName = "clipboard_image";
     openGL2DImageWidget->setTextureImage(textureType, qImage);
     emit imageLoaded(qImage.width(), qImage.height());
     if(textureType == GRUNGE_TEXTURE)
