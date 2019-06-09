@@ -11,7 +11,6 @@
 
 #include "image.h"
 #include "opengl2dimagewidget.h"
-#include "opengltexturecube.h"
 #include "display3dsettings.h"
 #include "camera.h"
 #include "mesh.h"
@@ -98,6 +97,7 @@ private:
 
     QOpenGLVertexArrayObject* createVertexArray(Mesh* mesh);
     void drawTriangles(QOpenGLVertexArrayObject* vertexArray, unsigned int vertexCount, bool usePatches = false);
+    QOpenGLTexture* createTextureCube(const QStringList& fileNames);
 
     // Render Shader Program
     QOpenGLShaderProgram* renderProgram;
@@ -158,7 +158,7 @@ private:
     QOpenGLVertexArrayObject* quadMeshArray;
 
     // Skybox texture.
-    OpenGLTextureCube* skyBoxTextureCube;
+    QOpenGLTexture* skyBoxTextureCube;
     // Control calculating diffuse environment map.
     bool bDiffuseMapBaked;
 

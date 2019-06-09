@@ -11,6 +11,7 @@
 OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget) :
     QOpenGLWidget(parent), openGL2DImageWidget(openGL2DImageWidget),
     meshArray(0), skyboxMeshArray(0), envMeshArray(0), quadMeshArray(0),
+    skyBoxTextureCube(0),
     mouseUpdateIsQueued(false),
     blockMouseMovement(false),
     keyPressed((Qt::Key)0)
@@ -29,12 +30,9 @@ OpenGL3DImageWidget::OpenGL3DImageWidget(QWidget* parent, OpenGL2DImageWidget* o
     bToggleRoughnessView    = true;
     bToggleMetallicView     = true;
 
-    skyBoxTextureCube               = NULL;
-
     setCursor(Qt::PointingHandCursor);
     lightCursor = QCursor(QPixmap(":/resources/cursors/lightCursor.png"));
 
-    //glImagePtr = (GLImage*)shareWidget;
     // Post processing variables:
     colorFBO = NULL;
     outputFBO= NULL;
@@ -248,9 +246,8 @@ void OpenGL3DImageWidget::chooseSkyBox(QString cubeMapName,bool bFirstTime)
     qDebug() << "Reading new cube map:" << list;
     bDiffuseMapBaked = false;
 
-    if(skyBoxTextureCube != NULL)
-        delete skyBoxTextureCube;
-    skyBoxTextureCube = new OpenGLTextureCube(list);
+    if(skyBoxTextureCube) delete skyBoxTextureCube;
+    skyBoxTextureCube = createTextureCube(list);
 
     if(!skyBoxTextureCube->isCreated())
     {
@@ -1478,4 +1475,38 @@ void OpenGL3DImageWidget::drawTriangles(QOpenGLVertexArrayObject* vertexArray, u
         GLCHK( glDrawArrays(GL_TRIANGLES, 0, vertexCount) );
     }
     vertexArray->release();
+}
+
+QOpenGLTexture* OpenGL3DImageWidget::createTextureCube(const QStringList& fileNames)
+{
+    QOpenGLTexture* texture = new QOpenGLTexture(QOpenGLTexture::TargetCubeMap);
+
+    QImage image[6];
+    int images = 0;
+    int size = 0;
+    for (int i = 0; i < 6; i++)
+    {
+        ++images;
+        image[i] = QImage(fileNames[i]);
+        if (size <= 0)
+            size = image[i].width();
+        if (image[i].width() != size || image[i].height() != size)
+            image[i] = image[i].scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
+
+    texture->setSize(size, size);
+    texture->setFormat(QOpenGLTexture::RGB32F);
+    texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+    texture->setMipLevels(floor(log2(size)));
+    texture->allocateStorage();
+
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveX, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[0].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeX, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[1].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveY, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[2].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeY, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[3].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapPositiveZ, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[4].bits());
+    texture->setData(0, 0, QOpenGLTexture::CubeMapNegativeZ, QOpenGLTexture::BGRA, QOpenGLTexture::UInt8, image[5].bits());
+
+    return texture;
 }

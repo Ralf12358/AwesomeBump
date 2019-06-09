@@ -33,7 +33,6 @@ HEADERS = \
     opengl2dimagewidget.h \
     opengl3dimagewidget.h \
     openglerrorcheck.h \
-    opengltexturecube.h \
     splashscreen.h \
     properties/Dialog3DGeneralSettings.h \
     properties/PropertyABColor.h \
@@ -60,7 +59,6 @@ SOURCES = \
     mesh.cpp \
     opengl2dimagewidget.cpp \
     opengl3dimagewidget.cpp \
-    opengltexturecube.cpp \
     splashscreen.cpp \
     properties/Dialog3DGeneralSettings.cpp \
     properties/PropertyABColor.cpp \
