@@ -5,13 +5,6 @@
 #include_cpp <QFileDialog>
 #include_cpp "propertyconstructor.h"
 
-enum COLOR
-{
-    red (1, "red"),
-    blue (2, "blue"),
-    green (3, "green")
-}
-
 enum COLOR_FILTER
 {
     None (1, "None"),
@@ -24,12 +17,6 @@ enum COLOR_FILTER_METHOD
     Angle1 (1, "Angle based #1"),
     Angle2 (2, "Angle based #2"),
     Distance (3, "Distance based")
-}
-
-enum SHADINGMODEL
-{
-    pbr (0, "PBR shading"),
-    bumpMapping (1, "Bump mapping")
 }
 
 enum BASEMAPDETAIL
@@ -54,13 +41,6 @@ enum BLENDINGMODE
     blendBurn (9, "Burn"),
     blendDarkenOnly (10, "Darken Only"),
     blendLightenOnly (11, "Lighten Only")
-}
-
-enum INPUTIMAGE
-{
-    inputCurrent (0, "Current image"),
-    inputHeightInput (1, "Height (Input)"),
-    inputHeightOutput (2, "Height (Output)")
 }
 
 property_set ColorComponentsProperty
