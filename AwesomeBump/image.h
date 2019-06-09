@@ -63,8 +63,6 @@ public:
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
 
-    bool isSkippingProcessing();
-    void setSkipProcessing(bool skipProcessing);
     bool isFirstDraw();
 
     BaseMapConvLevelProperties *getBaseMapConvLevelProperties();
@@ -103,7 +101,6 @@ private:
     QString imageName;
 
     bool bFirstDraw;
-    bool bSkipProcessing;
 
     // Conversion settings
     float conversionHNDepth;

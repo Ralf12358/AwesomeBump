@@ -41,7 +41,6 @@ void Image::randomReset()
 
 Image::Image() :
     bFirstDraw(true),
-    bSkipProcessing(false),
     conversionHNDepth(2.0),
     inputImageType(INPUT_NONE)
 {
@@ -73,16 +72,6 @@ ImageType Image::getInputImageType()
 void Image::setInputImageType(ImageType inputImageType)
 {
     this->inputImageType = inputImageType;
-}
-
-bool Image::isSkippingProcessing()
-{
-    return bSkipProcessing;
-}
-
-void Image::setSkipProcessing(bool skipProcessing)
-{
-    bSkipProcessing = skipProcessing;
 }
 
 bool Image::isFirstDraw()

@@ -116,6 +116,11 @@ void OpenGL2DImageWidget::setNormalMixerInputTexture(const QImage& image)
     normalMixerInputTexture = new QOpenGLTexture(image);
 }
 
+void OpenGL2DImageWidget::setSkipProcessing(TextureType textureType, bool skipProcessing)
+{
+    this->skipProcessing[textureType] = skipProcessing;
+}
+
 void OpenGL2DImageWidget::enableShadowRender(bool enable)
 {
     bShadowRender = enable;
@@ -1854,7 +1859,7 @@ void OpenGL2DImageWidget::render()
     bool bSkipStandardProcessing = false;
 
     // Do not process images when disabled.
-    if((getActiveImage(activeTextureType)->isSkippingProcessing()) && (activeTextureType != MATERIAL_TEXTURE))
+    if (skipProcessing[activeTextureType] && activeTextureType != MATERIAL_TEXTURE)
         bSkipProcessing = true;
     if(bToggleColorPicking)
         bSkipStandardProcessing = true;
@@ -1979,7 +1984,7 @@ void OpenGL2DImageWidget::render()
             case(INPUT_FROM_HEIGHT_OUTPUT):
                 applyHeightToNormal(textureFBOs[HEIGHT_TEXTURE],activeFBO);
 
-                if(!targetImageHeight->isSkippingProcessing())
+                if(!skipProcessing[HEIGHT_TEXTURE])
                     bTransformUVs = false;
                 break;
             default:
@@ -2000,7 +2005,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
                 copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
+                if(!skipProcessing[HEIGHT_TEXTURE])
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
@@ -2008,7 +2013,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
                 copyFBO(textureFBOs[DIFFUSE_TEXTURE], activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
+                if(!skipProcessing[DIFFUSE_TEXTURE])
                     bTransformUVs = false;
                 break;
             default:
@@ -2029,7 +2034,7 @@ void OpenGL2DImageWidget::render()
                     // Skip some parts of the processing.
                     applyOcclusionFilter(textureFBOs[HEIGHT_TEXTURE]->texture(),textureFBOs[NORMAL_TEXTURE]->texture(),activeFBO);
                     bSkipStandardProcessing =  true;
-                    if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
+                    if(!skipProcessing[HEIGHT_TEXTURE] && !skipProcessing[NORMAL_TEXTURE])
                         bTransformUVs = false;
                     qDebug() << "Calculation AO from Normal and Height";
                 }
@@ -2041,7 +2046,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_HO_NO):
                 applyOcclusionFilter(textureFBOs[HEIGHT_TEXTURE]->texture(),textureFBOs[NORMAL_TEXTURE]->texture(),activeFBO);
-                if(!targetImageHeight->isSkippingProcessing() && !targetImageNormal->isSkippingProcessing())
+                if(!skipProcessing[HEIGHT_TEXTURE] && !skipProcessing[NORMAL_TEXTURE])
                     bTransformUVs = false;
                 break;
             default:
@@ -2059,7 +2064,7 @@ void OpenGL2DImageWidget::render()
                 applyAddNoiseFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
 
-                if(!targetImageNormal->isSkippingProcessing())
+                if(!skipProcessing[NORMAL_TEXTURE])
                     bTransformUVs = false;
             }
             break;
@@ -2077,7 +2082,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
                 copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
+                if(!skipProcessing[HEIGHT_TEXTURE])
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
@@ -2085,7 +2090,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
                 copyFBO(textureFBOs[DIFFUSE_TEXTURE], activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
+                if(!skipProcessing[DIFFUSE_TEXTURE])
                     bTransformUVs = false;
                 break;
             default:
@@ -2106,7 +2111,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_HEIGHT_OUTPUT):
                 copyFBO(textureFBOs[HEIGHT_TEXTURE],activeFBO);
-                if(!targetImageHeight->isSkippingProcessing())
+                if(!skipProcessing[HEIGHT_TEXTURE])
                     bTransformUVs = false;
                 break;
             case(INPUT_FROM_DIFFUSE_INPUT):
@@ -2114,7 +2119,7 @@ void OpenGL2DImageWidget::render()
                 break;
             case(INPUT_FROM_DIFFUSE_OUTPUT):
                 copyFBO(textureFBOs[DIFFUSE_TEXTURE],activeFBO);
-                if(!targetImageDiffuse->isSkippingProcessing())
+                if(!skipProcessing[DIFFUSE_TEXTURE])
                     bTransformUVs = false;
                 break;
             default:

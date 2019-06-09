@@ -57,6 +57,7 @@ public:
     GLuint getTextureId(TextureType textureType);
     QImage getTextureFBOImage(TextureType textureType);
     void setNormalMixerInputTexture(const QImage& image);
+    void setSkipProcessing(TextureType textureType, bool skipProcessing);
 
     void enableShadowRender(bool enable);
     ConversionType getConversionType();
@@ -204,6 +205,8 @@ private:
     QOpenGLTexture** textures;
     QOpenGLTexture* normalMixerInputTexture;
     QOpenGLFramebufferObject** textureFBOs;
+
+    bool skipProcessing[TEXTURES]{};
 
     QOpenGLShaderProgram *program;
     QOpenGLVertexArrayObject *vertexArray;

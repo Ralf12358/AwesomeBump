@@ -604,49 +604,49 @@ void MainWindow::showHideTextureTypes(bool)
     //qDebug() << "Toggle processing images";
 
     bool value = ui->checkBoxSaveDiffuse->isChecked();
-    diffuseImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(DIFFUSE_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(DIFFUSE_TEXTURE, value);
     ui->pushButtonToggleDiffuse->setVisible(value);
     ui->pushButtonToggleDiffuse->setChecked(value);
     ui->actionShowDiffuseImage->setVisible(value);
 
     value = ui->checkBoxSaveNormal->isChecked();
-    normalImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(NORMAL_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(NORMAL_TEXTURE, value);
     ui->pushButtonToggleNormal->setVisible(value);
     ui->pushButtonToggleNormal->setChecked(value);
     ui->actionShowNormalImage->setVisible(value);
 
     value = ui->checkBoxSaveHeight->isChecked();
-    occlusionImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(OCCLUSION_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(OCCLUSION_TEXTURE, value);
     ui->pushButtonToggleOcclusion->setVisible(value);
     ui->pushButtonToggleOcclusion->setChecked(value);
     ui->actionShowOcclusiontImage->setVisible(value);
 
     value = ui->checkBoxSaveOcclusion->isChecked();
-    heightImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(HEIGHT_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(HEIGHT_TEXTURE, value);
     ui->pushButtonToggleHeight->setVisible(value);
     ui->pushButtonToggleHeight->setChecked(value);
     ui->actionShowHeightImage->setVisible(value);
 
     value = ui->checkBoxSaveSpecular->isChecked();
-    specularImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(SPECULAR_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(SPECULAR_TEXTURE, value);
     ui->pushButtonToggleSpecular->setVisible(value);
     ui->pushButtonToggleSpecular->setChecked(value);
     ui->actionShowSpecularImage->setVisible(value);
 
     value = ui->checkBoxSaveRoughness->isChecked();
-    roughnessImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(ROUGHNESS_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(ROUGHNESS_TEXTURE, value);
     ui->pushButtonToggleRoughness->setVisible(value);
     ui->pushButtonToggleRoughness->setChecked(value);
     ui->actionShowRoughnessImage->setVisible(value);
 
     value = ui->checkBoxSaveMetallic->isChecked();
-    metallicImageWidget->getImage()->setSkipProcessing(!value);
+    openGL2DImageWidget->setSkipProcessing(METALLIC_TEXTURE, !value);
     ui->tabWidget->setTabEnabled(METALLIC_TEXTURE, value);
     ui->pushButtonToggleMetallic->setVisible(value);
     ui->pushButtonToggleMetallic->setChecked(value);
