@@ -160,7 +160,7 @@ private:
     void applyNormalMixerFilter(QOpenGLFramebufferObject *inputFBO,
                                 QOpenGLFramebufferObject *outputFBO);
     void applySobelToNormalFilter(QOpenGLFramebufferObject *inputFBO,
-                                  QOpenGLFramebufferObject *outputFBO, BaseMapConvLevelProperties &convProp);
+                                  QOpenGLFramebufferObject *outputFBO, const QtnPropertySetConvertsionBaseMapLevelProperty& convProp);
     void applyNormalAngleCorrectionFilter(QOpenGLFramebufferObject *inputFBO,
                                           QOpenGLFramebufferObject *outputFBO);
     void applyNormalExpansionFilter(QOpenGLFramebufferObject *inputFBO,
@@ -172,10 +172,10 @@ private:
                               QOpenGLFramebufferObject *outputFBO);
     void applyBaseMapConversion(QOpenGLFramebufferObject *baseMapFBO,
                                 QOpenGLFramebufferObject *auxFBO,
-                                QOpenGLFramebufferObject *outputFBO, BaseMapConvLevelProperties &convProp);
+                                QOpenGLFramebufferObject *outputFBO, const QtnPropertySetConvertsionBaseMapLevelProperty& convProp);
     void applyPreSmoothFilter(QOpenGLFramebufferObject *inputFBO,
                               QOpenGLFramebufferObject *auxFBO,
-                             QOpenGLFramebufferObject *outputFBO, BaseMapConvLevelProperties &convProp);
+                             QOpenGLFramebufferObject *outputFBO, const QtnPropertySetConvertsionBaseMapLevelProperty& convProp);
     void applyCombineNormalHeightFilter(QOpenGLFramebufferObject *normalFBO,
                                         QOpenGLFramebufferObject *heightFBO,
                                         QOpenGLFramebufferObject *outputFBO);

@@ -4,7 +4,6 @@
 #include <QImage>
 
 #include "properties/ImageProperties.peg.h"
-#include "basemapconvlevelproperties.h"
 
 enum ImageType
 {
@@ -65,7 +64,6 @@ public:
 
     bool isFirstDraw();
 
-    BaseMapConvLevelProperties *getBaseMapConvLevelProperties();
     float getConversionHNDepth();
     void setConversionHNDepth(float newDepth);
 
@@ -104,7 +102,6 @@ private:
 
     // Conversion settings
     float conversionHNDepth;
-    BaseMapConvLevelProperties baseMapConvLevelProperties[4];
     // Input image type
     ImageType inputImageType;
 };

@@ -79,11 +79,6 @@ bool Image::isFirstDraw()
     return bFirstDraw;
 }
 
-BaseMapConvLevelProperties* Image::getBaseMapConvLevelProperties()
-{
-    return baseMapConvLevelProperties;
-}
-
 float Image::getConversionHNDepth()
 {
     return conversionHNDepth;

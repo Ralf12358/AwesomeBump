@@ -1205,15 +1205,15 @@ void OpenGL2DImageWidget::applyNormalMixerFilter(QOpenGLFramebufferObject *input
     GLCHK( glActiveTexture(GL_TEXTURE0) );
 }
 
-void OpenGL2DImageWidget::applyPreSmoothFilter(  QOpenGLFramebufferObject *inputFBO,
+void OpenGL2DImageWidget::applyPreSmoothFilter(QOpenGLFramebufferObject *inputFBO,
                                                QOpenGLFramebufferObject *auxFBO,
                                                QOpenGLFramebufferObject *outputFBO,
-                                               BaseMapConvLevelProperties& convProp)
+                                               const QtnPropertySetConvertsionBaseMapLevelProperty& convProp)
 {
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_gauss_filter"]) );
 
-    GLCHK( program->setUniformValue("gui_gauss_radius", int(convProp.conversionBaseMapPreSmoothRadius)) );
-    GLCHK( program->setUniformValue("gui_gauss_w", float(convProp.conversionBaseMapPreSmoothRadius)) );
+    GLCHK( program->setUniformValue("gui_gauss_radius", int(convProp.PreSmoothRadius)) );
+    GLCHK( program->setUniformValue("gui_gauss_w", float(convProp.PreSmoothRadius)) );
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( program->setUniformValue("gauss_mode",1) );
@@ -1231,11 +1231,11 @@ void OpenGL2DImageWidget::applyPreSmoothFilter(  QOpenGLFramebufferObject *input
 
 void OpenGL2DImageWidget::applySobelToNormalFilter(QOpenGLFramebufferObject *inputFBO,
                                                  QOpenGLFramebufferObject *outputFBO,
-                                                 BaseMapConvLevelProperties& convProp)
+                                                 const QtnPropertySetConvertsionBaseMapLevelProperty& convProp)
 {
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_sobel_filter"]) );
 
-    GLCHK( program->setUniformValue("gui_basemap_amp", convProp.conversionBaseMapAmplitude) );
+    GLCHK( program->setUniformValue("gui_basemap_amp", convProp.Amplitude) );
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -1530,7 +1530,7 @@ void OpenGL2DImageWidget::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO
 void OpenGL2DImageWidget::applyBaseMapConversion(QOpenGLFramebufferObject *baseMapFBO,
                                                QOpenGLFramebufferObject *auxFBO,
                                                QOpenGLFramebufferObject *outputFBO,
-                                               BaseMapConvLevelProperties& convProp)
+                                               const QtnPropertySetConvertsionBaseMapLevelProperty& convProp)
 {
     applyGrayScaleFilter(baseMapFBO,outputFBO);
     applySobelToNormalFilter(outputFBO,auxFBO,convProp);
@@ -1538,18 +1538,18 @@ void OpenGL2DImageWidget::applyBaseMapConversion(QOpenGLFramebufferObject *baseM
     applyPreSmoothFilter(baseMapFBO,auxFBO,outputFBO,convProp);
 
     GLCHK( program->setUniformValue("gui_combine_normals" , 0) );
-    GLCHK( program->setUniformValue("gui_filter_radius" , convProp.conversionBaseMapFilterRadius) );
-    GLCHK( program->setUniformValue("gui_normal_flatting" , convProp.conversionBaseMapFlatness) );
+    GLCHK( program->setUniformValue("gui_filter_radius" , convProp.FilterRadius) );
+    GLCHK( program->setUniformValue("gui_normal_flatting" , convProp.Flatness) );
 
-    for(int i = 0; i < convProp.conversionBaseMapNoIters ; i ++)
+    for(int i = 0; i < convProp.NumIters ; i ++)
     {
         copyFBO(outputFBO,auxFBO);
         applyNormalExpansionFilter(auxFBO,outputFBO);
     }
 
     GLCHK( program->setUniformValue("gui_combine_normals" , 1) );
-    GLCHK( program->setUniformValue("gui_mix_normals"   , convProp.conversionBaseMapMixNormals) );
-    GLCHK( program->setUniformValue("gui_blend_normals" , convProp.conversionBaseMapBlending) );
+    GLCHK( program->setUniformValue("gui_mix_normals"   , convProp.Edges) );
+    GLCHK( program->setUniformValue("gui_blend_normals" , convProp.Blending) );
 
     copyFBO(outputFBO,auxFBO);
     GLCHK( glActiveTexture(GL_TEXTURE1) );
@@ -2305,17 +2305,10 @@ void OpenGL2DImageWidget::render()
                     copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[1]);
                     copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[2]);
                     // Calculate normal for orginal image.
-                    getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[0].fromProperty(BaseMapToOthersProp.LevelSmall);
-                    getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[1].fromProperty(BaseMapToOthersProp.LevelMedium);
-                    getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[2].fromProperty(BaseMapToOthersProp.LevelBig);
-                    getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[3].fromProperty(BaseMapToOthersProp.LevelHuge);
-                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1,getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[0]);
-
-                    // Calulcate normal for mipmaps.
-                    for(int i = 0 ; i < 3 ; i++)
-                    {
-                        applyBaseMapConversion(auxFBO0BMLevels[i],auxFBO1BMLevels[i],auxFBO2BMLevels[i],getActiveImage(activeTextureType)->getBaseMapConvLevelProperties()[i+1]);
-                    }
+                    applyBaseMapConversion(activeFBO,auxFBO2,auxFBO1, BaseMapToOthersProp.LevelSmall);
+                    applyBaseMapConversion(auxFBO0BMLevels[0],auxFBO1BMLevels[0],auxFBO2BMLevels[0],BaseMapToOthersProp.LevelMedium);
+                    applyBaseMapConversion(auxFBO0BMLevels[1],auxFBO1BMLevels[1],auxFBO2BMLevels[1],BaseMapToOthersProp.LevelBig);
+                    applyBaseMapConversion(auxFBO0BMLevels[2],auxFBO1BMLevels[2],auxFBO2BMLevels[2],BaseMapToOthersProp.LevelHuge);
 
                     // Mix normals together.
                     applyMixNormalLevels(auxFBO1->texture(),

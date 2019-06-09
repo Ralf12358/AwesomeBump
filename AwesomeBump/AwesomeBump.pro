@@ -15,7 +15,6 @@ win32{
 }
 
 HEADERS = \
-    basemapconvlevelproperties.h \
     camera.h \
     dialogheightcalculator.h \
     dialoglogger.h \
@@ -41,7 +40,6 @@ HEADERS = \
     properties/propertyconstructor.h
 
 SOURCES = \
-    basemapconvlevelproperties.cpp \
     camera.cpp \
     dialogheightcalculator.cpp \
     dialoglogger.cpp \
