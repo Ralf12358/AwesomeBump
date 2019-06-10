@@ -8,6 +8,7 @@
 
 #include "dialogheightcalculator.h"
 #include "image.h"
+#include "properties/ImageProperties.peg.h"
 #include "Property.h"
 
 namespace Ui
@@ -86,6 +87,7 @@ private:
     OpenGL2DImageWidget* openGL2DImageWidget;
     TextureType textureType;
     ImageType inputImageType;
+    QtnPropertySetFormImageProp properties;
     Image image;
     QString imageName;
     Ui::ImageWidget *ui;

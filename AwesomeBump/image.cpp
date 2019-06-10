@@ -45,13 +45,3 @@ Image::Image()
 Image::~Image()
 {
 }
-
-void Image::copySettings(Image *source)
-{
-    properties.copyValues(&source->properties);
-}
-
-QtnPropertySetFormImageProp* Image::getProperties()
-{
-    return &properties;
-}

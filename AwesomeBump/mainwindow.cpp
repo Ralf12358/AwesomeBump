@@ -495,23 +495,23 @@ void MainWindow::materialsToggled(bool toggle)
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
     if(toggle)
     {
-        bLastValue = diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion;
-        diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = false;
+        bLastValue = diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion;
+        diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion = false;
         ui->pushButtonUVWarning->setVisible(false);
         if(bLastValue)
             replotAllImages();
     }
     else
     {
-        diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = bLastValue;
+        diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion = bLastValue;
     }
-    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
+    diffuseImageWidget->getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,toggle);
 }
 
 void MainWindow::checkWarnings()
 {
-    ui->pushButtonConversionWarning->setVisible(diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion);
-    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->getImage()->getProperties()->Grunge.OverallWeight.value() > 0);
+    ui->pushButtonConversionWarning->setVisible(diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion);
+    ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->getProperties()->Grunge.OverallWeight.value() > 0);
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
     bool bOccTest = (occlusionImageWidget->getInputImageType() == INPUT_FROM_HO_NO) ||
@@ -972,7 +972,7 @@ void MainWindow::updateMetallicImage()
 
 void MainWindow::updateGrungeImage()
 {
-    bool test = (grungeImageWidget->getImage()->getProperties()->Grunge.ReplotAll == true);
+    bool test = (grungeImageWidget->getProperties()->Grunge.ReplotAll == true);
 
     // If replot enabled and grunge weight > 0 then replot all textures.
     if(test)
@@ -1170,10 +1170,10 @@ void MainWindow::applyCurrentUVsTransformations()
     // Set as default.
     openGL2DImageWidget->setTextureImage(DIFFUSE_TEXTURE, diffuseImage);
     // Generate all textures based on new image.
-    bool bConvValue = diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion;
-    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = true;
+    bool bConvValue = diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion;
+    diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion = true;
     convertFromBase();
-    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = bConvValue;
+    diffuseImageWidget->getProperties()->BaseMapToOthers.EnableConversion = bConvValue;
 }
 
 void MainWindow::selectSeamlessMode(int mode)
@@ -1482,28 +1482,28 @@ void MainWindow::loadImageSettings(TextureType type)
     switch(type)
     {
     case DIFFUSE_TEXTURE:
-        diffuseImageWidget    ->getImage()->getProperties()->copyValues(&abSettings->Diffuse);
+        diffuseImageWidget    ->getProperties()->copyValues(&abSettings->Diffuse);
         break;
     case NORMAL_TEXTURE:
-        normalImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Normal);
+        normalImageWidget     ->getProperties()->copyValues(&abSettings->Normal);
         break;
     case SPECULAR_TEXTURE:
-        specularImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Specular);
+        specularImageWidget   ->getProperties()->copyValues(&abSettings->Specular);
         break;
     case HEIGHT_TEXTURE:
-        heightImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Height);
+        heightImageWidget     ->getProperties()->copyValues(&abSettings->Height);
         break;
     case OCCLUSION_TEXTURE:
-        occlusionImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Occlusion);
+        occlusionImageWidget  ->getProperties()->copyValues(&abSettings->Occlusion);
         break;
     case ROUGHNESS_TEXTURE:
-        roughnessImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Roughness);
+        roughnessImageWidget  ->getProperties()->copyValues(&abSettings->Roughness);
         break;
     case METALLIC_TEXTURE:
-        metallicImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Metallic);
+        metallicImageWidget   ->getProperties()->copyValues(&abSettings->Metallic);
         break;
     case GRUNGE_TEXTURE:
-        grungeImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Grunge);
+        grungeImageWidget     ->getProperties()->copyValues(&abSettings->Grunge);
         break;
     default:
         qWarning() << "Trying to load non supported image! Given textureType:" << type;
@@ -1528,13 +1528,13 @@ void MainWindow::saveSettings()
     abSettings->recent_dir      = recentDir.absolutePath();
     abSettings->recent_mesh_dir = recentMeshDir.absolutePath();
 
-    diffuseImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixDiffuse->text();
-    normalImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixNormal->text();
-    specularImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixSpecular->text();
-    heightImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixHeight->text();
-    occlusionImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixOcclusion->text();
-    roughnessImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixRoughness->text();
-    metallicImageWidget->getImage()->getProperties()->suffix = ui->lineEditPostfixMetallic->text();
+    diffuseImageWidget->getProperties()->suffix = ui->lineEditPostfixDiffuse->text();
+    normalImageWidget->getProperties()->suffix = ui->lineEditPostfixNormal->text();
+    specularImageWidget->getProperties()->suffix = ui->lineEditPostfixSpecular->text();
+    heightImageWidget->getProperties()->suffix = ui->lineEditPostfixHeight->text();
+    occlusionImageWidget->getProperties()->suffix = ui->lineEditPostfixOcclusion->text();
+    roughnessImageWidget->getProperties()->suffix = ui->lineEditPostfixRoughness->text();
+    metallicImageWidget->getProperties()->suffix = ui->lineEditPostfixMetallic->text();
 
     abSettings->gui_style=ui->comboBoxGUIStyle->currentText();
 
@@ -1565,14 +1565,14 @@ void MainWindow::saveSettings()
 
     dock3Dsettings->saveSettings(abSettings);
 
-    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->getImage()->getProperties());
-    abSettings->Specular .copyValues(specularImageWidget  ->getImage()->getProperties());
-    abSettings->Normal   .copyValues(normalImageWidget    ->getImage()->getProperties());
-    abSettings->Occlusion.copyValues(occlusionImageWidget ->getImage()->getProperties());
-    abSettings->Height   .copyValues(heightImageWidget    ->getImage()->getProperties());
-    abSettings->Metallic .copyValues(metallicImageWidget  ->getImage()->getProperties());
-    abSettings->Roughness.copyValues(roughnessImageWidget ->getImage()->getProperties());
-    abSettings->Grunge   .copyValues(grungeImageWidget    ->getImage()->getProperties());
+    abSettings->Diffuse  .copyValues(diffuseImageWidget   ->getProperties());
+    abSettings->Specular .copyValues(specularImageWidget  ->getProperties());
+    abSettings->Normal   .copyValues(normalImageWidget    ->getProperties());
+    abSettings->Occlusion.copyValues(occlusionImageWidget ->getProperties());
+    abSettings->Height   .copyValues(heightImageWidget    ->getProperties());
+    abSettings->Metallic .copyValues(metallicImageWidget  ->getProperties());
+    abSettings->Roughness.copyValues(roughnessImageWidget ->getProperties());
+    abSettings->Grunge   .copyValues(grungeImageWidget    ->getProperties());
 
     // Disable possibility to save conversion status
     //    abSettings->Diffuse.BaseMapToOthers.EnableConversion.setValue(false);
@@ -1622,18 +1622,18 @@ void MainWindow::loadSettings()
     QString name = abSettings->settings_name.value();
     ui->pushButtonProjectManager->setText("Project manager (" + name + ")");
 
-    qDebug() << diffuseImageWidget->getImage()->getProperties()->suffix;
+    qDebug() << diffuseImageWidget->getProperties()->suffix;
 
-    diffuseImageWidget    ->getImage()->getProperties()->copyValues(&abSettings->Diffuse);
-    specularImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Specular);
-    normalImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Normal);
-    occlusionImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Occlusion);
-    heightImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Height);
-    metallicImageWidget   ->getImage()->getProperties()->copyValues(&abSettings->Metallic);
-    roughnessImageWidget  ->getImage()->getProperties()->copyValues(&abSettings->Roughness);
-    grungeImageWidget     ->getImage()->getProperties()->copyValues(&abSettings->Grunge);
+    diffuseImageWidget    ->getProperties()->copyValues(&abSettings->Diffuse);
+    specularImageWidget   ->getProperties()->copyValues(&abSettings->Specular);
+    normalImageWidget     ->getProperties()->copyValues(&abSettings->Normal);
+    occlusionImageWidget  ->getProperties()->copyValues(&abSettings->Occlusion);
+    heightImageWidget     ->getProperties()->copyValues(&abSettings->Height);
+    metallicImageWidget   ->getProperties()->copyValues(&abSettings->Metallic);
+    roughnessImageWidget  ->getProperties()->copyValues(&abSettings->Roughness);
+    grungeImageWidget     ->getProperties()->copyValues(&abSettings->Grunge);
 
-    qDebug() << diffuseImageWidget->getImage()->getProperties()->suffix;
+    qDebug() << diffuseImageWidget->getProperties()->suffix;
 
     // Update general settings.
     if(bFirstTime)
@@ -1644,13 +1644,13 @@ void MainWindow::loadSettings()
 
     showHideTextureTypes(true);
 
-    ui->lineEditPostfixDiffuse  ->setText(diffuseImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixNormal   ->setText(normalImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixSpecular ->setText(specularImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixHeight   ->setText(heightImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixOcclusion->setText(occlusionImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixRoughness->setText(roughnessImageWidget->getImage()->getProperties()->suffix);
-    ui->lineEditPostfixMetallic ->setText(metallicImageWidget->getImage()->getProperties()->suffix);
+    ui->lineEditPostfixDiffuse  ->setText(diffuseImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixNormal   ->setText(normalImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixSpecular ->setText(specularImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixHeight   ->setText(heightImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixOcclusion->setText(occlusionImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixRoughness->setText(roughnessImageWidget->getProperties()->suffix);
+    ui->lineEditPostfixMetallic ->setText(metallicImageWidget->getProperties()->suffix);
 
     recentDir     = abSettings->recent_dir;
     recentMeshDir = abSettings->recent_mesh_dir;

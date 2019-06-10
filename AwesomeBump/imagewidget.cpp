@@ -19,33 +19,33 @@ ImageWidget::ImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidg
 {
     ui->setupUi(this);
     ui->widgetProperty->setParts(QtnPropertyWidgetPartsDescriptionPanel);
-    ui->widgetProperty->setPropertySet(image.getProperties());
+    ui->widgetProperty->setPropertySet(&properties);
     ui->widgetProperty->layout()->setMargin(0);
     ui->widgetProperty->layout()->setSpacing(0);
 
-    connect(image.getProperties(),
+    connect(&properties,
             SIGNAL (propertyDidChange(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)), this,
             SLOT (propertyChanged(const QtnPropertyBase*,const QtnPropertyBase*,QtnPropertyChangeReason)));
 
-    connect(&image.getProperties()->BaseMapToOthers.Convert,
+    connect(&properties.BaseMapToOthers.Convert,
                      SIGNAL (click(const QtnPropertyButton*)), this,
                      SLOT (applyBaseConversion(const QtnPropertyButton*)));
 
-    connect(&image.getProperties()->NormalsMixer.PasteFromClipboard,
+    connect(&properties.NormalsMixer.PasteFromClipboard,
                      SIGNAL (click(const QtnPropertyButton*)), this,
                      SLOT (pasteNormalFromClipBoard(const QtnPropertyButton*)));
 
 
-    connect(&image.getProperties()->BaseMapToOthers.MinColor,
+    connect(&properties.BaseMapToOthers.MinColor,
                      SIGNAL (click( QtnPropertyABColor*)), this,
                      SLOT (pickColorFromImage( QtnPropertyABColor*)));
 
-    connect(&image.getProperties()->BaseMapToOthers.MaxColor,
+    connect(&properties.BaseMapToOthers.MaxColor,
                      SIGNAL (click( QtnPropertyABColor*)), this,
                      SLOT (pickColorFromImage( QtnPropertyABColor*)));
 
 
-    connect(&image.getProperties()->RMFilter.ColorFilter.PickColor,
+    connect(&properties.RMFilter.ColorFilter.PickColor,
                      SIGNAL(click( QtnPropertyABColor*)), this,
                      SLOT(pickColorFromImage( QtnPropertyABColor*)));
 
@@ -105,7 +105,7 @@ Image* ImageWidget::getImage()
 
 QtnPropertySetFormImageProp* ImageWidget::getProperties()
 {
-    return image.getProperties();
+    return &properties;
 }
 
 ImageType ImageWidget::getInputImageType()
@@ -125,7 +125,7 @@ void ImageWidget::setImageName(const QString& name)
 
 void ImageWidget::setupPropertiesGUI()
 {
-    image.getProperties()->ImageType.setValue(textureType);
+    properties.ImageType.setValue(textureType);
 
     //    ui->groupBoxConvertToHeightSettings->setVisible(false);
     //    ui->groupBoxHN                 ->setVisible(false);
@@ -138,81 +138,81 @@ void ImageWidget::setupPropertiesGUI()
     switch(textureType)
     {
     case(DIFFUSE_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->RemoveShading.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->EnableRemoveShading.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->BaseMapToOthers.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_d");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
+        properties.RemoveShading.switchState(QtnPropertyStateInvisible,false);
+        properties.EnableRemoveShading.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.BaseMapToOthers.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_d");
         break;
     case(NORMAL_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.NormalsStep.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->GrungeOnImage.BlendingMode.switchState(QtnPropertyStateInvisible,true);
-        image.getProperties()->GrungeOnImage.ImageWeight.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->NormalsMixer.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_n");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.NormalsStep.switchState(QtnPropertyStateInvisible,false);
+        properties.GrungeOnImage.BlendingMode.switchState(QtnPropertyStateInvisible,true);
+        properties.GrungeOnImage.ImageWeight.switchState(QtnPropertyStateInvisible,false);
+        properties.NormalsMixer.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_n");
         ui->groupBoxNormalInputImage->setVisible(true);
         break;
     case(SPECULAR_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_s");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_s");
         ui->groupBoxSpecularInputImage->setVisible(true);
         break;
     case(HEIGHT_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_h");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_h");
         ui->groupBoxNtoHConversion->setVisible(true);
         break;
     case(OCCLUSION_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->AO.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_o");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.AO.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_o");
         ui->groupBoxOcclusionInputImage->setVisible(true);
         break;
     case(ROUGHNESS_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->RMFilter.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_r");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
+        properties.RMFilter.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_r");
         ui->groupBoxRoughnessInputImage->setVisible(true);
         break;
     case(METALLIC_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->RMFilter.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->suffix.setValue("_m");
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
+        properties.RMFilter.switchState(QtnPropertyStateInvisible,false);
+        properties.suffix.setValue("_m");
         ui->groupBoxRoughnessInputImage->setVisible(true);
         break;
     case(MATERIAL_TEXTURE):
         break;
     case(GRUNGE_TEXTURE):
-        image.getProperties()->Basic.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->ColorLevels.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
-        image.getProperties()->Grunge.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.GrayScale.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorComponents.switchState(QtnPropertyStateInvisible,false);
+        properties.Basic.ColorHue.switchState(QtnPropertyStateInvisible,false);
+        properties.ColorLevels.switchState(QtnPropertyStateInvisible,false);
+        properties.SurfaceDetails.switchState(QtnPropertyStateInvisible,false);
+        properties.Grunge.switchState(QtnPropertyStateInvisible,false);
         break;
     default:
         break;
@@ -225,13 +225,13 @@ void ImageWidget::reloadSettings()
 
     if(textureType == HEIGHT_TEXTURE)
     {
-        ui->horizontalSliderNormalToHeightNoiseLevel    ->setValue(image.getProperties()->NormalHeightConv.NoiseLevel);
-        ui->horizontalSliderNormalToHeightItersHuge     ->setValue(image.getProperties()->NormalHeightConv.Huge);
-        ui->horizontalSliderNormalToHeightItersVeryLarge->setValue(image.getProperties()->NormalHeightConv.VeryLarge);
-        ui->horizontalSliderNormalToHeightItersLarge    ->setValue(image.getProperties()->NormalHeightConv.Large);
-        ui->horizontalSliderNormalToHeightItersMedium   ->setValue(image.getProperties()->NormalHeightConv.Medium);
-        ui->horizontalSliderNormalToHeightItersVerySmall->setValue(image.getProperties()->NormalHeightConv.Small);
-        ui->horizontalSliderNormalToHeightItersSmall    ->setValue(image.getProperties()->NormalHeightConv.VerySmall);
+        ui->horizontalSliderNormalToHeightNoiseLevel    ->setValue(properties.NormalHeightConv.NoiseLevel);
+        ui->horizontalSliderNormalToHeightItersHuge     ->setValue(properties.NormalHeightConv.Huge);
+        ui->horizontalSliderNormalToHeightItersVeryLarge->setValue(properties.NormalHeightConv.VeryLarge);
+        ui->horizontalSliderNormalToHeightItersLarge    ->setValue(properties.NormalHeightConv.Large);
+        ui->horizontalSliderNormalToHeightItersMedium   ->setValue(properties.NormalHeightConv.Medium);
+        ui->horizontalSliderNormalToHeightItersVerySmall->setValue(properties.NormalHeightConv.Small);
+        ui->horizontalSliderNormalToHeightItersSmall    ->setValue(properties.NormalHeightConv.VerySmall);
     }
     // Input image case study
     switch(textureType)
@@ -365,7 +365,7 @@ bool ImageWidget::loadFile(const QString &fileName)
                                  tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
         return false;
     }
-    if(image.getProperties()->NormalsMixer.EnableMixer)
+    if(properties.NormalsMixer.EnableMixer)
     {
         qDebug() << "<FormImageProp> Open normal mixer image:" << fileName;
         openGL2DImageWidget->setNormalMixerInputTexture(qImage);
@@ -391,7 +391,7 @@ void ImageWidget::saveFileToDir(const QString &dir)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            image.getProperties()->suffix +
+            properties.suffix +
             Image::outputFormat;
     saveFile(fullFileName);
 }
@@ -400,7 +400,7 @@ void ImageWidget::saveImageToDir(const QString& dir, const QImage& qImage)
 {
     QString fullFileName = dir + "/" +
             imageName +
-            image.getProperties()->suffix +
+            properties.suffix +
             Image::outputFormat;
 
     qDebug() << "<FormImageProp> save image:" << fullFileName;
@@ -454,7 +454,7 @@ void ImageWidget::save()
         QFileInfo fileInfo(recentDir->absolutePath());
         QString fullFileName = fileInfo.absolutePath() + "/" +
                 imageName +
-                image.getProperties()->suffix +
+                properties.suffix +
                 Image::outputFormat;
         picturesLocations << fullFileName;
         qDebug() << "ImageWidget: Saving image to file:" << fullFileName;
@@ -633,13 +633,13 @@ void ImageWidget::updateGuiSpinBoxesAndLabes(int)
 
     openGL2DImageWidget->setConversionHNDepth(ui->doubleSpinBoxConversionHNDepth->value());
 
-    image.getProperties()->NormalHeightConv.NoiseLevel = ui->horizontalSliderNormalToHeightNoiseLevel     ->value();
-    image.getProperties()->NormalHeightConv.Huge       = ui->horizontalSliderNormalToHeightItersHuge      ->value();
-    image.getProperties()->NormalHeightConv.VeryLarge  = ui->horizontalSliderNormalToHeightItersVeryLarge ->value();
-    image.getProperties()->NormalHeightConv.Large      = ui->horizontalSliderNormalToHeightItersLarge     ->value();
-    image.getProperties()->NormalHeightConv.Medium     = ui->horizontalSliderNormalToHeightItersMedium    ->value();
-    image.getProperties()->NormalHeightConv.Small      = ui->horizontalSliderNormalToHeightItersSmall     ->value();
-    image.getProperties()->NormalHeightConv.VerySmall  = ui->horizontalSliderNormalToHeightItersVerySmall ->value();
+    properties.NormalHeightConv.NoiseLevel = ui->horizontalSliderNormalToHeightNoiseLevel     ->value();
+    properties.NormalHeightConv.Huge       = ui->horizontalSliderNormalToHeightItersHuge      ->value();
+    properties.NormalHeightConv.VeryLarge  = ui->horizontalSliderNormalToHeightItersVeryLarge ->value();
+    properties.NormalHeightConv.Large      = ui->horizontalSliderNormalToHeightItersLarge     ->value();
+    properties.NormalHeightConv.Medium     = ui->horizontalSliderNormalToHeightItersMedium    ->value();
+    properties.NormalHeightConv.Small      = ui->horizontalSliderNormalToHeightItersSmall     ->value();
+    properties.NormalHeightConv.VerySmall  = ui->horizontalSliderNormalToHeightItersVerySmall ->value();
 }
 
 void ImageWidget::updateSlidersOnRelease()
@@ -657,12 +657,12 @@ void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const 
     {
         // Grunge Load predefined pattern
         if(dynamic_cast<const QtnPropertyQString*>(changedProperty)
-                == &image.getProperties()->Grunge.Patterns)
+                == &properties.Grunge.Patterns)
         {
-            loadPredefinedGrunge(image.getProperties()->Grunge.Patterns.value());
+            loadPredefinedGrunge(properties.Grunge.Patterns.value());
         }
         // Enable Grunge.
-        if(image.getProperties()->Grunge.OverallWeight.value() == 0)
+        if(properties.Grunge.OverallWeight.value() == 0)
         {
             emit  toggleGrungeSettings(false);
         }
@@ -672,9 +672,9 @@ void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const 
         }
         // Open Normal mixer.
         if(dynamic_cast<const QtnPropertyQString*>(changedProperty)
-                == &image.getProperties()->NormalsMixer.NormalImage)
+                == &properties.NormalsMixer.NormalImage)
         {
-            loadFile(image.getProperties()->NormalsMixer.NormalImage);
+            loadFile(properties.NormalsMixer.NormalImage);
         }
         // Bool activated, enum changed.
         if(dynamic_cast<const QtnPropertyBool*>(changedProperty)
@@ -682,9 +682,9 @@ void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const 
         {
             // Enable BaseMapToOthers Conversion Tool Height Preview.
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
-                    == &image.getProperties()->BaseMapToOthers.EnableHeightPreview)
+                    == &properties.BaseMapToOthers.EnableHeightPreview)
             {
-                Image::bConversionBaseMapShowHeightTexture = image.getProperties()->BaseMapToOthers.EnableHeightPreview;
+                Image::bConversionBaseMapShowHeightTexture = properties.BaseMapToOthers.EnableHeightPreview;
             }
             emit imageChanged();
         }
@@ -750,7 +750,7 @@ void ImageWidget::pickColorFromImage( QtnPropertyABColor* property)
 
 void ImageWidget::toggleGrungeImageSettingsGroup(bool toggle)
 {
-    image.getProperties()->GrungeOnImage.switchState(QtnPropertyStateInvisible,!toggle);
+    properties.GrungeOnImage.switchState(QtnPropertyStateInvisible,!toggle);
 }
 
 void ImageWidget::loadPredefinedGrunge(QString image)

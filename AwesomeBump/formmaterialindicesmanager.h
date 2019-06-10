@@ -56,7 +56,7 @@ protected:
     void pasteImageFromClipboard(const QImage& qImage);
 
     // Settings
-    std::map<QString, Image> materialIndices[7];
+    std::map<QString, QtnPropertySetFormImageProp> materialIndices[7];
     std::map<int,QRgb> colorIndices;
     int lastMaterialIndex;
     Ui::FormMaterialIndicesManager *ui;

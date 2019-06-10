@@ -1,9 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <QImage>
-
-#include "properties/ImageProperties.peg.h"
+#include <QString>
 
 enum ImageType
 {
@@ -56,10 +54,6 @@ public:
     explicit Image();
     ~Image();
 
-    void copySettings(Image *source);
-
-    QtnPropertySetFormImageProp* getProperties();
-
     // Base to others settings
     static bool bConversionBaseMapShowHeightTexture;
     static SeamlessMode seamlessMode;
@@ -81,10 +75,6 @@ public:
     static bool materialsEnabled;
     static bool bUseLinearInterpolation;
     static QString outputFormat;
-
-private:
-    QtnPropertySetFormImageProp properties;
-
 };
 
 #endif // IMAGE_H

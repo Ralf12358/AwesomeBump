@@ -103,8 +103,8 @@ bool FormMaterialIndicesManager::updateMaterials(const QImage& qImage)
         for(int m = 0 ; m < ui->listWidgetMaterialIndices->count() ; m++)
         {
             QString m_name = ui->listWidgetMaterialIndices->item(m)->text();
-            Image tmp;
-            tmp.copySettings(imagesPointers[i]->getImage());
+            QtnPropertySetFormImageProp tmp;
+            tmp.copyValues(imagesPointers[i]->getProperties());
             materialIndices[i][m_name] = tmp;
         }
     }
@@ -158,7 +158,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
     QString m_name = ui->listWidgetMaterialIndices->item(lastMaterialIndex)->text();
     for(int i = 0 ; i < MATERIAL_TEXTURE ; i++)
     {
-        materialIndices[i][m_name].copySettings(imagesPointers[i]->getImage());
+        materialIndices[i][m_name].copyValues(imagesPointers[i]->getProperties());
     }
 
     lastMaterialIndex = index;
@@ -171,7 +171,7 @@ void FormMaterialIndicesManager::changeMaterial(int index)
     m_name = ui->listWidgetMaterialIndices->item(index)->text();
     for(int i = 0 ; i < MATERIAL_TEXTURE ; i++)
     {
-        imagesPointers[i]->getImage()->copySettings(&materialIndices[i][m_name]);
+        imagesPointers[i]->getProperties()->copyValues(&materialIndices[i][m_name]);
         imagesPointers[i]->reloadSettings();
     }
 
