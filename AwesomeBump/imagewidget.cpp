@@ -14,7 +14,7 @@ bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
 ImageWidget::ImageWidget(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget, TextureType textureType) :
-    QWidget(parent), openGL2DImageWidget(openGL2DImageWidget), textureType(textureType),
+    QWidget(parent), openGL2DImageWidget(openGL2DImageWidget), textureType(textureType), inputImageType(INPUT_NONE),
     ui(new Ui::ImageWidget)
 {
     ui->setupUi(this);
@@ -110,7 +110,7 @@ QtnPropertySetFormImageProp* ImageWidget::getProperties()
 
 ImageType ImageWidget::getInputImageType()
 {
-    return image.getInputImageType();
+    return inputImageType;
 }
 
 QString ImageWidget::getImageName()
@@ -239,7 +239,7 @@ void ImageWidget::reloadSettings()
     case(NORMAL_TEXTURE):
         // Select propper input image for normals.
         ui->pushButtonConverToNormal->setEnabled(false);
-        switch(image.getInputImageType())
+        switch(inputImageType)
         {
         case(INPUT_FROM_NORMAL_INPUT):
             ui->comboBoxNormalInputImage->setCurrentIndex(0);
@@ -259,7 +259,7 @@ void ImageWidget::reloadSettings()
 
     case(SPECULAR_TEXTURE):
         // Select propper input image for specular.
-        switch(image.getInputImageType())
+        switch(inputImageType)
         {
         case(INPUT_FROM_SPECULAR_INPUT):
             ui->comboBoxSpecularInputImage->setCurrentIndex(0);
@@ -285,7 +285,7 @@ void ImageWidget::reloadSettings()
     case(OCCLUSION_TEXTURE):
         // Select propper input image for occlusion.
         ui->pushButtonConvertOcclusionFromHN->setEnabled(false);
-        switch(image.getInputImageType())
+        switch(inputImageType)
         {
         case(INPUT_FROM_OCCLUSION_INPUT):
             ui->comboBoxOcclusionInputImage->setCurrentIndex(0);
@@ -305,7 +305,7 @@ void ImageWidget::reloadSettings()
 
     case(ROUGHNESS_TEXTURE):
         // Select propper input image for roughness.
-        switch(image.getInputImageType())
+        switch(inputImageType)
         {
         case(INPUT_FROM_ROUGHNESS_INPUT):
             ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
@@ -324,7 +324,7 @@ void ImageWidget::reloadSettings()
 
     case(METALLIC_TEXTURE):
         // Select propper input image for roughness
-        switch(image.getInputImageType())
+        switch(inputImageType)
         {
         case(INPUT_FROM_METALLIC_INPUT):
             ui->comboBoxRoughnessInputImage->setCurrentIndex(0);
@@ -526,14 +526,14 @@ void ImageWidget::updateComboBoxes(int)
         switch(ui->comboBoxNormalInputImage->currentIndex())
         {
         case(0):
-            image.setInputImageType(INPUT_FROM_NORMAL_INPUT);
+            inputImageType = INPUT_FROM_NORMAL_INPUT;
             ui->pushButtonConverToNormal->setEnabled(true);
             break;
         case(1):
-            image.setInputImageType(INPUT_FROM_HEIGHT_INPUT);
+            inputImageType = INPUT_FROM_HEIGHT_INPUT;
             break;
         case(2):
-            image.setInputImageType(INPUT_FROM_HEIGHT_OUTPUT);
+            inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
             break;
         }
         break;
@@ -544,19 +544,19 @@ void ImageWidget::updateComboBoxes(int)
         switch(ui->comboBoxSpecularInputImage->currentIndex())
         {
         case(0):
-            image.setInputImageType(INPUT_FROM_SPECULAR_INPUT);
+            inputImageType = INPUT_FROM_SPECULAR_INPUT;
             break;
         case(1):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_INPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_INPUT;
             break;
         case(2):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_OUTPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
             break;
         case(3):
-            image.setInputImageType(INPUT_FROM_HEIGHT_INPUT);
+            inputImageType = INPUT_FROM_HEIGHT_INPUT;
             break;
         case(4):
-            image.setInputImageType(INPUT_FROM_HEIGHT_OUTPUT);
+            inputImageType = INPUT_FROM_HEIGHT_OUTPUT;
             break;
         }
         break;
@@ -568,14 +568,14 @@ void ImageWidget::updateComboBoxes(int)
         switch(ui->comboBoxOcclusionInputImage->currentIndex())
         {
         case(0):
-            image.setInputImageType(INPUT_FROM_OCCLUSION_INPUT);
+            inputImageType = INPUT_FROM_OCCLUSION_INPUT;
             ui->pushButtonConvertOcclusionFromHN->setEnabled(true);
             break;
         case(1):
-            image.setInputImageType(INPUT_FROM_HI_NI);
+            inputImageType = INPUT_FROM_HI_NI;
             break;
         case(2):
-            image.setInputImageType(INPUT_FROM_HO_NO);
+            inputImageType = INPUT_FROM_HO_NO;
             break;
         }
         break;
@@ -586,13 +586,13 @@ void ImageWidget::updateComboBoxes(int)
         switch(ui->comboBoxRoughnessInputImage->currentIndex())
         {
         case(0):
-            image.setInputImageType(INPUT_FROM_ROUGHNESS_INPUT);
+            inputImageType = INPUT_FROM_ROUGHNESS_INPUT;
             break;
         case(1):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_INPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_INPUT;
             break;
         case(2):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_OUTPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
             break;
         }
         break;
@@ -603,13 +603,13 @@ void ImageWidget::updateComboBoxes(int)
         switch(ui->comboBoxRoughnessInputImage->currentIndex())
         {
         case(0):
-            image.setInputImageType(INPUT_FROM_METALLIC_INPUT);
+            inputImageType = INPUT_FROM_METALLIC_INPUT;
             break;
         case(1):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_INPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_INPUT;
             break;
         case(2):
-            image.setInputImageType(INPUT_FROM_DIFFUSE_OUTPUT);
+            inputImageType = INPUT_FROM_DIFFUSE_OUTPUT;
             break;
         }
         break;

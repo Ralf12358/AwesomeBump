@@ -38,8 +38,7 @@ void Image::randomReset()
     for (unsigned int i = 0; i < 9; ++i) randomAngles[i] = 0;
 }
 
-Image::Image() :
-    inputImageType(INPUT_NONE)
+Image::Image()
 {
 }
 
@@ -49,21 +48,10 @@ Image::~Image()
 
 void Image::copySettings(Image *source)
 {
-    inputImageType     = source->inputImageType;
     properties.copyValues(&source->properties);
 }
 
 QtnPropertySetFormImageProp* Image::getProperties()
 {
     return &properties;
-}
-
-ImageType Image::getInputImageType()
-{
-    return inputImageType;
-}
-
-void Image::setInputImageType(ImageType inputImageType)
-{
-    this->inputImageType = inputImageType;
 }

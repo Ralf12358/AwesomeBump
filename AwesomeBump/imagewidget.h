@@ -85,6 +85,7 @@ private:
 
     OpenGL2DImageWidget* openGL2DImageWidget;
     TextureType textureType;
+    ImageType inputImageType;
     Image image;
     QString imageName;
     Ui::ImageWidget *ui;

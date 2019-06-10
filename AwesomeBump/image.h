@@ -59,8 +59,6 @@ public:
     void copySettings(Image *source);
 
     QtnPropertySetFormImageProp* getProperties();
-    ImageType getInputImageType();
-    void setInputImageType(ImageType inputImageType);
 
     // Base to others settings
     static bool bConversionBaseMapShowHeightTexture;
@@ -87,8 +85,6 @@ public:
 private:
     QtnPropertySetFormImageProp properties;
 
-    // Input image type
-    ImageType inputImageType;
 };
 
 #endif // IMAGE_H

@@ -514,8 +514,8 @@ void MainWindow::checkWarnings()
     ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->getImage()->getProperties()->Grunge.OverallWeight.value() > 0);
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
-    bool bOccTest = (occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO) ||
-            (occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HI_NI);
+    bool bOccTest = (occlusionImageWidget->getInputImageType() == INPUT_FROM_HO_NO) ||
+            (occlusionImageWidget->getInputImageType() == INPUT_FROM_HI_NI);
     ui->pushButtonOccWarning->setVisible(bOccTest);
 }
 
@@ -825,7 +825,7 @@ void MainWindow::updateDiffuseImage()
     openGL2DImageWidget->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(specularImageWidget->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -836,7 +836,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(roughnessImageWidget->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -847,7 +847,7 @@ void MainWindow::updateDiffuseImage()
     }
 
     // Replot normal if height was changed in attached mode.
-    if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
+    if(metallicImageWidget->getInputImageType() == INPUT_FROM_DIFFUSE_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
@@ -866,7 +866,7 @@ void MainWindow::updateNormalImage()
     openGL2DImageWidget->repaint();
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getInputImageType() == INPUT_FROM_HO_NO)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -892,7 +892,7 @@ void MainWindow::updateHeightImage()
     openGL2DImageWidget->repaint();
 
     // Replot normal if height was changed in attached mode.
-    if(normalImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
+    if(normalImageWidget->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(NORMAL_TEXTURE);
@@ -903,7 +903,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(specularImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
+    if(specularImageWidget->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(SPECULAR_TEXTURE);
@@ -914,8 +914,8 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HI_NI||
-            occlusionImageWidget->getImage()->getInputImageType() == INPUT_FROM_HO_NO)
+    if(occlusionImageWidget->getInputImageType() == INPUT_FROM_HI_NI||
+            occlusionImageWidget->getInputImageType() == INPUT_FROM_HO_NO)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(OCCLUSION_TEXTURE);
@@ -926,7 +926,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode.
-    if(roughnessImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
+    if(roughnessImageWidget->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(ROUGHNESS_TEXTURE);
@@ -937,7 +937,7 @@ void MainWindow::updateHeightImage()
     }
 
     // Replot normal if was changed in attached mode
-    if(metallicImageWidget->getImage()->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
+    if(metallicImageWidget->getInputImageType() == INPUT_FROM_HEIGHT_OUTPUT)
     {
         openGL2DImageWidget->enableShadowRender(true);
         updateImage(METALLIC_TEXTURE);
