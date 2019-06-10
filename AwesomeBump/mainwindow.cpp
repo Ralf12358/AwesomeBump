@@ -96,16 +96,6 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[5] = roughnessImageWidget;
     materialManager->imagesPointers[6] = metallicImageWidget;
 
-    // Set pointers to 3D view (used to bindTextures).
-    openGL3DImageWidget->setImage(diffuseImageWidget  ->getImage(), DIFFUSE_TEXTURE);
-    openGL3DImageWidget->setImage(normalImageWidget   ->getImage(), NORMAL_TEXTURE);
-    openGL3DImageWidget->setImage(specularImageWidget ->getImage(), SPECULAR_TEXTURE);
-    openGL3DImageWidget->setImage(heightImageWidget   ->getImage(), HEIGHT_TEXTURE);
-    openGL3DImageWidget->setImage(occlusionImageWidget->getImage(), OCCLUSION_TEXTURE);
-    openGL3DImageWidget->setImage(roughnessImageWidget->getImage(), ROUGHNESS_TEXTURE);
-    openGL3DImageWidget->setImage(metallicImageWidget ->getImage(), METALLIC_TEXTURE);
-    openGL3DImageWidget->setImage(materialManager     ->getImage(), MATERIAL_TEXTURE);
-
     openGL2DImageWidget->targetImageDiffuse   = diffuseImageWidget  ->getImage();
     openGL2DImageWidget->targetImageNormal    = normalImageWidget   ->getImage();
     openGL2DImageWidget->targetImageSpecular  = specularImageWidget ->getImage();

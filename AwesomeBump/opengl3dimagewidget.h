@@ -9,7 +9,6 @@
 #include <QOpenGLWidget>
 #include <QtMath>
 
-#include "image.h"
 #include "opengl2dimagewidget.h"
 #include "display3dsettings.h"
 #include "camera.h"
@@ -28,7 +27,6 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void setImage(Image *image, TextureType textureType);
 
 signals:
     void readyGL();
@@ -106,7 +104,6 @@ private:
     QOpenGLShaderProgram* env_program;
 
     OpenGL2DImageWidget* openGL2DImageWidget;
-    Image * images[8];
 
     bool bToggleDiffuseView;
     bool bToggleSpecularView;

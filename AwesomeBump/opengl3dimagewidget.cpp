@@ -99,11 +99,6 @@ QSize OpenGL3DImageWidget::sizeHint() const
     return QSize(500, 400);
 }
 
-void OpenGL3DImageWidget::setImage(Image *image, TextureType textureType)
-{
-    images[textureType] = image;
-}
-
 void OpenGL3DImageWidget::show3DGeneralSettingsDialog()
 {
     settingsDialog->show();
@@ -622,12 +617,10 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("ProjectionMatrix", projectionMatrix);
 
         objectMatrix.setToIdentity();
-        if(images[0] != NULL)
-        {
-            float fboRatio = float(openGL2DImageWidget->getTextureWidth(DIFFUSE_TEXTURE)) /
-                                   openGL2DImageWidget->getTextureHeight(DIFFUSE_TEXTURE);
-            objectMatrix.scale(fboRatio,1,fboRatio);
-        }
+        float fboRatio = float(openGL2DImageWidget->getTextureWidth(DIFFUSE_TEXTURE)) /
+                               openGL2DImageWidget->getTextureHeight(DIFFUSE_TEXTURE);
+        objectMatrix.scale(fboRatio,1,fboRatio);
+
         if(mesh->isLoaded())
         {
 
@@ -649,14 +642,7 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("gui_uvScale", display3Dparameters.uvScale);
         program_ptr->setUniformValue("gui_uvScaleOffset", display3Dparameters.uvOffset);
         program_ptr->setUniformValue("gui_bSpecular", bToggleSpecularView);
-        if(images[0]->getProperties()->BaseMapToOthers.EnableConversion)
-        {
-            program_ptr->setUniformValue("gui_bDiffuse", false);
-        }
-        else
-        {
-            program_ptr->setUniformValue("gui_bDiffuse", bToggleDiffuseView);
-        }
+        program_ptr->setUniformValue("gui_bDiffuse", bToggleDiffuseView);
         program_ptr->setUniformValue("gui_bOcclusion", bToggleOcclusionView);
         program_ptr->setUniformValue("gui_bHeight", bToggleHeightView);
         program_ptr->setUniformValue("gui_bNormal", bToggleNormalView);
@@ -701,26 +687,23 @@ void OpenGL3DImageWidget::paintGL()
                 program_ptr->setUniformValue("gui_bMaterialsPreviewEnabled", bool(keyPressed == KEY_SHOW_MATERIALS));
         }
 
-        if(images[0] != NULL)
+        int tindex = 0;
+
+        // Skip grunge texture (not used in 3D view).
+        for(; tindex <= MATERIAL_TEXTURE; tindex++)
         {
-            int tindex = 0;
-
-            // Skip grunge texture (not used in 3D view).
-            for(; tindex <= MATERIAL_TEXTURE; tindex++)
-            {
-                TextureType textureType = static_cast<TextureType>(tindex);
-                GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-                GLCHK( glBindTexture(GL_TEXTURE_2D, openGL2DImageWidget->getTextureId(textureType)) );
-            }
+            TextureType textureType = static_cast<TextureType>(tindex);
             GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-
-            tindex++;
-            GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
-            skyBoxTextureCube->bind();
-            drawTriangles(meshArray, mesh->getVertices().count(), true);
-            // Set default active texture.
-            GLCHK( glActiveTexture(GL_TEXTURE0) );
+            GLCHK( glBindTexture(GL_TEXTURE_2D, openGL2DImageWidget->getTextureId(textureType)) );
         }
+        GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
+
+        tindex++;
+        GLCHK( glActiveTexture(GL_TEXTURE0 + tindex) );
+        skyBoxTextureCube->bind();
+        drawTriangles(meshArray, mesh->getVertices().count(), true);
+        // Set default active texture.
+        GLCHK( glActiveTexture(GL_TEXTURE0) );
 
         if(!display3Dparameters.bShowTriangleEdges)
             break;
