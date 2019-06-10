@@ -96,15 +96,15 @@ void MainWindow::initialiseWindow()
     materialManager->imagesPointers[5] = roughnessImageWidget;
     materialManager->imagesPointers[6] = metallicImageWidget;
 
-    openGL2DImageWidget->targetImageDiffuse   = diffuseImageWidget  ->getImage();
-    openGL2DImageWidget->targetImageNormal    = normalImageWidget   ->getImage();
-    openGL2DImageWidget->targetImageSpecular  = specularImageWidget ->getImage();
-    openGL2DImageWidget->targetImageHeight    = heightImageWidget   ->getImage();
-    openGL2DImageWidget->targetImageOcclusion = occlusionImageWidget->getImage();
-    openGL2DImageWidget->targetImageRoughness = roughnessImageWidget->getImage();
-    openGL2DImageWidget->targetImageMetallic  = metallicImageWidget ->getImage();
-    openGL2DImageWidget->targetImageGrunge    = grungeImageWidget   ->getImage();
-    openGL2DImageWidget->targetImageMaterial  = materialManager     ->getImage();
+    openGL2DImageWidget->setImageWidget(DIFFUSE_TEXTURE, diffuseImageWidget);
+    openGL2DImageWidget->setImageWidget(NORMAL_TEXTURE, normalImageWidget);
+    openGL2DImageWidget->setImageWidget(SPECULAR_TEXTURE, specularImageWidget);
+    openGL2DImageWidget->setImageWidget(HEIGHT_TEXTURE, heightImageWidget);
+    openGL2DImageWidget->setImageWidget(OCCLUSION_TEXTURE, occlusionImageWidget);
+    openGL2DImageWidget->setImageWidget(ROUGHNESS_TEXTURE, roughnessImageWidget);
+    openGL2DImageWidget->setImageWidget(METALLIC_TEXTURE, metallicImageWidget);
+    openGL2DImageWidget->setImageWidget(GRUNGE_TEXTURE, grungeImageWidget);
+    openGL2DImageWidget->setImageWidget(MATERIAL_TEXTURE, 0);
 
     // Setup GUI
     qDebug() << "Initialization: GUI setup";

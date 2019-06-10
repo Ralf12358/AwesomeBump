@@ -6,20 +6,22 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_0_Core>
 #include <QtOpenGL>
-#include "image.h"
+
 #include <math.h>
 #include <map>
 
-#define BasicProp getActiveImage(activeTextureType)->getProperties()->Basic
-#define RemoveShadingProp getActiveImage(activeTextureType)->getProperties()->RemoveShading
-#define ColorLevelsProp getActiveImage(activeTextureType)->getProperties()->ColorLevels
-#define SurfaceDetailsProp getActiveImage(activeTextureType)->getProperties()->SurfaceDetails
-#define AOProp getActiveImage(activeTextureType)->getProperties()->AO
-#define GrungeProp targetImageGrunge->getProperties()->Grunge
-#define GrungeOnImageProp getActiveImage(activeTextureType)->getProperties()->GrungeOnImage
-#define NormalMixerProp getActiveImage(activeTextureType)->getProperties()->NormalsMixer
-#define BaseMapToOthersProp getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers
-#define RMFilterProp getActiveImage(activeTextureType)->getProperties()->RMFilter
+#include "imagewidget.h"
+
+#define BasicProp imageWidget[activeTextureType]->getProperties()->Basic
+#define RemoveShadingProp imageWidget[activeTextureType]->getProperties()->RemoveShading
+#define ColorLevelsProp imageWidget[activeTextureType]->getProperties()->ColorLevels
+#define SurfaceDetailsProp imageWidget[activeTextureType]->getProperties()->SurfaceDetails
+#define AOProp imageWidget[activeTextureType]->getProperties()->AO
+#define GrungeProp imageWidget[GRUNGE_TEXTURE]->getProperties()->Grunge
+#define GrungeOnImageProp imageWidget[activeTextureType]->getProperties()->GrungeOnImage
+#define NormalMixerProp imageWidget[activeTextureType]->getProperties()->NormalsMixer
+#define BaseMapToOthersProp imageWidget[activeTextureType]->getProperties()->BaseMapToOthers
+#define RMFilterProp imageWidget[activeTextureType]->getProperties()->RMFilter
 
 enum ConversionType
 {
@@ -49,6 +51,7 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
+    void setImageWidget(TextureType textureType, ImageWidget* imageWidget);
     TextureType getActiveTextureType() const;
     void setActiveTextureType(TextureType textureType);
     void setTextureImage(TextureType textureType, const QImage& image);
@@ -64,16 +67,6 @@ public:
     ConversionType getConversionType();
     void setConversionType(ConversionType conversionType);
     void updateCornersPosition(QVector2D dc1, QVector2D dc2, QVector2D dc3, QVector2D dc4);
-
-    Image* targetImageDiffuse;
-    Image* targetImageNormal;
-    Image* targetImageHeight;
-    Image* targetImageSpecular;
-    Image* targetImageOcclusion;
-    Image* targetImageRoughness;
-    Image* targetImageMetallic;
-    Image* targetImageGrunge;
-    Image* targetImageMaterial;
 
 public slots:
     void resizeFBO(int width, int height);
@@ -110,8 +103,7 @@ private:
     void applyOcclusionFilter(GLuint height_tex,
                               GLuint normal_tex,
                               QOpenGLFramebufferObject *outputFBO);
-    void applyNormalToHeight(Image *image,
-                             QOpenGLFramebufferObject *normalFBO,
+    void applyNormalToHeight(QOpenGLFramebufferObject *normalFBO,
                              QOpenGLFramebufferObject *heightFBO,
                              QOpenGLFramebufferObject *outputFBO);
     void applyCPUNormalizationFilter(QOpenGLFramebufferObject *inputFBO,
@@ -201,7 +193,8 @@ private:
     void copyFBO(QOpenGLFramebufferObject *src,QOpenGLFramebufferObject *dst);
     void copyTex2FBO(GLuint src_tex_id,QOpenGLFramebufferObject *dst);
 
-    Image* getActiveImage(TextureType texture);
+    ImageWidget** imageWidget;
+
     TextureType activeTextureType;
     QOpenGLTexture** textures;
     QOpenGLTexture* normalMixerInputTexture;

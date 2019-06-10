@@ -16,6 +16,8 @@ class FormMaterialIndicesManager;
 
 typedef std::map<int,QRgb>::iterator it_type;
 
+class OpenGL2DImageWidget;
+
 class FormMaterialIndicesManager : public QWidget
 {
     Q_OBJECT

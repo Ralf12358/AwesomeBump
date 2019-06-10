@@ -1,18 +1,21 @@
 #ifndef IMAGEWIDGET_H
 #define IMAGEWIDGET_H
 
-#include <QMainWindow>
 #include <QImage>
+#include <QDir>
+#include <QMainWindow>
 #include <QString>
 
-#include "Property.h"
-#include "opengl2dimagewidget.h"
 #include "dialogheightcalculator.h"
+#include "image.h"
+#include "Property.h"
 
 namespace Ui
 {
 class ImageWidget;
 }
+
+class OpenGL2DImageWidget;
 
 class ImageWidget : public QWidget
 {
@@ -23,6 +26,8 @@ public:
     ~ImageWidget();
 
     Image* getImage();
+    QtnPropertySetFormImageProp* getProperties();
+    ImageType getInputImageType();
     QString getImageName();
     void setImageName(const QString& name);
     void setupPropertiesGUI();

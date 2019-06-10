@@ -8,6 +8,8 @@
 #include <QClipboard>
 #include <QMimeData>
 
+#include "opengl2dimagewidget.h"
+
 bool ImageWidget::loadingImages = false;
 QDir* ImageWidget::recentDir;
 
@@ -99,6 +101,16 @@ ImageWidget::~ImageWidget()
 Image* ImageWidget::getImage()
 {
     return &image;
+}
+
+QtnPropertySetFormImageProp* ImageWidget::getProperties()
+{
+    return image.getProperties();
+}
+
+ImageType ImageWidget::getInputImageType()
+{
+    return image.getInputImageType();
 }
 
 QString ImageWidget::getImageName()

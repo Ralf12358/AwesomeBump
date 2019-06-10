@@ -3,7 +3,8 @@
 #include "openglerrorcheck.h"
 
 OpenGL2DImageWidget::OpenGL2DImageWidget(QWidget *parent) :
-    QOpenGLWidget(parent), activeTextureType(DIFFUSE_TEXTURE),
+    QOpenGLWidget(parent), imageWidget(new ImageWidget*[TEXTURES]()),
+    activeTextureType(DIFFUSE_TEXTURE),
     textures(new QOpenGLTexture*[TEXTURES]()), normalMixerInputTexture(0),
     textureFBOs(new QOpenGLFramebufferObject*[TEXTURES]()),
     conversionHNDepth(2.0),
@@ -72,6 +73,11 @@ QSize OpenGL2DImageWidget::minimumSizeHint() const
 QSize OpenGL2DImageWidget::sizeHint() const
 {
     return QSize(500, 400);
+}
+
+void OpenGL2DImageWidget::setImageWidget(TextureType textureType, ImageWidget* imageWidget)
+{
+    this->imageWidget[textureType] = imageWidget;
 }
 
 TextureType OpenGL2DImageWidget::getActiveTextureType() const
@@ -593,7 +599,7 @@ void OpenGL2DImageWidget::applyColorHueFilter(  QOpenGLFramebufferObject *inputF
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_color_hue_filter"]) );
 
-    GLCHK( program->setUniformValue("gui_hue"   , float(getActiveImage(activeTextureType)->getProperties()->Basic.ColorHue)) );
+    GLCHK( program->setUniformValue("gui_hue"   , float(imageWidget[activeTextureType]->getProperties()->Basic.ColorHue)) );
 
     GLCHK( glBindTexture(GL_TEXTURE_2D, inputFBO->texture()) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
@@ -1104,7 +1110,7 @@ void OpenGL2DImageWidget::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( program->setUniformValue("gui_gray_scale_max_color_defined",false) );
     GLCHK( program->setUniformValue("gui_gray_scale_min_color_defined",false) );
 
-    if(getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
+    if(imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.EnableConversion)
     {
         if(QColor(BaseMapToOthersProp.MaxColor.value()).red() >= 0)
         {
@@ -1251,8 +1257,7 @@ void OpenGL2DImageWidget::applySobelToNormalFilter(QOpenGLFramebufferObject *inp
     GLCHK( outputFBO->bindDefault() );
 }
 
-void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
-                                            QOpenGLFramebufferObject *normalFBO,
+void OpenGL2DImageWidget::applyNormalToHeight(QOpenGLFramebufferObject *normalFBO,
                                             QOpenGLFramebufferObject *heightFBO,
                                             QOpenGLFramebufferObject *outputFBO)
 {
@@ -1274,7 +1279,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
     // used to force propper height levels in the bump map
     // since user wants to have defined min/max colors to be 0 or 1
     // in the height map. In case of other conversion this is no more used.
-    if(getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
+    if(imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.EnableConversion)
     {
         GLCHK( glActiveTexture(GL_TEXTURE2) );
         GLCHK( glBindTexture(GL_TEXTURE_2D, auxFBO4->texture()) );
@@ -1282,7 +1287,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
 
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.Huge ; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.Huge ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,5))) );
         GLCHK( heightFBO->bind() );
@@ -1296,7 +1301,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.VeryLarge ; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.VeryLarge ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,4))) );
         GLCHK( heightFBO->bind() );
@@ -1310,7 +1315,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.Large ; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.Large ; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,3))) );
         GLCHK( heightFBO->bind() );
@@ -1324,7 +1329,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.Medium; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.Medium; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,2))) );
         GLCHK( heightFBO->bind() );
@@ -1338,7 +1343,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.Small; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.Small; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,1))) );
         GLCHK( heightFBO->bind() );
@@ -1352,7 +1357,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
         GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     }
 
-    for(int i = 0; i < image->getProperties()->NormalHeightConv.VerySmall; i++)
+    for(int i = 0; i < imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.VerySmall; i++)
     {
         GLCHK( program->setUniformValue("hn_min_max_scale",QVector3D(-0.0,1.0,pow(2.0,0))) );
         GLCHK( heightFBO->bind() );
@@ -1407,10 +1412,10 @@ void OpenGL2DImageWidget::applyMixNormalLevels(GLuint level0,
 {
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_mix_normal_levels_filter"]) );
 
-    GLCHK( program->setUniformValue("gui_base_map_w0"  , getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.WeightSmall ) );
-    GLCHK( program->setUniformValue("gui_base_map_w1"  , getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.WeightMedium ) );
-    GLCHK( program->setUniformValue("gui_base_map_w2"  , getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.WeightBig) );
-    GLCHK( program->setUniformValue("gui_base_map_w3"  , getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.WeightHuge ) );
+    GLCHK( program->setUniformValue("gui_base_map_w0"  , imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.WeightSmall ) );
+    GLCHK( program->setUniformValue("gui_base_map_w1"  , imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.WeightMedium ) );
+    GLCHK( program->setUniformValue("gui_base_map_w2"  , imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.WeightBig) );
+    GLCHK( program->setUniformValue("gui_base_map_w3"  , imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.WeightHuge ) );
 
     GLCHK( glViewport(0,0,outputFBO->width(),outputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -1523,7 +1528,7 @@ void OpenGL2DImageWidget::applyAddNoiseFilter(QOpenGLFramebufferObject *inputFBO
 {
     GLCHK( glUniformSubroutinesuiv( GL_FRAGMENT_SHADER, 1, &subroutines["mode_add_noise_filter"]) );
 
-    GLCHK( program->setUniformValue("gui_add_noise_amp"  , float(targetImageHeight->getProperties()->NormalHeightConv.NoiseLevel/100.0) ));
+    GLCHK( program->setUniformValue("gui_add_noise_amp"  , float(imageWidget[HEIGHT_TEXTURE]->getProperties()->NormalHeightConv.NoiseLevel/100.0) ));
 
     GLCHK( glViewport(0,0,inputFBO->width(),inputFBO->height()) );
     GLCHK( outputFBO->bind() );
@@ -1817,7 +1822,7 @@ void OpenGL2DImageWidget::updateProgramUniforms(int step)
         GLCHK( program->setUniformValue("gui_image_type", openGL330ForceTexType) );
         GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
         GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
-        GLCHK( program->setUniformValue("material_id", int(getActiveImage(activeTextureType)->currentMaterialIndex) ) );
+        GLCHK( program->setUniformValue("material_id", int(Image::currentMaterialIndex) ) );
 
         if(activeTextureType == MATERIAL_TEXTURE)
         {
@@ -1839,7 +1844,7 @@ void OpenGL2DImageWidget::updateMousePosition()
 
 void OpenGL2DImageWidget::render()
 {
-    if (!getActiveImage(activeTextureType)) return;
+    if (!imageWidget[activeTextureType]) return;
 
     QOpenGLFramebufferObject* activeFBO = textureFBOs[activeTextureType];
 
@@ -1904,7 +1909,7 @@ void OpenGL2DImageWidget::render()
         auxFBO4 = createFBO(activeFBO->width(), activeFBO->height());
 
         // Allocate aditional FBOs when conversion from BaseMap is enabled.
-        if(activeTextureType == DIFFUSE_TEXTURE && getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
+        if(activeTextureType == DIFFUSE_TEXTURE && imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.EnableConversion)
         {
             for(int i = 0; i < 3 ; i++)
             {
@@ -1924,7 +1929,7 @@ void OpenGL2DImageWidget::render()
         openGL330ForceTexType = activeTextureType;
         GLCHK( program->setUniformValue("gui_depth", float(1.0)) );
         GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
-        GLCHK( program->setUniformValue("material_id", int(getActiveImage(activeTextureType)->currentMaterialIndex) ) );
+        GLCHK( program->setUniformValue("material_id", int(Image::currentMaterialIndex) ) );
 
         resetView();
 
@@ -1952,7 +1957,7 @@ void OpenGL2DImageWidget::render()
         case(NORMAL_TEXTURE):
         {
             // Choose proper action.
-            switch(getActiveImage(NORMAL_TEXTURE)->getInputImageType())
+            switch(imageWidget[NORMAL_TEXTURE]->getInputImageType())
             {
             case(INPUT_FROM_NORMAL_INPUT):
                 if(conversionType == CONVERT_FROM_H_TO_N)
@@ -1999,7 +2004,7 @@ void OpenGL2DImageWidget::render()
         case(SPECULAR_TEXTURE):
         {
             // Choose proper action.
-            switch(getActiveImage(SPECULAR_TEXTURE)->getInputImageType())
+            switch(imageWidget[SPECULAR_TEXTURE]->getInputImageType())
             {
             case(INPUT_FROM_SPECULAR_INPUT):
                 break;
@@ -2028,7 +2033,7 @@ void OpenGL2DImageWidget::render()
         case(OCCLUSION_TEXTURE):
         {
             // Choose proper action.
-            switch(getActiveImage(OCCLUSION_TEXTURE)->getInputImageType())
+            switch(imageWidget[OCCLUSION_TEXTURE]->getInputImageType())
             {
             case(INPUT_FROM_OCCLUSION_INPUT):
                 if(conversionType == CONVERT_FROM_HN_TO_OC)
@@ -2062,7 +2067,7 @@ void OpenGL2DImageWidget::render()
         {
             if(conversionType == CONVERT_FROM_N_TO_H)
             {
-                applyNormalToHeight(getActiveImage(HEIGHT_TEXTURE),textureFBOs[NORMAL_TEXTURE],activeFBO,auxFBO1);
+                applyNormalToHeight(textureFBOs[NORMAL_TEXTURE],activeFBO,auxFBO1);
                 applyCPUNormalizationFilter(auxFBO1,activeFBO);
                 applyAddNoiseFilter(activeFBO,auxFBO1);
                 copyFBO(auxFBO1,activeFBO);
@@ -2076,7 +2081,7 @@ void OpenGL2DImageWidget::render()
         case(ROUGHNESS_TEXTURE):
         {
             // Choose proper action.
-            switch(getActiveImage(ROUGHNESS_TEXTURE)->getInputImageType())
+            switch(imageWidget[ROUGHNESS_TEXTURE]->getInputImageType())
             {
             case(INPUT_FROM_ROUGHNESS_INPUT):
                 break;
@@ -2105,7 +2110,7 @@ void OpenGL2DImageWidget::render()
         case(METALLIC_TEXTURE):
         {
             // Choose proper action.
-            switch(getActiveImage(METALLIC_TEXTURE)->getInputImageType())
+            switch(imageWidget[METALLIC_TEXTURE]->getInputImageType())
             {
             case(INPUT_FROM_METALLIC_INPUT):
                 break;
@@ -2209,7 +2214,7 @@ void OpenGL2DImageWidget::render()
             }
 
             // Removing shading.
-            if(getActiveImage(activeTextureType)->getProperties()->EnableRemoveShading)
+            if(imageWidget[activeTextureType]->getProperties()->EnableRemoveShading)
             {
                 applyRemoveLowFreqFilter(activeFBO,auxFBO1,auxFBO2);
                 copyFBO(auxFBO2,activeFBO);
@@ -2301,7 +2306,7 @@ void OpenGL2DImageWidget::render()
             {
                 // Skip this step if the Color picking is enabled
                 if(activeTextureType == DIFFUSE_TEXTURE &&
-                        (getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion ||
+                        (imageWidget[activeTextureType]->getProperties()->BaseMapToOthers.EnableConversion ||
                          conversionType == CONVERT_FROM_D_TO_O ))
                 {
                     // Create mipmaps.
@@ -2327,15 +2332,15 @@ void OpenGL2DImageWidget::render()
 
                     if(conversionType == CONVERT_FROM_D_TO_O)
                     {
-                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
+                        applyNormalToHeight(activeFBO,auxFBO1,auxFBO2);
                         applyCPUNormalizationFilter(auxFBO2,auxFBO1);
                         applyAddNoiseFilter(auxFBO1,auxFBO2);
                         copyFBO(auxFBO2,auxFBO1);
 
                     }
-                    else if(getActiveImage(activeTextureType)->bConversionBaseMapShowHeightTexture)
+                    else if(Image::bConversionBaseMapShowHeightTexture)
                     {
-                        applyNormalToHeight(targetImageHeight,activeFBO,auxFBO1,auxFBO2);
+                        applyNormalToHeight(activeFBO,auxFBO1,auxFBO2);
                         applyCPUNormalizationFilter(auxFBO2,activeFBO);
                     }
                 } // End of base map conversion.
@@ -2475,30 +2480,4 @@ void OpenGL2DImageWidget::copyTex2FBO(GLuint src_tex_id,
     GLCHK( glBindTexture(GL_TEXTURE_2D, src_tex_id) );
     GLCHK( glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_INT, 0) );
     dst->bindDefault();
-}
-
-Image* OpenGL2DImageWidget::getActiveImage(TextureType texture)
-{
-    switch (texture)
-    {
-    case DIFFUSE_TEXTURE:
-        return targetImageDiffuse;
-    case NORMAL_TEXTURE:
-        return targetImageNormal;
-    case HEIGHT_TEXTURE:
-        return targetImageHeight;
-    case SPECULAR_TEXTURE:
-        return targetImageSpecular;
-    case OCCLUSION_TEXTURE:
-        return targetImageOcclusion;
-    case ROUGHNESS_TEXTURE:
-        return targetImageRoughness;
-    case METALLIC_TEXTURE:
-        return targetImageMetallic;
-    case GRUNGE_TEXTURE:
-        return targetImageGrunge;
-    case MATERIAL_TEXTURE:
-        return targetImageMaterial;
-    }
-    return 0;
 }

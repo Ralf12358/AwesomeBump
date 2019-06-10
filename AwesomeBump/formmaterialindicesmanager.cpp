@@ -8,6 +8,7 @@
 #include <QImageReader>
 
 #include "image.h"
+#include "opengl2dimagewidget.h"
 
 FormMaterialIndicesManager::FormMaterialIndicesManager(QWidget* parent, OpenGL2DImageWidget* openGL2DImageWidget) :
     QWidget(parent),
