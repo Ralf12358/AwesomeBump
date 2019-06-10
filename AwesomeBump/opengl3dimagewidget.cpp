@@ -649,7 +649,7 @@ void OpenGL3DImageWidget::paintGL()
         program_ptr->setUniformValue("gui_uvScale", display3Dparameters.uvScale);
         program_ptr->setUniformValue("gui_uvScaleOffset", display3Dparameters.uvOffset);
         program_ptr->setUniformValue("gui_bSpecular", bToggleSpecularView);
-        if(Image::bConversionBaseMap)
+        if(images[0]->getProperties()->BaseMapToOthers.EnableConversion)
         {
             program_ptr->setUniformValue("gui_bDiffuse", false);
         }

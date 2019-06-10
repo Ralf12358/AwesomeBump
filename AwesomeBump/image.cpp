@@ -10,7 +10,6 @@ int Image::seamlessSimpleModeDirection          = 0; // xy
 ImageType Image::seamlessContrastImageType      = INPUT_FROM_HEIGHT_INPUT;
 bool Image::bSeamlessTranslationsFirst          = true;
 int Image::seamlessMirroModeType                = 0;
-bool Image::bConversionBaseMap                  = false;
 bool Image::bConversionBaseMapShowHeightTexture = false;
 int Image::currentMaterialIndex                 = 0;
 bool Image::materialsEnabled                    = false;
@@ -50,7 +49,6 @@ Image::~Image()
 
 void Image::copySettings(Image *source)
 {
-    bConversionBaseMap = source->bConversionBaseMap;
     inputImageType     = source->inputImageType;
     properties.copyValues(&source->properties);
 }

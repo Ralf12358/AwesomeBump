@@ -520,7 +520,7 @@ void MainWindow::materialsToggled(bool toggle)
 
 void MainWindow::checkWarnings()
 {
-    ui->pushButtonConversionWarning->setVisible(Image::bConversionBaseMap);
+    ui->pushButtonConversionWarning->setVisible(diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion);
     ui->pushButtonGrungeWarning->setVisible(grungeImageWidget->getImage()->getProperties()->Grunge.OverallWeight.value() > 0);
     ui->pushButtonUVWarning->setVisible(Image::seamlessMode != SEAMLESS_NONE);
 
@@ -1180,10 +1180,10 @@ void MainWindow::applyCurrentUVsTransformations()
     // Set as default.
     openGL2DImageWidget->setTextureImage(DIFFUSE_TEXTURE, diffuseImage);
     // Generate all textures based on new image.
-    bool bConvValue = diffuseImageWidget->getImage()->bConversionBaseMap;
-    diffuseImageWidget->getImage()->bConversionBaseMap = true;
+    bool bConvValue = diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion;
+    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = true;
     convertFromBase();
-    diffuseImageWidget->getImage()->bConversionBaseMap = bConvValue;
+    diffuseImageWidget->getImage()->getProperties()->BaseMapToOthers.EnableConversion = bConvValue;
 }
 
 void MainWindow::selectSeamlessMode(int mode)

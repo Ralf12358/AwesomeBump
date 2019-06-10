@@ -1104,7 +1104,7 @@ void OpenGL2DImageWidget::applyGrayScaleFilter(QOpenGLFramebufferObject *inputFB
     GLCHK( program->setUniformValue("gui_gray_scale_max_color_defined",false) );
     GLCHK( program->setUniformValue("gui_gray_scale_min_color_defined",false) );
 
-    if(getActiveImage(activeTextureType)->bConversionBaseMap)
+    if(getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
     {
         if(QColor(BaseMapToOthersProp.MaxColor.value()).red() >= 0)
         {
@@ -1274,7 +1274,7 @@ void OpenGL2DImageWidget::applyNormalToHeight(Image *image,
     // used to force propper height levels in the bump map
     // since user wants to have defined min/max colors to be 0 or 1
     // in the height map. In case of other conversion this is no more used.
-    if(getActiveImage(activeTextureType)->bConversionBaseMap)
+    if(getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
     {
         GLCHK( glActiveTexture(GL_TEXTURE2) );
         GLCHK( glBindTexture(GL_TEXTURE_2D, auxFBO4->texture()) );
@@ -1904,7 +1904,7 @@ void OpenGL2DImageWidget::render()
         auxFBO4 = createFBO(activeFBO->width(), activeFBO->height());
 
         // Allocate aditional FBOs when conversion from BaseMap is enabled.
-        if(activeTextureType == DIFFUSE_TEXTURE && getActiveImage(activeTextureType)->bConversionBaseMap)
+        if(activeTextureType == DIFFUSE_TEXTURE && getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion)
         {
             for(int i = 0; i < 3 ; i++)
             {
@@ -2301,7 +2301,8 @@ void OpenGL2DImageWidget::render()
             {
                 // Skip this step if the Color picking is enabled
                 if(activeTextureType == DIFFUSE_TEXTURE &&
-                        (getActiveImage(activeTextureType)->bConversionBaseMap || conversionType == CONVERT_FROM_D_TO_O ))
+                        (getActiveImage(activeTextureType)->getProperties()->BaseMapToOthers.EnableConversion ||
+                         conversionType == CONVERT_FROM_D_TO_O ))
                 {
                     // Create mipmaps.
                     copyTex2FBO(activeFBO->texture(),auxFBO0BMLevels[0]);

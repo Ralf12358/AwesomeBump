@@ -63,7 +63,6 @@ public:
     void setInputImageType(ImageType inputImageType);
 
     // Base to others settings
-    static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
     static SeamlessMode seamlessMode;
     static float seamlessSimpleModeRadius;

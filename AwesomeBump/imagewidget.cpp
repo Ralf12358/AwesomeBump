@@ -668,12 +668,6 @@ void ImageWidget::propertyChanged(const QtnPropertyBase* changedProperty, const 
         if(dynamic_cast<const QtnPropertyBool*>(changedProperty)
                 || dynamic_cast<const QtnPropertyEnum*>(changedProperty))
         {
-            // Enable BaseMapToOthers Conversion Tool.
-            if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
-                    == &image.getProperties()->BaseMapToOthers.EnableConversion)
-            {
-                Image::bConversionBaseMap = image.getProperties()->BaseMapToOthers.EnableConversion;
-            }
             // Enable BaseMapToOthers Conversion Tool Height Preview.
             if( dynamic_cast<const QtnPropertyBool*>(changedProperty)
                     == &image.getProperties()->BaseMapToOthers.EnableHeightPreview)
