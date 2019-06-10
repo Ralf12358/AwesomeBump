@@ -1926,10 +1926,7 @@ void OpenGL2DImageWidget::render()
         GLCHK( program->setUniformValue("gui_mode_dgaussian", 1) );
         GLCHK( program->setUniformValue("material_id", int(getActiveImage(activeTextureType)->currentMaterialIndex) ) );
 
-        if(getActiveImage(activeTextureType)->isFirstDraw())
-        {
-            resetView();
-        }
+        resetView();
 
         // Skip all precessing when material tab is selected.
         if(activeTextureType == MATERIAL_TEXTURE)

@@ -62,8 +62,6 @@ public:
     ImageType getInputImageType();
     void setInputImageType(ImageType inputImageType);
 
-    bool isFirstDraw();
-
     // Base to others settings
     static bool bConversionBaseMap;
     static bool bConversionBaseMapShowHeightTexture;
@@ -89,8 +87,6 @@ public:
 
 private:
     QtnPropertySetFormImageProp properties;
-
-    bool bFirstDraw;
 
     // Input image type
     ImageType inputImageType;

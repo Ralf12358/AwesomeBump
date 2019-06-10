@@ -40,7 +40,6 @@ void Image::randomReset()
 }
 
 Image::Image() :
-    bFirstDraw(true),
     inputImageType(INPUT_NONE)
 {
 }
@@ -51,7 +50,6 @@ Image::~Image()
 
 void Image::copySettings(Image *source)
 {
-    bFirstDraw         = source->bFirstDraw;
     bConversionBaseMap = source->bConversionBaseMap;
     inputImageType     = source->inputImageType;
     properties.copyValues(&source->properties);
@@ -70,9 +68,4 @@ ImageType Image::getInputImageType()
 void Image::setInputImageType(ImageType inputImageType)
 {
     this->inputImageType = inputImageType;
-}
-
-bool Image::isFirstDraw()
-{
-    return bFirstDraw;
 }
