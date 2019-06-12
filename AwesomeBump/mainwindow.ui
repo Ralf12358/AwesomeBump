@@ -466,7 +466,7 @@
           <normaloff>:/resources/actions/showRoughness.png</normaloff>:/resources/actions/showRoughness.png</iconset>
         </attribute>
         <attribute name="title">
-         <string>Rgnss</string>
+         <string/>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_23">
          <property name="leftMargin">
@@ -2988,9 +2988,6 @@
             </property>
             <property name="whatsThis">
              <string>Enable specular reflection texture</string>
-            </property>
-            <property name="text">
-             <string/>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
