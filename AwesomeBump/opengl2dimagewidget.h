@@ -128,7 +128,7 @@ private:
                              QOpenGLFramebufferObject *outputFBO);
     void applyHeightProcessingFilter( QOpenGLFramebufferObject *inputFBO,
                                       QOpenGLFramebufferObject *outputFBO);
-    void applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO, QOpenGLFramebufferObject *,
+    void applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO,
                                   QOpenGLFramebufferObject *outputFBO);
     void applyInverseColorFilter(QOpenGLFramebufferObject *inputFBO,
                                  QOpenGLFramebufferObject *outputFBO);

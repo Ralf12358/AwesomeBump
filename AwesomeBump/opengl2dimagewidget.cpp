@@ -718,8 +718,7 @@ void OpenGL2DImageWidget::applyRemoveShadingFilter(QOpenGLFramebufferObject *inp
 }
 
 void OpenGL2DImageWidget::applyRemoveLowFreqFilter(QOpenGLFramebufferObject *inputFBO,
-                                                 QOpenGLFramebufferObject *,
-                                                 QOpenGLFramebufferObject *outputFBO)
+                                                   QOpenGLFramebufferObject *outputFBO)
 {
     applyGaussFilter(inputFBO, samplerFBO1, samplerFBO2, RemoveShadingProp.LowFrequencyFilterRadius * 50);
 
@@ -2216,7 +2215,7 @@ void OpenGL2DImageWidget::render()
             // Removing shading.
             if(imageWidget[activeTextureType]->getProperties()->EnableRemoveShading)
             {
-                applyRemoveLowFreqFilter(activeFBO,auxFBO1,auxFBO2);
+                applyRemoveLowFreqFilter(activeFBO,auxFBO2);
                 copyFBO(auxFBO2,activeFBO);
 
                 applyGaussFilter(activeFBO,auxFBO2,auxFBO1,1);
