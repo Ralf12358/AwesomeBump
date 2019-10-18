@@ -147,7 +147,6 @@ private:
     void applySharpenBlurFilter(QOpenGLFramebufferObject *inputFBO,
                                 QOpenGLFramebufferObject *auxFBO,
                                 QOpenGLFramebufferObject *outputFBO);
-    void applyNormalFilter(QOpenGLFramebufferObject *inputFBO);
     void applyNormalsStepFilter(QOpenGLFramebufferObject *inputFBO,
                                 QOpenGLFramebufferObject *outputFBO);
     void applyNormalMixerFilter(QOpenGLFramebufferObject *inputFBO,
